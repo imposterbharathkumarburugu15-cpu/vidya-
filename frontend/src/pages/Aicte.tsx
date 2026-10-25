@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { ApiError, getJson, sendJson, type Role, type S } from "../api/client";
 import { AccountsCard } from "../accounts";
+import { AiBox } from "../ai";
 import { CaseQueueCard } from "../cases";
 import GoldIndiaMap from "../components/GoldIndiaMap";
 import { NetworkCard } from "../network";
@@ -376,7 +377,16 @@ function Reports({ officer }: { officer: boolean }) {
         behind the platform's back, the check below fails.</p>
     </>}>
       <ReportsCard institutions={d.data.upload_compliance.map((c) => ({ id: c.id, name: c.name }))} />
+      <Card title="Report summaries in plain words">
+        <p className="mb-4 text-[14.5px] text-slate-600">Short summaries of each national report, built from its totals only. Pick a language next to each one.</p>
+        <div className="grid gap-4 xl:grid-cols-3">
+          <AiBox path="/v1/ai/report-summary/state-summary" title="State summary" cta="Summarise" />
+          <AiBox path="/v1/ai/report-summary/category-utilisation" title="Seat categories" cta="Summarise" />
+          <AiBox path="/v1/ai/report-summary/excess-case-file" title="Excess admissions" cta="Summarise" />
+        </div>
+      </Card>
       <Ledger ok={d.data.ledger_ok} canSign={officer} onChange={d.refresh} />
+      <AiBox path="/v1/ai/report-summary/ledger" title="What the ledger check means" cta="Explain" />
     </Page>
   );
 }
