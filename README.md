@@ -66,7 +66,7 @@ How far each PS requirement has got, with the evidence in the test suite:
 | Innovation: Indian languages | ✅ | Upload messages and AI answers in English + 12 Indian languages (machine-translated; tests check every placeholder and code survives) |
 | 10. APAAR ID + student ID on certificates | ✅ | Printable certificate showing both IDs in full, with a QR holding the signed credential (`AV1:` + Base45(zlib), RFC 9285). Measured at 1,012 chars, which fits one QR at error-correction level M |
 
-Day-to-day progress, blockers and limitations are tracked in [`TASKS.md`](TASKS.md). What is in or out of scope is in [`MVP_SCOPE.md`](MVP_SCOPE.md).
+Day-to-day progress, blockers and limitations are tracked in [`TASKS.md`](docs/TASKS.md). What is in or out of scope is in [`MVP_SCOPE.md`](docs/MVP_SCOPE.md).
 
 ## Architecture
 
@@ -279,7 +279,7 @@ What is implemented and tested:
   - **No APAAR existence oracle.** A verifier's consent request gets the same response whether or not the APAAR is registered. Unmatched requests simply stay pending, exactly like unanswered ones. Requests are rate-limited (20/hour per verifier) and audit-logged. Verifiers never see `student_id`, even at the SQL level.
 - **Crypto against standard vectors.** The primitives are checked against RFC 8032 (Ed25519), RFC 4231 (HMAC), the McGrew–Viega GCM vectors and the RFC 8785 (JCS) example.
 
-Security reviews of the RLS, credential and consent changes found no high-severity issues. All medium findings are fixed. The open low findings are listed in [`TASKS.md`](TASKS.md).
+Security reviews of the RLS, credential and consent changes found no high-severity issues. All medium findings are fixed. The open low findings are listed in [`TASKS.md`](docs/TASKS.md).
 
 ## Tests and evaluation
 
@@ -311,31 +311,27 @@ Every "false positive" sits on a programme the generator deliberately over-fille
 ## Repository layout
 
 ```
-frontend/
-  src/api/        typed API client + generated schema.d.ts
-  src/pages/      Login, Institution (upload + dashboard), Batch (issues), Aicte (national monitoring)
-  src/ui.tsx      shared components, polling hook
-backend/
-  app/            FastAPI app, validation, ingest, ledger, crypto, schema.sql, rls.sql
-  data/seed/      MOCK AICTE registry (registry.json) and MOCK APAAR registry
-  data/synthetic/ generated upload files, scenario.json, ground_truth.json
-  data/gen.py     synthetic data generator
-  i18n/           message templates (en + 12 Indian languages)
-  tests/          unit, API, RLS, access-matrix and evaluation tests
-  openapi.json    generated API contract
-api/index.py      Vercel entry point for the FastAPI app
-tools/            translation, deploy-key, world-loading and ERP connector tools
-.claude/agents/   security-reviewer agent used for security-relevant changes
-APAAR_SIH_PRD.md  product requirements (v2.1)
-IMPLEMENTATION_PLAN.md  reference task plan (task IDs used in commit messages)
-MVP_SCOPE.md      what the 36-hour prototype includes and defers
-TASKS.md          checklist, risks, blockers, known limitations
-CLAUDE.md         engineering rules
+├── backend/                FastAPI service
+│   ├── app/                API, validation, ingest, ledger, crypto, AI, schema.sql + rls.sql
+│   ├── data/seed/          MOCK AICTE and APAAR registries
+│   ├── data/synthetic/     generated upload files, scenario.json, ground_truth.json
+│   ├── i18n/               message templates (English + 12 Indian languages)
+│   ├── tests/              unit, API, RLS, access-matrix and evaluation tests
+│   └── openapi.json        generated API contract
+├── frontend/               React + TypeScript + Vite web app
+│   └── src/                pages/, components/, api/ (typed client + generated schema)
+├── api/index.py            Vercel entry point for the FastAPI app
+├── synthetic/              independent synthetic-data generator used to score the anomaly rules
+├── tools/                  translation, deploy keys, world loading, ERP connector
+├── docs/                   PRD, scope, plan, task log, demo runbook, design references
+├── vercel.json             deployment config
+├── requirements.txt        pinned Python dependencies
+└── CLAUDE.md               engineering rules
 ```
 
 ## Known limitations
 
-These are the main ones; the full list is in [`TASKS.md`](TASKS.md).
+These are the main ones; the full list is in [`TASKS.md`](docs/TASKS.md).
 - **Mock APAAR format rule.** APAAR is checked only as exactly 12 digits, because the real checksum isn't public.
 - **Only one seat scheme modelled.** FN/OCI/CIWG is the only supernumerary scheme, and its rounding still needs checking against the AICTE Approval Process Handbook. Other schemes (TFW, PMSSS, J&K, PwD) aren't guessed.
 - **Validation is synchronous.** It runs inside the upload request, which is fine for demo-sized batches. There's no background processing or push updates yet.
@@ -357,7 +353,10 @@ These are the main ones; the full list is in [`TASKS.md`](TASKS.md).
 - **Local key file.** Keys sit in a local file, not a KMS/HSM.
 
 ## Documents
-- [`APAAR_SIH_PRD.md`](APAAR_SIH_PRD.md): problem statement, design, sources
-- [`MVP_SCOPE.md`](MVP_SCOPE.md): included and deferred features
-- [`TASKS.md`](TASKS.md): progress, risks, limitations
-- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): reference phased plan
+- [`APAAR_SIH_PRD.md`](docs/APAAR_SIH_PRD.md): problem statement, design, sources
+- [`MVP_SCOPE.md`](docs/MVP_SCOPE.md): included and deferred features
+- [`TASKS.md`](docs/TASKS.md): progress, risks, limitations
+- [`IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md): reference phased plan
+- [`demo-runbook.md`](docs/demo-runbook.md): step-by-step demo script
+- [`ANOMALY_V2_SPEC.md`](docs/ANOMALY_V2_SPEC.md): anomaly rules specification
+- [`design/`](docs/design/): logo and UI reference images
