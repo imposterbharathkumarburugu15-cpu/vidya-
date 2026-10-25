@@ -1,6 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { getJson, type S, type Session } from "../api/client";
-import Starfield from "../components/Starfield";
 import Backdrop from "../components/landing/Backdrop";
 import Navbar from "../components/Navbar";
 import Landing from "./Landing";
@@ -28,11 +27,9 @@ export function useDemoMode() {
 
 function PublicShell({ demo, current, children }: { demo: boolean; current: string; children: ReactNode }) {
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#05070B] font-inter text-white selection:bg-[#d4af37]/40 selection:text-white">
-      {/* living background: base light, drifting aurora bands, faint grid, particles */}
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#0A1220] font-inter text-white selection:bg-[#d4af37]/40 selection:text-white">
+      {/* matte navy backdrop; the hero adds its own cartographic layer */}
       <Backdrop />
-      <div aria-hidden className="ambient-grid pointer-events-none fixed inset-0 z-0 opacity-40" />
-      <Starfield />
       <Navbar demo={demo} current={current} />
       <main className="relative z-10 mx-auto w-full max-w-[1440px] px-5 pb-14 pt-6 sm:px-8">{children}</main>
       <footer className="relative z-10 mx-auto max-w-[1440px] space-y-1 border-t border-white/[0.06] px-5 py-6 text-[11.5px] text-[#7d838d] sm:px-8">
