@@ -19,19 +19,17 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
   ] : [];
 
   return (
-    <section className="relative isolate -mx-5 -mt-6 overflow-hidden px-5 pb-32 pt-10 sm:-mx-8 sm:px-8 lg:pb-40 lg:pt-14">
+    <section className="relative isolate -mx-5 -mt-6 overflow-hidden px-5 pb-28 pt-2 sm:-mx-8 sm:px-8 lg:pb-32 lg:pt-4">
       <div aria-hidden className="absolute inset-0 -z-10">
         {HERO_BG && (<>
           <img src={HERO_BG} alt="" className="h-full w-full object-cover object-right" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#07090E] via-[#07090E]/80 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#07090E] to-transparent" />
         </>)}
-        <div className="absolute right-[-5%] top-[5%] h-[620px] w-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(245,192,103,0.20),transparent)] blur-2xl" />
-        <div className="floor-grid absolute inset-x-[-20%] bottom-[-30%] h-[70%] opacity-70" />
       </div>
 
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-        <div className="rise">
+      <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+        <div className="rise pt-6 lg:pt-16">
           <p className="glass-premium relative inline-flex items-center gap-3 rounded-full px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-amber-300/90">
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_10px_rgba(252,211,77,0.9)]" />
             A trusted academic ecosystem for a stronger India
@@ -54,7 +52,7 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
           <div className="mt-10"><TrustBar /></div>
         </div>
 
-        <figure className="rise relative" style={{ ["--d" as string]: "150ms" }}>
+        <figure className="rise relative mx-auto w-full max-w-[580px]" style={{ ["--d" as string]: "150ms" }}>
           <IndiaMapLive states={stats?.states ?? []} badges={badges} />
           <figcaption className="mt-2 text-center text-xs text-slate-500">
             {stats ? `States shaded by students recorded, ${stats.academic_year}. Hover a state for its numbers.`

@@ -12,7 +12,7 @@ export default function MetricsDock({ stats }: { stats: S["PublicStats"] | null 
     { icon: FileCheck, value: stats && <CountUp value={stats.credentials_issued} />, label: "Credentials issued", sub: "W3C verifiable credentials" },
   ];
   return (
-    <section id="data" aria-labelledby="dock-heading" className="relative z-10 -mt-20 scroll-mt-28 lg:-mt-24">
+    <section id="data" aria-labelledby="dock-heading" className="relative z-10 -mt-16 scroll-mt-28 lg:-mt-20">
       <h2 id="dock-heading" className="mb-3 flex items-center justify-center gap-4 text-center text-[11px] font-medium uppercase tracking-[0.26em] text-amber-300/80">
         <span aria-hidden className="h-px w-12 bg-gradient-to-r from-transparent to-amber-400/60" />Empowering India's education ecosystem
         <span aria-hidden className="h-px w-12 bg-gradient-to-l from-transparent to-amber-400/60" />

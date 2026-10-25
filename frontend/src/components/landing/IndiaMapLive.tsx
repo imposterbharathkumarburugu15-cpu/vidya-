@@ -18,7 +18,7 @@ const CITIES: [string, number, number, 1 | 2 | 3][] = [
   ["Goa", 73.83, 15.49, 3], ["Mangaluru", 74.86, 12.91, 3], ["Jodhpur", 73.02, 26.24, 3], ["Udaipur", 73.71, 24.58, 3],
 ];
 const ROUTES = Array.from({ length: 16 }, (_, i) => i + 1);  // metros and large cities send a live route to New Delhi
-const PAD = 34;
+const PAD = 16;
 const W = INDIA_VIEWBOX.w, H = INDIA_VIEWBOX.h;
 const VB = { x: -PAD, y: -PAD, w: W + 2 * PAD, h: H + 2 * PAD };
 
@@ -29,9 +29,12 @@ const pct = (lon: number, lat: number) => {
   const [x, y] = project(lon, lat);
   return { left: `${((x - VB.x) / VB.w) * 100}%`, top: `${((y - VB.y) / VB.h) * 100}%` };
 };
+/** Gentle curve to the hub, always bowing south so routes stay over land (never across the northern border). */
 const arc = ([x, y]: [number, number], [hx, hy]: [number, number]) => {
-  const dx = hx - x, dy = hy - y, len = Math.hypot(dx, dy) || 1, bend = Math.min(70, len * 0.28);
-  return `M${x.toFixed(1)} ${y.toFixed(1)} Q${((x + hx) / 2 - (dy / len) * bend).toFixed(1)} ${((y + hy) / 2 + (dx / len) * bend).toFixed(1)} ${hx.toFixed(1)} ${hy.toFixed(1)}`;
+  const dx = hx - x, dy = hy - y, len = Math.hypot(dx, dy) || 1, bend = Math.min(60, len * 0.22);
+  let nx = -dy / len, ny = dx / len;
+  if (ny < 0) { nx = -nx; ny = -ny; }  // pick the perpendicular that points down (south) on screen
+  return `M${x.toFixed(1)} ${y.toFixed(1)} Q${((x + hx) / 2 + nx * bend).toFixed(1)} ${((y + hy) / 2 + ny * bend).toFixed(1)} ${hx.toFixed(1)} ${hy.toFixed(1)}`;
 };
 
 function PulseDot() {
@@ -76,7 +79,7 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
 
   return (
     <div ref={box} className="relative" onMouseLeave={() => setHover(null)}>
-      <svg viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`} className="relative h-auto w-full" role="img"
+      <svg viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`} className="relative h-auto w-full overflow-visible" role="img"
         aria-label={`Map of India, states shaded by students recorded (lighter means fewer). ${summary || "No data yet."}`}>
         <defs>
           <clipPath id={`land-${u}`}><path d={INDIA_PATH} /></clipPath>
