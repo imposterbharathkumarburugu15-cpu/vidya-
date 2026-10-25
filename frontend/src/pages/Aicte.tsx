@@ -372,7 +372,6 @@ function Reports({ officer }: { officer: boolean }) {
   if (!d.data) return <Loading />;
   return (
     <Page title="Reports & integrity" intro={<>
-      <p><span className="font-semibold text-ink">Reports</span> are spreadsheet (CSV) downloads with totals only, no student details. Every download is recorded.</p>
       <p><span className="font-semibold text-ink">The seat ledger</span> is a tamper-evident record of every admission and change. If anyone edits the database
         behind the platform's back, the check below fails.</p>
     </>}>
