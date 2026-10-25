@@ -17,7 +17,7 @@ const LINKS = [
  */
 export default function Navbar({ demo = false, current = "/" }: { demo?: boolean; current?: string }) {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#16171B]/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#131417]/75 backdrop-blur-xl">
       <div className="mx-auto flex h-[84px] w-full max-w-[1440px] items-center justify-between gap-6 px-5 sm:px-8">
         <a href="#/" aria-label="VidyaPramaan home" className="shrink-0"><BrandLogo size="md" /></a>
         <nav aria-label="Main" className="hidden items-center gap-1 font-inter xl:flex">
