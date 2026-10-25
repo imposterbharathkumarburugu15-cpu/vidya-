@@ -1,4 +1,4 @@
-import { ArrowRight, PlayCircle } from "lucide-react";
+import { ArrowDown, ArrowRight } from "lucide-react";
 import type { S } from "../../api/client";
 import IndiaMapLive from "./IndiaMapLive";
 import TrustBar from "./TrustBar";
@@ -45,8 +45,8 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
             <button type="button" onClick={() => scrollTo("roles")} className={`${BTN_PRIMARY} group`}>
               Explore the Platform <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
             </button>
-            <button type="button" onClick={() => scrollTo("how")} className={BTN_SECONDARY}>
-              <PlayCircle className="h-5 w-5" aria-hidden />See How it Works
+            <button type="button" onClick={() => scrollTo("how")} className={`${BTN_SECONDARY} group`}>
+              See How it Works <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" aria-hidden />
             </button>
           </div>
           <div className="mt-10"><TrustBar /></div>
