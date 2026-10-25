@@ -27,7 +27,7 @@ export function useDemoMode() {
 
 function PublicShell({ demo, current, children }: { demo: boolean; current: string; children: ReactNode }) {
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#05070B] font-inter text-white selection:bg-[#d4af37]/40 selection:text-white">
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#15161A] font-inter text-white selection:bg-[#d4af37]/40 selection:text-white">
       {/* quiet obsidian backdrop: one faint static warm light, vignette, grain, faint grid */}
       <Backdrop />
       <div aria-hidden className="ambient-grid pointer-events-none fixed inset-0 z-0 opacity-35" />
