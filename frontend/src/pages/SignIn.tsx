@@ -23,6 +23,16 @@ const INTRO: Record<RoleKey, string> = {
   student: "Students and guardians sign in with a passkey: fingerprint, face or device PIN.",
 };
 
+/** Seeded demo accounts (only shown when the API reports demo mode). Password for all: demo. */
+const DEMO: Partial<Record<RoleKey, { account?: Account; userId?: string; name: string; note?: string }>> = {
+  institution: { name: "Kalyani Devi Hegde Institute of Technology, Hubballi", note: "AICTE id 1-0000000001 · Karnataka",
+    account: { id: "1-0000000001", name: "Kalyani Devi Hegde Institute of Technology, Hubballi", state: "Karnataka", kind: "institution", login_id: "inst-a" } },
+  university: { name: "Narmada Valley Technological University", note: "Registrar account",
+    account: { id: "did:web:registry.aicte-demo.in:univ:dtu-demo", name: "Narmada Valley Technological University", state: null, kind: "university", login_id: "univ" } },
+  aicte: { userId: "aicte", name: "Monitoring & Evaluation Cell, AICTE", note: "Officer account aicte · read-only auditor: auditor" },
+  verifier: { userId: "employer", name: "Kaveri Talent Solutions Pvt Ltd", note: "Employer account employer" },
+};
+
 const input = "w-full rounded-2xl border border-white/[0.09] bg-black/25 px-4 py-3 text-[14.5px] text-white placeholder:text-[#6b7280] focus:border-[#d4af37]/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/20";
 const lbl = "mb-1.5 block px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#a3a9b3]";
 
@@ -89,6 +99,22 @@ export default function SignIn({ onLogin, demo, initialRole }: { onLogin: (s: Se
         <div className="mt-6" role="tabpanel">
           {role === "student" ? <StudentSignIn onLogin={onLogin} demo={demo} /> : (
             <form onSubmit={submit} className="space-y-4" noValidate>
+              {demo && DEMO[role] && (() => {
+                const d = DEMO[role]!;
+                return (
+                  <div className="flex items-center gap-3 rounded-2xl border border-[#d4af37]/30 bg-[#d4af37]/[0.06] px-4 py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#e3c05a]">Demo account · password demo</p>
+                      <p className="mt-0.5 truncate text-[13.5px] font-semibold text-white" title={d.name}>{d.name}</p>
+                      {d.note && <p className="truncate text-[12px] text-[#a3a9b3]">{d.note}</p>}
+                    </div>
+                    <button type="button" onClick={() => { if (d.account) { setState(""); setAccount(d.account); } if (d.userId) setUserId(d.userId); setPassword("demo"); setError(null); }}
+                      className="shrink-0 rounded-xl border border-[#d4af37]/50 px-3 py-2 text-[12.5px] font-semibold text-[#f1d488] transition-colors hover:bg-[#d4af37]/15 hover:text-white">
+                      Use demo account
+                    </button>
+                  </div>
+                );
+              })()}
               {role === "institution" && (
                 <div>
                   <label htmlFor="state-filter" className={lbl}>State</label>
@@ -108,7 +134,6 @@ export default function SignIn({ onLogin, demo, initialRole }: { onLogin: (s: Se
                   <label htmlFor="user-id" className={lbl}>{role === "aicte" ? "Official account ID" : "Organisation account ID"}</label>
                   <input id="user-id" value={userId} onChange={(e) => setUserId(e.target.value)} autoComplete="username" spellCheck={false}
                     placeholder={role === "aicte" ? "Issued by AICTE" : "From your AICTE approval"} className={`${input} font-mono`} />
-                  {demo && <p className="mt-1.5 px-1 text-[12px] text-[#a3a9b3]">Demo accounts: {role === "aicte" ? <><code className="text-[#f7e08a]">aicte</code> (officer), <code className="text-[#f7e08a]">auditor</code> (read-only)</> : <code className="text-[#f7e08a]">employer</code>}</p>}
                 </div>
               )}
               {account && <p className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-3.5 py-2.5 text-[12.5px] text-[#b8bec8]">
