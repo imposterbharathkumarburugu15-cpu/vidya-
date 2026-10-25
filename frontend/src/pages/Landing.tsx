@@ -31,12 +31,9 @@ export default function Landing({ section }: { section?: string | null }) {
       <section id="how" aria-labelledby="how-heading" className="scroll-mt-28 pb-6">
         <h2 id="how-heading" className="font-inter text-[28px] font-bold tracking-[-0.02em] text-white">How it <span className={GOLD_TEXT}>works</span></h2>
         <ol className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {STEPS.map(([Icon, title, body], i) => (
+          {STEPS.map(([Icon, title, body]) => (
             <li key={title} onMouseMove={spotlight} className="glass-premium lift relative rounded-2xl p-6">
-              <span className="flex items-center gap-3">
-                <span className="font-mono text-[13px] tracking-[0.18em] text-amber-400">0{i + 1}</span>
-                <Icon className="h-5 w-5 text-amber-400" strokeWidth={1.6} aria-hidden />
-              </span>
+              <Icon className="h-5 w-5 text-amber-400" strokeWidth={1.6} aria-hidden />
               <span className="mt-4 block text-[16px] font-semibold text-white">{title}</span>
               <span className="mt-1.5 block text-sm leading-relaxed text-slate-400">{body}</span>
             </li>
