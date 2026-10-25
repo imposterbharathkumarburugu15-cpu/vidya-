@@ -1,6 +1,5 @@
 import { ArrowRight, PlayCircle } from "lucide-react";
 import type { S } from "../../api/client";
-import HeroBackdrop from "./HeroBackdrop";
 import IndiaMapLive from "./IndiaMapLive";
 import TrustBar from "./TrustBar";
 import { BTN_PRIMARY, BTN_SECONDARY, fmt } from "./styles";
@@ -21,7 +20,6 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
 
   return (
     <section className="relative isolate -mx-5 -mt-6 overflow-hidden px-5 pb-28 pt-2 sm:-mx-8 sm:px-8 lg:pb-32 lg:pt-4">
-      <HeroBackdrop />
       <div aria-hidden className="absolute inset-0 -z-10">
         {HERO_BG && (<>
           <img src={HERO_BG} alt="" className="h-full w-full object-cover object-right" />
