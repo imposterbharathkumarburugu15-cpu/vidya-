@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ShieldAlert } from "lucide-react";
 import { ApiError, getJson, login, type S, type Session } from "../api/client";
 import AccountSearch, { type Account } from "../components/AccountSearch";
+import DemoAccess from "../components/DemoAccess";
 import PasswordField from "../components/PasswordField";
 import { StudentSignIn } from "./StudentSignIn";
 
@@ -21,16 +22,6 @@ const INTRO: Record<RoleKey, string> = {
   aicte: "AICTE officers and regulators sign in with their official account.",
   verifier: "Employers and agencies approved by AICTE sign in with their organisation account.",
   student: "Students and guardians sign in with a passkey: fingerprint, face or device PIN.",
-};
-
-/** Seeded demo accounts (only shown when the API reports demo mode). Password for all: demo. */
-const DEMO: Partial<Record<RoleKey, { account?: Account; userId?: string; name: string; note?: string }>> = {
-  institution: { name: "Kalyani Devi Hegde Institute of Technology, Hubballi", note: "AICTE id 1-0000000001 · Karnataka",
-    account: { id: "1-0000000001", name: "Kalyani Devi Hegde Institute of Technology, Hubballi", state: "Karnataka", kind: "institution", login_id: "inst-a" } },
-  university: { name: "Narmada Valley Technological University", note: "Registrar account",
-    account: { id: "did:web:registry.aicte-demo.in:univ:dtu-demo", name: "Narmada Valley Technological University", state: null, kind: "university", login_id: "univ" } },
-  aicte: { userId: "aicte", name: "Monitoring & Evaluation Cell, AICTE", note: "Officer account aicte · read-only auditor: auditor" },
-  verifier: { userId: "employer", name: "Kaveri Talent Solutions Pvt Ltd", note: "Employer account employer" },
 };
 
 const input = "w-full rounded-2xl border border-white/[0.09] bg-black/25 px-4 py-3 text-[14.5px] text-white placeholder:text-[#6b7280] focus:border-[#d4af37]/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/20";
@@ -97,24 +88,9 @@ export default function SignIn({ onLogin, demo, initialRole }: { onLogin: (s: Se
         </div>
 
         <div className="mt-6" role="tabpanel">
+          {demo && <DemoAccess key={role} tab={role} onLogin={onLogin} />}
           {role === "student" ? <StudentSignIn onLogin={onLogin} demo={demo} /> : (
             <form onSubmit={submit} className="space-y-4" noValidate>
-              {demo && DEMO[role] && (() => {
-                const d = DEMO[role]!;
-                return (
-                  <div className="flex items-center gap-3 rounded-2xl border border-[#d4af37]/30 bg-[#d4af37]/[0.06] px-4 py-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#e3c05a]">Demo account · password demo</p>
-                      <p className="mt-0.5 truncate text-[13.5px] font-semibold text-white" title={d.name}>{d.name}</p>
-                      {d.note && <p className="truncate text-[12px] text-[#a3a9b3]">{d.note}</p>}
-                    </div>
-                    <button type="button" onClick={() => { if (d.account) { setState(""); setAccount(d.account); } if (d.userId) setUserId(d.userId); setPassword("demo"); setError(null); }}
-                      className="shrink-0 rounded-xl border border-[#d4af37]/50 px-3 py-2 text-[12.5px] font-semibold text-[#f1d488] transition-colors hover:bg-[#d4af37]/15 hover:text-white">
-                      Use demo account
-                    </button>
-                  </div>
-                );
-              })()}
               {role === "institution" && (
                 <div>
                   <label htmlFor="state-filter" className={lbl}>State</label>
