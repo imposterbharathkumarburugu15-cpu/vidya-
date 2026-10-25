@@ -8,14 +8,14 @@ Staff password: `demo`. Student: Asha Joshi, APAAR `328865551724`. She signs in 
 ## Before the judges arrive (10 min)
 1. **Start the API:** in `backend/`, run `..\.venv\Scripts\python.exe -m uvicorn app.main:app`.
 2. **Start the frontend:** in `frontend/`, run `npm run dev`, then open http://localhost:5173.
-3. **Reset the demo data:** in `backend/`, run `..\.venv\Scripts\python.exe -m app.demo --live`. It takes about 6 s and prints the logins. Institution B has **not** uploaded yet.
-   - **This wipes the local database**, including the 300 extra colleges. To get them back, set `$env:WORLD_DIR="<world folder>"` and `$env:DEMO_MODE="true"` in the terminals for both the reset and the API, then (with the API running) run `..\.venv\Scripts\python.exe ..\tools\load_world.py --dir $env:WORLD_DIR` (about 15 min).
-   - Leave out `--live` if you want Institution B's data already uploaded (normal browsing rather than a live upload).
+3. **Reset the demo data (a few seconds):** in `backend/`, run `..\.venv\Scripts\python.exe ..\tools\demo_snapshot.py restore`. It puts back the saved starting point: all 304 colleges loaded, Institution B (Solapur) **not** uploaded yet, and Asha's passkey activation code unused again (the code printed when the snapshot was made). The API keeps running; sign in again in open tabs.
+   - **One-time setup of that starting point** (about 15 min, only if the snapshot is missing or the data model changed): set `$env:WORLD_DIR="<world folder>"` and `$env:DEMO_MODE="true"` for the API and these commands, run `..\.venv\Scripts\python.exe -m app.demo --live`, then with the API running `..\.venv\Scripts\python.exe ..\tools\load_world.py --dir $env:WORLD_DIR`, then `..\.venv\Scripts\python.exe ..\tools\demo_snapshot.py save`. Note the activation code `app.demo` prints.
+   - `app.demo` and `app.seed --reset` wipe the local database (the 300 colleges too); the snapshot survives them, so `restore` still works afterwards.
    - The live site (vidyapramaan.vercel.app) uses its own database and is never affected.
 4. **Open two browser windows:** one normal and one **private** (sessions are per browser). Window 1 is for presenting; window 2 stays signed in as `aicte`.
 5. **Keep `backend/data/synthetic/B1.csv` handy** for the drag-and-drop.
 
-Reset between rehearsals by running step 3 again. Sign out of both windows first.
+Reset between takes with `demo_snapshot.py restore` (step 3). Sign out of both windows first.
 
 ## The 8 steps
 
