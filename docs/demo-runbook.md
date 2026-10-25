@@ -9,6 +9,9 @@ Staff password: `demo`. Student: Asha Joshi, APAAR `328865551724`. She signs in 
 1. **Start the API:** in `backend/`, run `..\.venv\Scripts\python.exe -m uvicorn app.main:app`.
 2. **Start the frontend:** in `frontend/`, run `npm run dev`, then open http://localhost:5173.
 3. **Reset the demo data:** in `backend/`, run `..\.venv\Scripts\python.exe -m app.demo --live`. It takes about 6 s and prints the logins. Institution B has **not** uploaded yet.
+   - **This wipes the local database**, including the 300 extra colleges. To get them back, set `$env:WORLD_DIR="<world folder>"` and `$env:DEMO_MODE="true"` in the terminals for both the reset and the API, then (with the API running) run `..\.venv\Scripts\python.exe ..\tools\load_world.py --dir $env:WORLD_DIR` (about 15 min).
+   - Leave out `--live` if you want Institution B's data already uploaded (normal browsing rather than a live upload).
+   - The live site (vidyapramaan.vercel.app) uses its own database and is never affected.
 4. **Open two browser windows:** one normal and one **private** (sessions are per browser). Window 1 is for presenting; window 2 stays signed in as `aicte`.
 5. **Keep `backend/data/synthetic/B1.csv` handy** for the drag-and-drop.
 
@@ -50,6 +53,6 @@ Reset between rehearsals by running step 3 again. Sign out of both windows first
 
 ## Not in this demo (say so if asked)
 - **Not built yet:** offline QR verification and a camera scanner. QR text can be pasted into **Verify a credential**.
-- **Deferred:** Gemini column mapping and ask-the-data; the ERP connector and webhooks.
+- **Deferred:** an "ask the data" question box (Gemini column matching, the ERP connector and webhooks are built, just not in this script).
 - **MOCK:** real APAAR/AICTE/DigiLocker integration.
 - **Seat caps:** only the FN/OCI/CIWG caps are verified against the AICTE Handbook.
