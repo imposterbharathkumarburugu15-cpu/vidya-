@@ -36,3 +36,6 @@ typing-inspection==0.4.4
 typing_extensions==4.16.0
 uvicorn==0.54.0
 webauthn==3.0.1
+Pillow>=10.0.0
+PyMuPDF>=1.23.0
+pytesseract>=0.3.10
