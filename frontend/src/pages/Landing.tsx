@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Cpu,
   FileCheck2,
+  FileDown,
   GraduationCap,
   Landmark,
   Network,
@@ -368,6 +369,59 @@ export default function Landing({
             <span>Or Custom Passkey Sign In</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </a>
+        </div>
+
+        {/* Evaluator Demo CSV Downloads Banner */}
+        <div className="glass-premium rounded-2xl border border-amber-400/30 bg-gradient-to-r from-amber-400/[0.08] via-slate-900/90 to-slate-950 p-4 sm:p-5 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
+                Evaluator Demo CSV Datasets (Ready to Download & Test)
+              </span>
+            </div>
+            <p className="text-xs text-slate-300">
+              Pre-built synthetic datasets to test batch validation, duplicate collision detection, and AICTE seat cap enforcement.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href="/demo-data/apaar-upload-template.csv"
+              download="apaar-upload-template.csv"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-1.5 text-xs font-bold text-amber-200 hover:bg-amber-400/20 transition-all shadow-sm"
+              title="Official AICTE Header Format"
+            >
+              <FileDown className="h-3.5 w-3.5 text-amber-400" /> APAAR Template (.csv)
+            </a>
+
+            <a
+              href="/demo-data/sample-a1-valid-enrolments.csv"
+              download="sample-a1-valid-enrolments.csv"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20 transition-all shadow-sm"
+              title="104 Verified Student Records"
+            >
+              <FileDown className="h-3.5 w-3.5 text-emerald-400" /> Sample A1 (Clean Batch)
+            </a>
+
+            <a
+              href="/demo-data/sample-b1-multiprogramme.csv"
+              download="sample-b1-multiprogramme.csv"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-1.5 text-xs font-bold text-sky-300 hover:bg-sky-500/20 transition-all shadow-sm"
+              title="200 Multi-Branch Students"
+            >
+              <FileDown className="h-3.5 w-3.5 text-sky-400" /> Sample B1 (Multi-Prog)
+            </a>
+
+            <a
+              href="/demo-data/sample-b2-quota-violation.csv"
+              download="sample-b2-quota-violation.csv"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs font-bold text-rose-300 hover:bg-rose-500/20 transition-all shadow-sm"
+              title="AICTE Seat Cap Excess Scenario"
+            >
+              <FileDown className="h-3.5 w-3.5 text-rose-400" /> Sample B2 (AICTE Violation)
+            </a>
+          </div>
         </div>
 
         {error && (

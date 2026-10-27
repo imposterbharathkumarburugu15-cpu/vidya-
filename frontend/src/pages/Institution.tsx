@@ -2,7 +2,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import {
   AlertTriangle, Armchair, ArrowRight, ArrowUpRight, BadgeCheck, BarChart3, CalendarDays, CheckCircle2, FileDown, FileSpreadsheet,
-  IdCard, Megaphone, ShieldCheck, UploadCloud, Users,
+  IdCard, Megaphone, ShieldCheck, Sparkles, UploadCloud, Users,
 } from "lucide-react";
 import { ApiError, download, getJson, uploadCsv, type S } from "../api/client";
 import { ColumnMatcher } from "../ai";
@@ -235,6 +235,23 @@ function Upload({ onDone }: { onDone: () => void }) {
     }
   }
 
+  async function loadSampleCsv(url: string, filename: string) {
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    setMismatch(null);
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to load sample CSV");
+      const text = await res.text();
+      const file = new File([text], filename, { type: "text/csv" });
+      await send(file);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load sample CSV");
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="glass rise overflow-hidden rounded-3xl">
       <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
@@ -243,18 +260,98 @@ function Upload({ onDone }: { onDone: () => void }) {
             onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
             onDragLeave={() => setDrag(false)}
             onDrop={(e) => { e.preventDefault(); setDrag(false); send(e.dataTransfer.files[0]); }}
-            className={`relative flex h-full min-h-[300px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed px-8 py-10 text-center transition-colors duration-300 ${drag ? "border-gold/80 bg-gold/[0.07]" : "border-gold/25 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.09),transparent_65%)] hover:border-gold/50"}`}
+            className={`relative flex h-full min-h-[300px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed px-6 py-8 text-center transition-colors duration-300 ${drag ? "border-gold/80 bg-gold/[0.07]" : "border-gold/25 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.09),transparent_65%)] hover:border-gold/50"}`}
           >
-            <span className={`grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-gold/30 to-gold/[0.05] text-champagne ring-1 ring-gold/35 shadow-[0_12px_32px_-12px_rgba(212,175,55,0.8)] transition-transform duration-300 ${drag ? "scale-110" : ""}`} aria-hidden>
-              <UploadCloud className="h-7 w-7" />
+            <span className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-gold/30 to-gold/[0.05] text-champagne ring-1 ring-gold/35 shadow-[0_12px_32px_-12px_rgba(212,175,55,0.8)] transition-transform duration-300 ${drag ? "scale-110" : ""}`} aria-hidden>
+              <UploadCloud className="h-6 w-6" />
             </span>
-            <p className="mt-6 font-display text-[22px] font-bold text-ink">Drop your CSV file here</p>
-            <p className="mt-2 text-[15.5px] text-slate-600">or pick it from your computer</p>
-            <Button className="mt-6 rounded-full bg-gradient-to-b from-[#F3D573] to-[#C9982A] px-7 py-2.5 text-[15px] shadow-[0_10px_28px_-10px_rgba(212,175,55,0.7)]" onClick={() => input.current?.click()} disabled={busy}>
+            <p className="mt-4 font-display text-[20px] font-bold text-ink">Drop your CSV file here</p>
+            <p className="mt-1 text-[14px] text-slate-600">or pick it from your computer</p>
+            <Button className="mt-4 rounded-full bg-gradient-to-b from-[#F3D573] to-[#C9982A] px-7 py-2.5 text-[14px] shadow-[0_10px_28px_-10px_rgba(212,175,55,0.7)]" onClick={() => input.current?.click()} disabled={busy}>
               {busy ? "Validating…" : "Choose file"}
             </Button>
             <input ref={input} type="file" accept=".csv,text/csv" className="sr-only" aria-label="CSV file" onChange={(e) => send(e.target.files?.[0])} />
-            <p className="mt-6 text-[14px] text-slate-500">CSV only · re-uploading the same file is safe, it returns the original batch</p>
+
+            {/* Quick Demo Datasets — 1-Click Load & Test */}
+            <div className="mt-5 w-full max-w-sm rounded-xl border border-amber-400/30 bg-amber-400/[0.04] p-3 text-left">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-300">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400" /> Demo Sample CSVs (1-Click)
+                </span>
+                <a
+                  href="/demo-data/apaar-upload-template.csv"
+                  download="apaar-upload-template.csv"
+                  className="text-[11px] font-medium text-amber-300 hover:text-amber-200 underline"
+                  title="Download standard template"
+                >
+                  Template
+                </a>
+              </div>
+
+              <div className="mt-2.5 flex flex-col gap-1.5">
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1.5">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => loadSampleCsv("/demo-data/sample-a1-valid-enrolments.csv", "A1-valid-enrolments.csv")}
+                    className="flex-1 text-left hover:opacity-80 transition-opacity"
+                  >
+                    <span className="text-xs font-bold text-emerald-300 block">Sample A1: Clean Batch</span>
+                    <span className="text-[10px] text-slate-400 block">104 Students · 100% Validated</span>
+                  </button>
+                  <a
+                    href="/demo-data/sample-a1-valid-enrolments.csv"
+                    download="sample-a1-valid-enrolments.csv"
+                    className="rounded p-1 text-slate-400 hover:text-white hover:bg-white/10"
+                    title="Download A1.csv"
+                  >
+                    <FileDown className="h-4 w-4 text-emerald-400" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-2.5 py-1.5">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => loadSampleCsv("/demo-data/sample-b1-multiprogramme.csv", "B1-multiprogramme.csv")}
+                    className="flex-1 text-left hover:opacity-80 transition-opacity"
+                  >
+                    <span className="text-xs font-bold text-amber-300 block">Sample B1: Multi-Programme</span>
+                    <span className="text-[10px] text-slate-400 block">200 Students · CSE, ECE & Mech</span>
+                  </button>
+                  <a
+                    href="/demo-data/sample-b1-multiprogramme.csv"
+                    download="sample-b1-multiprogramme.csv"
+                    className="rounded p-1 text-slate-400 hover:text-white hover:bg-white/10"
+                    title="Download B1.csv"
+                  >
+                    <FileDown className="h-4 w-4 text-amber-400" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-rose-500/25 bg-rose-500/10 px-2.5 py-1.5">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => loadSampleCsv("/demo-data/sample-b2-quota-violation.csv", "B2-quota-violation.csv")}
+                    className="flex-1 text-left hover:opacity-80 transition-opacity"
+                  >
+                    <span className="text-xs font-bold text-rose-300 block">Sample B2: Quota Breach</span>
+                    <span className="text-[10px] text-slate-400 block">Exceeds Seat Cap · Triggers AICTE Flag</span>
+                  </button>
+                  <a
+                    href="/demo-data/sample-b2-quota-violation.csv"
+                    download="sample-b2-quota-violation.csv"
+                    className="rounded p-1 text-slate-400 hover:text-white hover:bg-white/10"
+                    title="Download B2.csv"
+                  >
+                    <FileDown className="h-4 w-4 text-rose-400" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-3 text-[13px] text-slate-500">CSV only · re-uploading the same file is safe, it returns the original batch</p>
           </div>
         </div>
 
@@ -575,7 +672,9 @@ function Tools() {
     try { await fn(); } catch (e) { setError(e instanceof ApiError ? e.text : "Download failed"); }
   };
   const actions = [
-    { icon: FileDown, title: "CSV template", sub: "Header row of the data dictionary", on: () => run(() => download("/v1/batches/template.csv", "apaar-upload-template.csv")) },
+    { icon: FileDown, title: "Official CSV template", sub: "Standard data dictionary header with sample rows", on: () => run(() => download("/demo-data/apaar-upload-template.csv", "apaar-upload-template.csv")) },
+    { icon: FileSpreadsheet, title: "Sample Dataset A1 (Clean Batch)", sub: "104 Verified student records (100% pass)", on: () => run(() => download("/demo-data/sample-a1-valid-enrolments.csv", "sample-a1-valid-enrolments.csv")) },
+    { icon: AlertTriangle, title: "Sample Dataset B2 (AICTE Violation)", sub: "Seat cap exceeded scenario with statutory flag", on: () => run(() => download("/demo-data/sample-b2-quota-violation.csv", "sample-b2-quota-violation.csv")) },
     { icon: FileSpreadsheet, title: "Accreditation pack", sub: "Intake, seats, APAAR coverage, quality", on: () => run(() => download("/v1/reports/accreditation.csv", "accreditation.csv")) },
     { icon: BarChart3, title: "Category utilisation", sub: "Quota use per programme", on: () => run(() => download("/v1/reports/category-utilisation.csv", "category-utilisation.csv")) },
     { icon: BadgeCheck, title: "Verify a credential", sub: "Paste JSON or QR text", on: () => go("/verify") },
