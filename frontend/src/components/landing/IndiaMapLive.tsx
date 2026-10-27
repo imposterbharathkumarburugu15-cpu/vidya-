@@ -349,11 +349,20 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
     onMove(name)(e);
   };
 
+  const isNoDataState = (name: string) => {
+    if (DARK_REGIONS.has(name)) return true;
+    const s = by.get(name);
+    return !s || !s.reporting || s.students === 0;
+  };
+
   const h = hover ? by.get(hover.name) : undefined;
   const selectedData = selectedState ? by.get(selectedState) : undefined;
   const selectedMeta = selectedState ? STATE_COLLEGES[selectedState] : undefined;
+  const isSelectedNoData = selectedState ? isNoDataState(selectedState) : false;
 
-  const displayStudents = selectedData?.students != null
+  const displayStudents = isSelectedNoData
+    ? "0"
+    : selectedData?.students != null
     ? selectedData.students.toLocaleString("en-IN")
     : selectedData?.reporting
     ? "Fewer than 10"
@@ -361,8 +370,14 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
     ? Math.round(selectedMeta.quota * 0.94).toLocaleString("en-IN")
     : "850+";
 
-  const displayReporting = selectedData?.reporting ?? (selectedMeta ? selectedMeta.colleges.length : 4);
-  const displayTotal = selectedData?.institutions ?? (selectedMeta ? selectedMeta.colleges.length + 6 : 10);
+  const displayReporting = isSelectedNoData
+    ? 0
+    : selectedData?.reporting ?? (selectedMeta ? selectedMeta.colleges.length : 4);
+
+  const displayTotal = isSelectedNoData
+    ? (selectedMeta ? selectedMeta.colleges.length : 0)
+    : (selectedData?.institutions ?? (selectedMeta ? selectedMeta.colleges.length + 6 : 10));
+
   const collegesList = selectedMeta?.colleges ?? [
     `${selectedState} Technological Institute`,
     `National Institute of Technology ${selectedState}`,
@@ -575,7 +590,20 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
           </div>
 
           <div className="mt-2 space-y-1">
-            {h && h.reporting > 0 ? (
+            {isNoDataState(hover.name) ? (
+              <>
+                <p className="text-[13px] font-bold text-slate-400 font-mono">
+                  No Data Available
+                </p>
+                <p className="text-slate-500 text-[11px]">
+                  0 batches submitted for 2026-27 academic year
+                </p>
+                <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-0.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
+                  <span>Awaiting Regional Ingestion</span>
+                </div>
+              </>
+            ) : h && h.reporting > 0 ? (
               <>
                 <p className="text-[13px] font-extrabold text-amber-300 font-mono">
                   {h.students == null ? "Fewer than 10 students" : `${h.students.toLocaleString("en-IN")} Verified Students`}
@@ -616,6 +644,7 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
       <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5 px-1 max-h-24 overflow-y-auto scrollbar-none">
         {Object.keys(STATE_COLLEGES).map((stateName) => {
           const isSelected = selectedState === stateName;
+          const isNoData = isNoDataState(stateName);
           const s = by.get(stateName);
           return (
             <button
@@ -625,10 +654,12 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
               className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${
                 isSelected
                   ? "bg-gradient-to-r from-[#F5C067] via-[#E5A93C] to-[#D4AF37] text-black font-bold shadow-lg shadow-amber-500/30 scale-105"
+                  : isNoData
+                  ? "bg-slate-950/80 border border-slate-800 text-slate-500 hover:text-slate-300 hover:border-slate-700"
                   : "bg-slate-900/90 border border-slate-700/80 text-slate-300 hover:text-white hover:border-amber-400/50 hover:bg-slate-800"
               }`}
             >
-              {stateName} {s?.students != null ? `(${s.students})` : ""}
+              {stateName} {isNoData ? "(No data)" : s?.students != null ? `(${s.students})` : ""}
             </button>
           );
         })}
@@ -642,7 +673,7 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
           {/* Header */}
           <div className="flex items-center justify-between border-b border-amber-400/20 pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] animate-ping" />
+              <span className={`h-2.5 w-2.5 rounded-full ${isSelectedNoData ? "bg-slate-600" : "bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] animate-ping"}`} />
               <h4 className="font-extrabold text-white text-base tracking-tight flex items-center gap-2">
                 <span>{selectedState}</span>
                 <span className="font-mono text-xs text-amber-300 bg-amber-400/15 px-2 py-0.5 rounded-md border border-amber-400/30">
@@ -652,9 +683,15 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                <CheckCircle2 className="h-3 w-3" /> Integrity Validated
-              </span>
+              {isSelectedNoData ? (
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
+                  <span className="h-1.5 w-1.5 rounded-full bg-slate-500" /> No Data Reported
+                </span>
+              ) : (
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                  <CheckCircle2 className="h-3 w-3" /> Integrity Validated
+                </span>
+              )}
               <button
                 type="button"
                 onClick={() => setSelectedState(null)}
@@ -672,7 +709,7 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
                 <Users className="h-3 w-3 text-amber-400" />
                 <span>Enrolled Students</span>
               </div>
-              <span className="text-lg font-bold text-amber-300 font-mono mt-0.5 block">
+              <span className={`text-lg font-bold font-mono mt-0.5 block ${isSelectedNoData ? "text-slate-500" : "text-amber-300"}`}>
                 {displayStudents}
               </span>
             </div>
@@ -692,8 +729,8 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
                 <ShieldCheck className="h-3 w-3 text-emerald-400" />
                 <span>Compliance</span>
               </div>
-              <span className="text-lg font-bold text-emerald-400 font-mono mt-0.5 block">
-                {selectedMeta?.compliance ?? "99.4%"}
+              <span className={`text-lg font-bold font-mono mt-0.5 block ${isSelectedNoData ? "text-slate-500" : "text-emerald-400"}`}>
+                {isSelectedNoData ? "Pending" : selectedMeta?.compliance ?? "99.4%"}
               </span>
             </div>
 
@@ -702,8 +739,8 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
                 <Sparkles className="h-3 w-3 text-amber-400" />
                 <span>Intake Cap</span>
               </div>
-              <span className="text-lg font-bold text-amber-200 font-mono mt-0.5 block">
-                {(selectedMeta?.quota ?? 10000).toLocaleString("en-IN")}
+              <span className={`text-lg font-bold font-mono mt-0.5 block ${isSelectedNoData ? "text-slate-500" : "text-amber-200"}`}>
+                {isSelectedNoData ? "Unreported" : (selectedMeta?.quota ?? 10000).toLocaleString("en-IN")}
               </span>
             </div>
           </div>
@@ -711,7 +748,9 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
           {/* Approved Institutions Roster */}
           <div className="mt-3 pt-2.5 border-t border-white/10">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-              Approved Reporting Institutions in {selectedState}:
+              {isSelectedNoData
+                ? `Institutions in ${selectedState} (Awaiting Batch Data):`
+                : `Approved Reporting Institutions in ${selectedState}:`}
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {collegesList.map((colName) => (
@@ -720,7 +759,9 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
                   className="rounded-lg bg-white/5 border border-white/10 px-2.5 py-1.5 flex items-center justify-between text-xs text-slate-200 hover:bg-white/10 transition-colors"
                 >
                   <span className="truncate pr-2 font-medium">{colName}</span>
-                  <span className="shrink-0 text-[10px] font-mono font-bold text-amber-400">AICTE OK</span>
+                  <span className={`shrink-0 text-[10px] font-mono font-bold ${isSelectedNoData ? "text-slate-500" : "text-amber-400"}`}>
+                    {isSelectedNoData ? "AWAITING BATCH" : "AICTE OK"}
+                  </span>
                 </div>
               ))}
             </div>
