@@ -230,11 +230,17 @@ class MockDemoConnection:
                 return MockCursor(res or [{"id": "1-0000000001:CSE"}])
             if "approved_intake" in q:
                 res = []
+                target_ids = []
+                for param in p:
+                    if isinstance(param, list):
+                        target_ids.extend(param)
+                    elif isinstance(param, str) and ":" in param:
+                        target_ids.append(param)
                 for pr in progs:
-                    if pr.get("institution_id") == target_inst:
-                        pid = f"{pr['institution_id']}:{pr['code']}"
-                        res.append({"id": pid, "name": pr["name"], "approved_intake": 60})
-                return MockCursor(res)
+                    pid = f"{pr['institution_id']}:{pr['code']}"
+                    if not target_ids or pid in target_ids or pr.get("institution_id") == self.user.get("institution_id"):
+                        res.append({"id": pid, "name": pr["name"], "approved_intake": 120 if "CSE" in pid and "0000000002" in pid else 60})
+                return MockCursor(res if res else [{"id": "1-0000000001:CSE", "name": "B.E. Computer Science and Engineering", "approved_intake": 60}])
             return MockCursor(progs)
 
         # 9. Programme category counters
@@ -322,6 +328,33 @@ class MockDemoConnection:
                 "ciwg": 200,
                 "no_apaar": 240
             }])
+
+        if "group by i.state" in q.lower():
+            return MockCursor([
+                {"state": "Maharashtra", "approved": 15000, "filled": 14200, "fill_pct": 94.7},
+                {"state": "Karnataka", "approved": 12000, "filled": 11500, "fill_pct": 95.8},
+                {"state": "Tamil Nadu", "approved": 14000, "filled": 13100, "fill_pct": 93.6},
+                {"state": "Telangana", "approved": 9500, "filled": 8900, "fill_pct": 93.7},
+                {"state": "Gujarat", "approved": 8000, "filled": 7400, "fill_pct": 92.5},
+                {"state": "Uttar Pradesh", "approved": 11000, "filled": 9800, "fill_pct": 89.1},
+                {"state": "West Bengal", "approved": 7500, "filled": 6900, "fill_pct": 92.0},
+                {"state": "Madhya Pradesh", "approved": 6500, "filled": 5800, "fill_pct": 89.2},
+                {"state": "Punjab", "approved": 4500, "filled": 4100, "fill_pct": 91.1},
+                {"state": "Andhra Pradesh", "approved": 8500, "filled": 7900, "fill_pct": 92.9},
+                {"state": "Delhi", "approved": 5000, "filled": 4800, "fill_pct": 96.0}
+            ])
+
+        if "from institutions i left join upload_batches" in q.lower():
+            now_dt = datetime.now(timezone.utc)
+            return MockCursor([
+                {"id": "1-0000000001", "name": "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru", "state": "Karnataka", "status": "approved", "last_upload": now_dt, "batches": 3, "activation_reissues": 0},
+                {"id": "1-0000000002", "name": "Apex Global Institute of Engineering & Technology, Pune", "state": "Maharashtra", "status": "approved", "last_upload": now_dt, "batches": 2, "activation_reissues": 0},
+                {"id": "1-0000000003", "name": "Saraswati National Institute of Management Studies, Kanpur", "state": "Uttar Pradesh", "status": "approved", "last_upload": now_dt, "batches": 1, "activation_reissues": 0},
+                {"id": "1-0000000004", "name": "Patliputra Polytechnic Institute, Patna", "state": "Bihar", "status": "closed", "last_upload": None, "batches": 0, "activation_reissues": 0}
+            ])
+
+        if "activation_reissue_counts" in q:
+            return MockCursor([{"institution_id": "1-0000000001", "reissues": 0}, {"institution_id": "1-0000000002", "reissues": 0}])
 
         # 14. Public Landing Stats (exactly 11 connected states reporting, 17 awaiting ingestion)
         if "public_stats" in q:

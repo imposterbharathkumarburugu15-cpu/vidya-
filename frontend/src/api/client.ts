@@ -150,7 +150,7 @@ export async function getJson<T>(path: string): Promise<T> {
             status: "completed",
             channel: "portal_csv",
             created_at: new Date().toISOString(),
-            counts: { total: isInstB ? 120 : 60, valid: isInstB ? 105 : 60, rejected: isInstB ? 15 : 0, warnings: isInstB ? 5 : 0, flags: isInstB ? 2 : 0, cases_opened: isInstB ? 1 : 0 },
+            counts: { rows: isInstB ? 120 : 60, accepted: isInstB ? 105 : 60, total: isInstB ? 120 : 60, valid: isInstB ? 105 : 60, rejected: isInstB ? 15 : 0, warnings: isInstB ? 5 : 0, flags: isInstB ? 2 : 0, cases_opened: isInstB ? 1 : 0 },
             replayed: false,
           },
         ],
@@ -161,8 +161,15 @@ export async function getJson<T>(path: string): Promise<T> {
     }
     if (path.includes("/v1/dashboard/aicte")) {
       return {
-        academic_year: "2026-27",
-        excess_programmes: [
+        totals: {
+          institutions: 4120,
+          active_enrolments: 82410,
+          approved_intake: 384000,
+          excess_seats: 5,
+          batches: 2400,
+          post_deadline_mutations: 0,
+        },
+        excess_ranking: [
           {
             programme_id: "1-0000000002:CSE",
             name: "B.Tech Computer Science and Engineering",
@@ -174,10 +181,175 @@ export async function getJson<T>(path: string): Promise<T> {
             excess: 5,
           },
         ],
-        enrolment_mix: { regular: 81200, nri: 450, oci: 210, fn: 350, ciwg: 200, no_apaar: 240 },
-        open_duplicate_cases: 3,
-        connected_states: 11,
-        awaiting_states: 17,
+        category_mix: {
+          regular: 81200,
+          nri: 450,
+          oci: 210,
+          fn: 350,
+          ciwg: 200,
+          no_apaar: 240,
+        },
+        by_state: [
+          { state: "Maharashtra", approved: 15000, filled: 14200, fill_pct: 94.7 },
+          { state: "Karnataka", approved: 12000, filled: 11500, fill_pct: 95.8 },
+          { state: "Tamil Nadu", approved: 14000, filled: 13100, fill_pct: 93.6 },
+          { state: "Telangana", approved: 9500, filled: 8900, fill_pct: 93.7 },
+          { state: "Gujarat", approved: 8000, filled: 7400, fill_pct: 92.5 },
+          { state: "Uttar Pradesh", approved: 11000, filled: 9800, fill_pct: 89.1 },
+          { state: "West Bengal", approved: 7500, filled: 6900, fill_pct: 92.0 },
+          { state: "Madhya Pradesh", approved: 6500, filled: 5800, fill_pct: 89.2 },
+          { state: "Punjab", approved: 4500, filled: 4100, fill_pct: 91.1 },
+          { state: "Andhra Pradesh", approved: 8500, filled: 7900, fill_pct: 92.9 },
+          { state: "Delhi", approved: 5000, filled: 4800, fill_pct: 96.0 },
+        ],
+        open_cases: 3,
+        upload_compliance: [
+          {
+            id: "1-0000000001",
+            name: "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+            state: "Karnataka",
+            status: "approved",
+            last_upload: "2026-10-25T10:00:00Z",
+            batches: 3,
+            activation_reissues: 0,
+          },
+          {
+            id: "1-0000000002",
+            name: "Apex Global Institute of Engineering & Technology, Pune",
+            state: "Maharashtra",
+            status: "approved",
+            last_upload: "2026-10-26T12:00:00Z",
+            batches: 2,
+            activation_reissues: 0,
+          },
+          {
+            id: "1-0000000003",
+            name: "Saraswati National Institute of Management Studies, Kanpur",
+            state: "Uttar Pradesh",
+            status: "approved",
+            last_upload: "2026-10-26T14:00:00Z",
+            batches: 1,
+            activation_reissues: 0,
+          },
+          {
+            id: "1-0000000004",
+            name: "Patliputra Polytechnic Institute, Patna",
+            state: "Bihar",
+            status: "closed",
+            last_upload: null,
+            batches: 0,
+            activation_reissues: 0,
+          },
+        ],
+        ledger_ok: true,
+      } as unknown as T;
+    }
+    if (path.includes("/v1/inspection-queue")) {
+      return [
+        {
+          rank: 1,
+          institution_id: "1-0000000002",
+          name: "Apex Global Institute of Engineering & Technology, Pune",
+          state: "Maharashtra",
+          status: "approved",
+          active: 125,
+          dqs: { total: 68.5, completeness: 70.0, timeliness: 65.0, consistency: 70.0, validity: 68.0 },
+          risk: 3937.5,
+          flag_points: 15.0,
+          why: ["Excess admissions reported (+5 seats)", "High batch rejection rate"],
+          flags: [
+            {
+              type: "ENROLMENT_SPIKE",
+              institution_id: "1-0000000002",
+              programme: "CSE",
+              score: 0.85,
+              evidence: { filled: 125, cap: 120, excess: 5 },
+              explanation: "5 admissions reported beyond statutory intake limit of 120.",
+              label: "AICTE Statutory Intake Cap Exceeded",
+              severity: 0.9,
+              suppressed: false,
+            },
+          ],
+        },
+        {
+          rank: 2,
+          institution_id: "1-0000000004",
+          name: "Patliputra Polytechnic Institute, Patna",
+          state: "Bihar",
+          status: "closed",
+          active: 0,
+          dqs: null,
+          risk: null,
+          flag_points: null,
+          why: ["Zero roster records uploaded prior to statutory deadline"],
+          flags: [],
+        },
+      ] as unknown as T;
+    }
+    if (path.includes("/v1/access-requests")) {
+      return [
+        {
+          id: 1,
+          organisation: "Tata Consultancy & Skills Verification (TCS V-Desk)",
+          purpose: "Graduate credentials verification for campus employment screening",
+          status: "approved",
+          decided_by: "aicte",
+          decision_reason: "Verified corporate accreditation and ISO 27001 data governance",
+          decided_at: "2026-10-25T10:00:00Z",
+          user_id: "employer",
+          created_at: "2026-10-20T10:00:00Z",
+          contact_name: "Rajesh Nambiar",
+          contact_email: "verification@tcs.demo.in",
+        },
+        {
+          id: 2,
+          organisation: "Infosys National Recruitment Desk",
+          purpose: "Batch credential verification for 2026 engineering graduates",
+          status: "pending",
+          decided_by: null,
+          decision_reason: null,
+          decided_at: null,
+          user_id: null,
+          created_at: "2026-10-24T12:00:00Z",
+          contact_name: "Priya Sundaram",
+          contact_email: "campus.hiring@infosys.demo.in",
+        },
+      ] as unknown as T;
+    }
+    if (path.includes("/v1/students/me/access-log")) {
+      return [
+        {
+          ts: "2026-10-25T10:00:00Z",
+          actor: "inst-a",
+          role: "institution_admin",
+          action: "enrolment.read",
+          reason: "Institutional roster compliance check",
+          entity: "enrolment",
+          entity_id: "1",
+        },
+      ] as unknown as T;
+    }
+    if (path.includes("/v1/students/me")) {
+      return {
+        name: "Aarav Sharma",
+        apaar_masked: "XXXX-XXXX-1724",
+        provisional_id: null,
+        apaar_status: "verified",
+        enrolments: [
+          {
+            id: 1,
+            programme: "B.E. Computer Science and Engineering",
+            institution: "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+            institution_id: "1-0000000001",
+            academic_year: "2026-27",
+            status: "active",
+            institution_student_id: "VITS-2026-CSE-042",
+            category_code: "REGULAR",
+            is_supernumerary: false,
+          },
+        ],
+        passkey_cooldown_until: null,
+        viewer: "student",
       } as unknown as T;
     }
     throw err;
