@@ -226,7 +226,26 @@ const CITIES: [string, number, number, 1 | 2 | 3][] = [
   ["Vijayawada", 80.65, 16.51, 3], ["Kanpur", 80.33, 26.45, 3], ["Shillong", 91.88, 25.57, 3], ["Imphal", 93.94, 24.81, 3],
   ["Goa", 73.83, 15.49, 3], ["Mangaluru", 74.86, 12.91, 3], ["Jodhpur", 73.02, 26.24, 3], ["Udaipur", 73.71, 24.58, 3],
 ];
-const ROUTES = Array.from({ length: 16 }, (_, i) => i + 1);
+
+/** Dark frontier territories and tail regions */
+export const DARK_REGIONS = new Set([
+  "Ladakh",
+  "Mizoram",
+  "Manipur",
+  "Nagaland",
+  "Arunachal Pradesh",
+  "Tripura",
+  "Meghalaya",
+  "Sikkim",
+  "Assam",
+  "Andaman & Nicobar",
+]);
+
+/** Stars/cities in the eastern tail to keep darkened */
+export const TAILED_STARS = new Set(["Shillong", "Imphal", "Guwahati"]);
+
+/** Routes to New Delhi Hub (omits eastern tail so tail stays peaceful and dark) */
+const ROUTES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16];
 const PAD = 16;
 const W = INDIA_VIEWBOX.w, H = INDIA_VIEWBOX.h;
 const VB = { x: -PAD, y: -PAD, w: W + 2 * PAD, h: H + 2 * PAD };
@@ -266,8 +285,9 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
   const web = useMemo(() => {
     const seen = new Set<string>(), out: [number, number][] = [];
     pts.forEach((p, i) => {
+      if (TAILED_STARS.has(CITIES[i][0])) return;
       pts.map((q, j) => [j, Math.hypot(p[0] - q[0], p[1] - q[1])] as const)
-        .filter(([j]) => j !== i)
+        .filter(([j]) => j !== i && !TAILED_STARS.has(CITIES[j][0]))
         .sort((a, b) => a[1] - b[1])
         .slice(0, 2)
         .forEach(([j]) => {
@@ -282,6 +302,9 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
   const max = Math.max(1, ...states.map((s) => s.students ?? 0));
 
   const fill = (name: string) => {
+    if (DARK_REGIONS.has(name)) {
+      return NONE;
+    }
     const s = by.get(name);
     if (s && s.reporting) {
       return ramp(Math.max(0.4, Math.sqrt((s.students ?? 0) / max)));
@@ -291,7 +314,7 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
       const normalized = Math.min(1, Math.max(0.3, meta.quota / 17000));
       return ramp(normalized);
     }
-    return "#17181f";
+    return NONE;
   };
   const hub = pts[0];
 
@@ -367,6 +390,7 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
 
         {/* States polygons with hover and click interactions */}
         {STATE_PATHS.map((s) => {
+          const isDark = DARK_REGIONS.has(s.name);
           const isHovered = hover?.name === s.name;
           const isSelected = selectedState === s.name;
           const on = isHovered || isSelected;
@@ -376,9 +400,9 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
               key={s.name}
               d={s.d}
               fill={isSelected ? "#E5A93C" : fill(s.name)}
-              fillOpacity={isSelected ? 1 : 0.94}
-              stroke={isSelected ? "#FFFFFF" : on ? "#FFF1C2" : "rgba(255,226,150,0.38)"}
-              strokeWidth={isSelected ? 2.8 : on ? 2.0 : 0.75}
+              fillOpacity={isSelected ? 1 : isDark ? 0.98 : 0.94}
+              stroke={isSelected ? "#FFFFFF" : on ? "#FFF1C2" : isDark ? "rgba(255,226,150,0.15)" : "rgba(255,226,150,0.38)"}
+              strokeWidth={isSelected ? 2.8 : on ? 2.0 : isDark ? 0.6 : 0.75}
               strokeLinejoin="round"
               onMouseMove={onMove(s.name)}
               onClick={(e) => onClickState(s.name, e)}
@@ -448,11 +472,22 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
 
           {/* City light pulses */}
           {pts.map(([x, y], i) => {
+            const cityName = CITIES[i][0];
+            const isTailedStar = TAILED_STARS.has(cityName);
             const tier = CITIES[i][3];
             const r = tier === 1 ? 3 : tier === 2 ? 2.1 : 1.5;
+
+            if (isTailedStar) {
+              return (
+                <g key={cityName} opacity="0.2">
+                  <circle cx={x} cy={y} r={r} fill="#241a0d" stroke="rgba(245,192,103,0.2)" strokeWidth="0.5" />
+                </g>
+              );
+            }
+
             return (
               <g
-                key={CITIES[i][0]}
+                key={cityName}
                 className={reduce ? "" : "city"}
                 style={{
                   ["--t" as string]: `${2.5 + (i % 5) * 0.6}s`,
