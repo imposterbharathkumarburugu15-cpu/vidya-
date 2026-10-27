@@ -52,11 +52,19 @@ export function setUnauthorizedHandler(fn: () => void) {
   onUnauthorized = fn;
 }
 
+export const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/+$/, "") || "";
+
+export function apiUrl(path: string): string {
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `${API_BASE}${cleanPath}`;
+}
+
 async function request(path: string, init: RequestInit = {}): Promise<Response> {
   const s = loadSession();
   const headers = new Headers(init.headers);
   if (s && !headers.has("Authorization")) headers.set("Authorization", `Bearer ${s.token}`);
-  const res = await fetch(path, { ...init, headers });
+  const res = await fetch(apiUrl(path), { ...init, headers });
   if (!res.ok) {
     let title = res.statusText, detail: unknown = null;
     try {

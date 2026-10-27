@@ -3,7 +3,7 @@
 // upload evidentiary documents with cryptographic integrity checks, track timeline, and view reviewer decisions.
 import { useEffect, useState } from "react";
 import { Plus, Send, Scale, FileCheck2 } from "lucide-react";
-import { ApiError, getJson, sendJson, type S } from "../api/client";
+import { ApiError, apiUrl, getJson, sendJson, type S } from "../api/client";
 import { Badge, Button, Card, Empty, ErrorNote, fmtTime, Loading, usePoll, type Tone } from "../ui";
 
 const GRIEVANCE_CATEGORIES = [
@@ -225,7 +225,7 @@ function GrievanceItem({
       formData.append("category", evCategory);
 
       const token = localStorage.getItem("auth_token");
-      const res = await fetch(`/v1/students/me/grievances/${g.id}/evidence`, {
+      const res = await fetch(apiUrl(`/v1/students/me/grievances/${g.id}/evidence`), {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
@@ -642,7 +642,7 @@ function SubmitGrievanceModal({
         formData.append("file", file);
         formData.append("category", mode === "correction" ? "corrected_academic_record" : "student_affidavit");
         const token = localStorage.getItem("auth_token");
-        await fetch(`/v1/students/me/grievances/${created.id}/evidence`, {
+        await fetch(apiUrl(`/v1/students/me/grievances/${created.id}/evidence`), {
           method: "POST",
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: formData,

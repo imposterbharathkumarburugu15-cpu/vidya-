@@ -7,7 +7,7 @@ import {
   Pencil, RefreshCw, AlertTriangle, Copy, Fingerprint,
   ShieldCheck, Sparkles, Send
 } from "lucide-react";
-import { ApiError, getJson, sendJson, type S } from "./api/client";
+import { ApiError, apiUrl, getJson, sendJson, type S } from "./api/client";
 import { Badge, Button, Card, Empty, ErrorNote, fmtTime, Loading, usePoll, type Tone } from "./ui";
 
 const STATUS: Record<string, [string, Tone]> = {
@@ -233,7 +233,7 @@ function CaseRow({ c, canResolve, onChange }: { c: S["CaseOut"]; canResolve: boo
         formData.append("category", evCategory);
 
         const token = localStorage.getItem("auth_token");
-        const res = await fetch(`/v1/cases/${c.id}/evidence`, {
+        const res = await fetch(apiUrl(`/v1/cases/${c.id}/evidence`), {
           method: "POST",
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: formData,

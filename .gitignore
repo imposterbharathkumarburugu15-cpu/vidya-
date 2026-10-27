@@ -22,3 +22,5 @@ skills-lock.json
 
 # Local OCR tesseract portable binaries
 backend/data/tesseract/
+tools/tesseract/
+_uv/

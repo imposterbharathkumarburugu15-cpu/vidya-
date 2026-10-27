@@ -2,6 +2,7 @@
 import csv
 import io
 import json
+import os
 import uuid
 import zlib
 from contextlib import asynccontextmanager
@@ -45,7 +46,15 @@ async def lifespan(_app):
 
 app = FastAPI(title="Vidyadwaar: Academic Identity & Integrity Platform (SIH 2026 PS 26263)", version="0.1.0", lifespan=lifespan,
               description="Prototype. APAAR registry, AICTE approval registry, OTP and identity provider are MOCKS. Synthetic data only.")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+_cors_env = os.getenv("CORS_ORIGINS") or os.getenv("FRONTEND_URL")
+_allowed_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+if _cors_env:
+    _allowed_origins.extend([o.strip() for o in _cors_env.split(",") if o.strip()])
+
+app.add_middleware(CORSMiddleware,
+                   allow_origins=["*"] if os.getenv("VERCEL") else _allowed_origins,
+                   allow_origin_regex=r"https://.*\.vercel\.app" if not os.getenv("VERCEL") else None,
+                   allow_credentials=True,
                    allow_methods=["*"], allow_headers=["*"], expose_headers=["X-Request-Id"])
 
 

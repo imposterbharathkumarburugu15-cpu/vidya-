@@ -23,7 +23,9 @@ from .ingest import ApiError
 # Locate local Tesseract executable and tessdata
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOCAL_TESS_EXE = BASE_DIR / "data" / "tesseract" / "tesseract.exe"
+TOOLS_TESS_EXE = BASE_DIR.parent / "tools" / "tesseract" / "tesseract.exe"
 LOCAL_TESSDATA = BASE_DIR / "data" / "tesseract" / "tessdata"
+TOOLS_TESSDATA = BASE_DIR.parent / "tools" / "tesseract" / "tessdata"
 
 MAX_PDF_PAGES = 20
 MAX_IMAGE_DIM = 3500
@@ -32,6 +34,8 @@ MAX_IMAGE_DIM = 3500
 def _get_tesseract_binary() -> str | None:
     if LOCAL_TESS_EXE.exists():
         return str(LOCAL_TESS_EXE)
+    if TOOLS_TESS_EXE.exists():
+        return str(TOOLS_TESS_EXE)
     which = shutil.which("tesseract")
     if which:
         return which
@@ -44,6 +48,8 @@ def _get_tesseract_binary() -> str | None:
 def _get_tessdata_dir() -> str | None:
     if LOCAL_TESSDATA.exists():
         return str(LOCAL_TESSDATA)
+    if TOOLS_TESSDATA.exists():
+        return str(TOOLS_TESSDATA)
     env = os.environ.get("TESSDATA_PREFIX")
     if env and os.path.exists(env):
         return env
