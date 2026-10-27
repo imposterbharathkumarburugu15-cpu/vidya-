@@ -449,6 +449,9 @@ def process_evidence_ocr(conn, user: dict, evidence_id: int, language: str = "en
         if existing["source_digest"] == current_digest:
             return _format_ocr_job(existing, is_stale=False)
 
+    start_time = time.time()
+    overall_method = "unknown"
+    warnings: list[str] = []
     try:
         doc_result = process_document_bytes(file_bytes, ev["media_type"], language)
         pages_result = doc_result["pages"]
