@@ -387,8 +387,8 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
         </g>
       </svg>
 
-      {/* Floating City Badges */}
-      {badges.map((b) => (
+      {/* Floating City Badges — Strategically positioned around the periphery without overlapping central map */}
+      {badges.slice(0, 3).map((b) => (
         <div
           key={b.title}
           style={pct(b.lon, b.lat)}
@@ -401,9 +401,9 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
             aria-hidden
             className={`h-px w-5 ${b.side === "left" ? "bg-gradient-to-l" : "bg-gradient-to-r"} from-amber-300/80 to-amber-300/0`}
           />
-          <div className="glass-premium relative whitespace-nowrap rounded-lg px-3 py-2 text-xs text-slate-200 shadow-xl border border-amber-400/30">
-            <p className="font-bold text-white">{b.title}</p>
-            <p className="text-amber-200/80 text-[11px]">{b.sub}</p>
+          <div className="glass-premium relative whitespace-nowrap rounded-lg px-3 py-1.5 text-xs text-slate-200 shadow-xl border border-amber-400/30">
+            <p className="font-bold text-white text-[12px]">{b.title}</p>
+            <p className="text-amber-200/80 text-[10px]">{b.sub}</p>
           </div>
         </div>
       ))}
@@ -437,20 +437,16 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
         </div>
       )}
 
-      {/* Legend */}
-      <div className="mx-auto mt-3 flex max-w-sm items-center gap-3 text-[11.5px] text-slate-400">
+      {/* Clean Legend Bar */}
+      <div className="mx-auto mt-3 flex max-w-xs items-center gap-2.5 text-[11px] text-slate-400">
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm" style={{ background: NONE, boxShadow: "inset 0 0 0 1px rgba(255,226,150,.35)" }} />
+          <span className="h-2 w-2 rounded-sm" style={{ background: NONE, boxShadow: "inset 0 0 0 1px rgba(255,226,150,.35)" }} />
           No data
         </span>
-        <span>Fewer</span>
-        <span className="h-2 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, ${ramp(0)}, ${ramp(0.5)}, ${ramp(1)})` }} />
-        <span>More students</span>
+        <span>Low</span>
+        <span className="h-1.5 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, ${ramp(0)}, ${ramp(0.5)}, ${ramp(1)})` }} />
+        <span>High Enrolment</span>
       </div>
-
-      <p className="mt-2 text-center text-xs text-amber-200/90 font-medium">
-        👆 <strong>Click any state on the map or tap below</strong> to inspect approved universities, live student counts &amp; AICTE seat quotas.
-      </p>
 
       {/* Quick State Selector Pills */}
       <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5 px-1 max-h-24 overflow-y-auto scrollbar-none">

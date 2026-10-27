@@ -1,5 +1,5 @@
 import markUrl from "../assets/vidyadwaar-mark.png";
-import fullLogoUrl from "../assets/vidyadwaar-logo-full.png";
+import fullLogoUrl from "../assets/vidyadwaar-logo-transparent.png";
 
 /** Vidyadwaar mark: the approved logo artwork emblem, cropped from official logo. */
 export default function BrandMark({ className = "h-10" }: { className?: string }) {
@@ -19,13 +19,13 @@ export function BrandFullLogo({ className = "h-12" }: { className?: string }) {
 }
 
 /**
- * Official Brand Lockup: renders the approved full banner logo directly,
- * preserving exact artwork, colors (gold, deep black, white), and proportions.
+ * Official Brand Lockup: renders the approved full banner logo cleanly with transparent background,
+ * preserving exact artwork, colors (gold, deep black, white), and proportions without rectangular boxes.
  */
 export function BrandLogo({ size = "md", className = "" }: { size?: "sm" | "md" | "lg"; tagline?: boolean; className?: string }) {
   const h = {
-    sm: "h-9",
-    md: "h-11 sm:h-12",
+    sm: "h-9 sm:h-10",
+    md: "h-11 sm:h-13",
     lg: "h-14 sm:h-16",
   }[size];
   return (
@@ -34,7 +34,7 @@ export function BrandLogo({ size = "md", className = "" }: { size?: "sm" | "md" 
         src={fullLogoUrl}
         alt="Vidyadwaar — Academic Identity & Integrity Platform"
         draggable={false}
-        className={`${h} w-auto object-contain select-none drop-shadow-[0_4px_16px_rgba(212,175,55,0.25)]`}
+        className={`${h} w-auto object-contain select-none drop-shadow-[0_2px_12px_rgba(212,175,55,0.22)]`}
       />
     </span>
   );
