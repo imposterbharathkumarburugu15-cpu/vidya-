@@ -1,10 +1,11 @@
-# VidyaPramaan: APAAR-Based Student Enrolment Integrity & Verifiable Credential System
+# Vidyadwaar: APAAR-Based Student Enrolment Integrity & Verifiable Credential System
 
 Prototype for **Smart India Hackathon problem statement SIH26263**: an APAAR ID-based student data management and verification platform for AICTE-approved institutions.
 
 > *Every seat accounted for, every record verifiable, without moving more personal data than necessary.*
 
-**Live demo:** https://vidyapramaan.vercel.app (synthetic data; demo users below, password `demo`)
+**GitHub Repository:** https://github.com/imposterbharathkumarburugu15-cpu/vidya-  
+**Live Demo:** https://vidyadwaar.vercel.app (or custom Vercel deployment)
 
 Institutions upload student-level records keyed by **APAAR ID**. The platform validates every row deterministically, enforces approved intake and supernumerary caps from the AICTE registry, detects duplicate enrolment within and across institutions, keeps a tamper-evident seat ledger, and gives AICTE and institutions live monitoring data.
 
