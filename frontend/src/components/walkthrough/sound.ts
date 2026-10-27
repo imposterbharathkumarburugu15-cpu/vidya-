@@ -86,6 +86,58 @@ class AudioController {
     }
   }
 
+  /** Crystal verification success chime */
+  public playSuccess() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(659.25, this.ctx.currentTime); // E5
+      osc.frequency.setValueAtTime(880.00, this.ctx.currentTime + 0.1); // A5
+
+      gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.4);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.4);
+    } catch {
+      // Gracefully ignored
+    }
+  }
+
+  /** Radar ping sound */
+  public playPing() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(987.77, this.ctx.currentTime); // B5
+      gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.25);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.25);
+    } catch {
+      // Gracefully ignored
+    }
+  }
+
   /** Speak scene narration text using Web Speech API */
   public speak(text: string, speed: number = 1.0, onEnd?: () => void) {
     if (this.isMuted || typeof window === "undefined" || !("speechSynthesis" in window)) {
