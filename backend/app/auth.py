@@ -95,7 +95,14 @@ def student_login(conn, apaar_id: str, dob: str) -> dict | None:
         return None
     with _failures_lock:  # success clears the APAAR's attempts
         _failures.pop(key, None)
-    return issue_token(f"student:{row['id']}", "student", f"Student ({crypto.mask_apaar(apaar_id)})", student_id=row["id"])
+    student_name = "Student"
+    try:
+        from . import demo
+        if apaar_id == demo.STUDENT["apaar"]:
+            student_name = demo.STUDENT["name"]
+    except Exception:
+        pass
+    return issue_token(f"student:{row['id']}", "student", f"{student_name} ({crypto.mask_apaar(apaar_id)})", student_id=row["id"])
 
 
 def throttle(key: str, max_n: int, window: float) -> None:

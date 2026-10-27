@@ -619,6 +619,7 @@ class StudentEnrolment(BaseModel):
 
 
 class StudentProfile(BaseModel):
+    name: str | None = None
     apaar_masked: str | None
     provisional_id: str | None
     apaar_status: str

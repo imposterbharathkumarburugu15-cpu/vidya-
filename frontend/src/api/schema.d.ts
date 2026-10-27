@@ -4498,6 +4498,8 @@ export interface components {
         };
         /** StudentProfile */
         StudentProfile: {
+            /** Student Full Name */
+            name?: string | null;
             /** Apaar Masked */
             apaar_masked: string | null;
             /** Provisional Id */

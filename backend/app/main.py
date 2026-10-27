@@ -1219,14 +1219,20 @@ def consent_credential(consent_id: int, request: Request, user=Depends(require("
 # ---------- student self-service (D6) ----------
 @app.get("/v1/students/me", response_model=StudentProfile)
 def student_me(user=Depends(require_person("student", "guardian")), conn=Depends(get_conn)):
-    s = conn.execute("SELECT apaar_masked, provisional_id, apaar_status FROM students WHERE id=%s", (user["student_id"],)).fetchone()
+    s = conn.execute("SELECT id, apaar_masked, provisional_id, apaar_status, name_enc FROM students WHERE id=%s", (user["student_id"],)).fetchone()
     if s is None:
         raise HTTPException(404, "Student not found")
+    name = None
+    if s.get("name_enc"):
+        try:
+            name = crypto.decrypt("students", "name", s["id"], s["name_enc"])
+        except Exception:
+            name = None
     ens = conn.execute("SELECT e.id, p.name programme, i.name institution, p.institution_id, e.academic_year, e.status, "
                        "e.institution_student_id, e.seat_category_code category_code, e.is_supernumerary "
                        "FROM enrolments e JOIN programmes p ON p.id=e.programme_id JOIN institutions i ON i.id=p.institution_id "
                        "WHERE e.student_id=%s ORDER BY e.id DESC", (user["student_id"],)).fetchall()
-    return {**s, "enrolments": ens, "passkey_cooldown_until": passkeys.cooldown_until(conn), "viewer": user["role"]}
+    return {**s, "name": name, "enrolments": ens, "passkey_cooldown_until": passkeys.cooldown_until(conn), "viewer": user["role"]}
 
 
 @app.get("/v1/students/me/access-log", response_model=list[AccessLogEntry],

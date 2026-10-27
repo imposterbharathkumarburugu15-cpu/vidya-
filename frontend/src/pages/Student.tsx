@@ -266,18 +266,26 @@ function RecordView({
               </span>
             </div>
 
-            <div className="mt-6 space-y-1">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">APAAR ID (masked)</span>
-              <div className="font-mono text-xl font-extrabold tracking-wider text-white">
-                {profile.apaar_masked ?? profile.provisional_id}
+            <div className="mt-4 space-y-3">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Student Name</span>
+                <div className="font-display text-lg font-bold text-champagne">
+                  {profile.name ?? "Aarav Sharma"}
+                </div>
               </div>
-              {profile.provisional_id && !profile.apaar_masked && (
-                <span className="text-[10px] text-warning-text font-medium">Provisional ID: APAAR not linked</span>
-              )}
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">APAAR ID (masked)</span>
+                <div className="font-mono text-base font-extrabold tracking-wider text-white">
+                  {profile.apaar_masked ?? profile.provisional_id}
+                </div>
+                {profile.provisional_id && !profile.apaar_masked && (
+                  <span className="text-[10px] text-warning-text font-medium">Provisional ID: APAAR not linked</span>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-mute font-medium">
+          <div className="mt-6 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-mute font-medium">
             <span>APAAR registry (MOCK)</span>
             <span className="font-mono text-[10px] text-gold">ACTIVE</span>
           </div>
@@ -290,10 +298,12 @@ function RecordView({
               <UserCheck className="h-4 w-4" /> Academic Identity Verified
             </div>
             <h1 className="mt-2 font-display text-[32px] font-bold leading-tight text-ink sm:text-[38px]">
-              {profile.viewer === "guardian" ? "Guardian view: student's academic record" : "My academic record"}
+              {profile.viewer === "guardian"
+                ? `Guardian View: ${profile.name ?? "Aarav Sharma"}'s Academic Record`
+                : `${profile.name ?? "Aarav Sharma"}'s Academic Record`}
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
-              Your enrolments, cryptographically signed credentials, who asked for your data, and who accessed it.
+              Enrolled in <strong className="text-slate-800">{profile.enrolments[0]?.programme ?? "B.E. Computer Science and Engineering"}</strong> at <strong className="text-slate-800">{profile.enrolments[0]?.institution ?? "Vidyapeeth Institute of Technology & Science"}</strong>.
             </p>
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
@@ -455,8 +465,11 @@ function StudentIdentityBar({ profile }: { profile: S["StudentProfile"] }) {
         <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
           {profile.viewer === "guardian" ? "Guardian View" : "Student"}:
         </span>
-        <span className="font-mono text-sm font-extrabold text-ink">
-          {profile.apaar_masked ?? profile.provisional_id}
+        <span className="font-display text-sm font-bold text-ink">
+          {profile.name ?? "Aarav Sharma"}
+        </span>
+        <span className="font-mono text-xs text-slate-500 font-bold">
+          ({profile.apaar_masked ?? profile.provisional_id})
         </span>
         <Badge tone="ok" dot>{profile.apaar_status}</Badge>
       </div>
