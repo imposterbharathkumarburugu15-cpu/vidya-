@@ -19,3 +19,6 @@ frontend/dist/
 .claude/skills/
 skills-lock.json
 *.backup.json
+
+# Local OCR tesseract portable binaries
+backend/data/tesseract/

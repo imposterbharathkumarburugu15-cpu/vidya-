@@ -4,13 +4,19 @@ import Backdrop from "../components/landing/Backdrop";
 import Navbar from "../components/Navbar";
 import Landing from "./Landing";
 import SignIn from "./SignIn";
+import HowItWorks from "./HowItWorks";
 import { Activate, RequestAccess } from "./Onboarding";
 
-/** Signed-out site: #/ landing, #/signin, #/activate, #/request-access (hash router, query after "?"). */
+/** Signed-out site: #/ landing, #/signin, #/activate, #/request-access, #/how-it-works (hash router, query after "?"). */
 export default function PublicSite({ hash, onLogin }: { hash: string; onLogin: (s: Session) => void }) {
   const [path, query] = hash.split("?");
   const params = new URLSearchParams(query ?? "");
   const demo = useDemoMode();
+
+  if (path === "/how-it-works" || path === "/how") {
+    return <HowItWorks />;
+  }
+
   const page = path === "/signin" ? <SignIn onLogin={onLogin} demo={demo} initialRole={params.get("as")} />
     : path === "/activate" ? <Activate />
     : path === "/request-access" ? <RequestAccess />

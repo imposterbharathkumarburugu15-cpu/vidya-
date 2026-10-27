@@ -9,6 +9,8 @@ CREATE OR REPLACE FUNCTION app_role() RETURNS text LANGUAGE sql STABLE AS
 $$ SELECT coalesce(current_setting('app.role', true), '') $$;
 CREATE OR REPLACE FUNCTION app_inst() RETURNS text LANGUAGE sql STABLE AS
 $$ SELECT coalesce(current_setting('app.institution_id', true), '') $$;
+CREATE OR REPLACE FUNCTION app_institution() RETURNS text LANGUAGE sql STABLE AS
+$$ SELECT coalesce(current_setting('app.institution_id', true), '') $$;
 CREATE OR REPLACE FUNCTION app_is_regulator() RETURNS boolean LANGUAGE sql STABLE AS
 $$ SELECT app_role() IN ('aicte_officer', 'auditor') $$;
 CREATE OR REPLACE FUNCTION app_owns_programme(pid text) RETURNS boolean LANGUAGE sql STABLE AS
@@ -34,9 +36,10 @@ REVOKE ALL ON ALL TABLES IN SCHEMA public FROM app_user;
 GRANT USAGE ON SCHEMA public TO app_user;
 -- users is NOT granted: password hashes are reachable only through login_lookup()
 GRANT SELECT ON institutions, programmes, approved_intake, seat_categories, academic_years, intake_history,
-  issuer_registry, affiliations, status_lists TO app_user;   -- registry + status lists: public, written only by admin/definer fns
+  issuer_registry, affiliations, status_lists, policy_definitions, policy_versions TO app_user;   -- registry + status lists: public, written only by admin/definer fns
 GRANT SELECT, INSERT, UPDATE ON upload_batches, validation_issues, enrolments, students, programme_category_counters,
-  duplicate_cases, anomaly_flags, consents TO app_user;
+  duplicate_cases, anomaly_flags, consents, case_evidence, case_decisions, student_grievances, grievance_responses, candidate_matches,
+  replay_snapshots, replay_jobs, seat_simulations, admission_integrity_findings, finding_reviews TO app_user;
 GRANT SELECT, INSERT, UPDATE ON webhook_endpoints TO app_user;
 GRANT SELECT ON passkeys TO app_user;
 GRANT SELECT, INSERT ON flag_reviews TO app_user;
@@ -86,10 +89,13 @@ CREATE POLICY upd ON programme_category_counters FOR UPDATE USING (app_owns_prog
 
 -- students: shared person rows; an institution sees a student only through its own enrolment
 ALTER TABLE students ENABLE ROW LEVEL SECURITY; ALTER TABLE students FORCE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS sel ON students; DROP POLICY IF EXISTS ins ON students;
+DROP POLICY IF EXISTS sel ON students; DROP POLICY IF EXISTS ins ON students; DROP POLICY IF EXISTS upd ON students;
 CREATE POLICY sel ON students FOR SELECT USING (app_is_regulator() OR id = app_student()
   OR EXISTS (SELECT 1 FROM enrolments e WHERE e.student_id = students.id));  -- enrolments RLS decides (own / affiliated)
 CREATE POLICY ins ON students FOR INSERT WITH CHECK (app_role() = 'institution_admin');
+CREATE POLICY upd ON students FOR UPDATE USING (
+  app_is_regulator() OR (app_role() = 'institution_admin' AND EXISTS (SELECT 1 FROM enrolments e JOIN programmes p ON p.id = e.programme_id WHERE e.student_id = students.id AND p.institution_id = app_inst()))
+);
 
 -- duplicate_cases: visible to an institution only if one of its own enrolments is in the case
 ALTER TABLE duplicate_cases ENABLE ROW LEVEL SECURITY; ALTER TABLE duplicate_cases FORCE ROW LEVEL SECURITY;
@@ -136,6 +142,72 @@ ALTER TABLE anomaly_flags ENABLE ROW LEVEL SECURITY; ALTER TABLE anomaly_flags F
 DROP POLICY IF EXISTS sel ON anomaly_flags; DROP POLICY IF EXISTS ins ON anomaly_flags;
 CREATE POLICY sel ON anomaly_flags FOR SELECT USING (app_is_regulator() OR (app_role() = 'institution_admin' AND institution_id = app_inst()));
 CREATE POLICY ins ON anomaly_flags FOR INSERT WITH CHECK (app_role() = 'institution_admin' AND institution_id = app_inst());
+
+-- student_grievances: students see only their own; regulators see all; institutions see grievances referencing their institution.
+ALTER TABLE student_grievances ENABLE ROW LEVEL SECURITY; ALTER TABLE student_grievances FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON student_grievances; DROP POLICY IF EXISTS ins ON student_grievances; DROP POLICY IF EXISTS upd ON student_grievances;
+CREATE POLICY sel ON student_grievances FOR SELECT USING (
+  app_is_regulator() OR student_id = app_student() OR (app_role() = 'institution_admin' AND institution_id = app_inst())
+);
+CREATE POLICY ins ON student_grievances FOR INSERT WITH CHECK (
+  app_is_regulator() OR student_id = app_student()
+);
+CREATE POLICY upd ON student_grievances FOR UPDATE USING (
+  app_is_regulator() OR (app_role() = 'institution_admin' AND institution_id = app_inst()) OR (student_id = app_student() AND status = 'submitted')
+);
+
+-- grievance_responses: students see student_visible responses for their grievances; staff/regulators see all
+ALTER TABLE grievance_responses ENABLE ROW LEVEL SECURITY; ALTER TABLE grievance_responses FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON grievance_responses; DROP POLICY IF EXISTS ins ON grievance_responses;
+CREATE POLICY sel ON grievance_responses FOR SELECT USING (
+  app_is_regulator() OR (app_role() = 'institution_admin' AND EXISTS (SELECT 1 FROM student_grievances g WHERE g.id = grievance_id AND g.institution_id = app_inst()))
+  OR (EXISTS (SELECT 1 FROM student_grievances g WHERE g.id = grievance_id AND g.student_id = app_student()) AND visibility = 'student_visible')
+);
+CREATE POLICY ins ON grievance_responses FOR INSERT WITH CHECK (
+  app_is_regulator() OR (app_role() = 'institution_admin' AND EXISTS (SELECT 1 FROM student_grievances g WHERE g.id = grievance_id AND g.institution_id = app_inst()))
+  OR (EXISTS (SELECT 1 FROM student_grievances g WHERE g.id = grievance_id AND g.student_id = app_student()) AND visibility = 'student_visible')
+);
+
+-- case_evidence: regulators see all; institutions see evidence for cases/grievances involving them; students see evidence for their grievances
+ALTER TABLE case_evidence ENABLE ROW LEVEL SECURITY; ALTER TABLE case_evidence FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON case_evidence; DROP POLICY IF EXISTS ins ON case_evidence; DROP POLICY IF EXISTS upd ON case_evidence;
+CREATE POLICY sel ON case_evidence FOR SELECT USING (
+  app_is_regulator()
+  OR (case_id IS NOT NULL AND EXISTS (SELECT 1 FROM duplicate_cases c JOIN enrolments e ON e.id = ANY(c.enrolment_ids) WHERE c.id = case_id))
+  OR (grievance_id IS NOT NULL AND EXISTS (SELECT 1 FROM student_grievances g WHERE g.id = grievance_id AND (g.student_id = app_student() OR (app_role() = 'institution_admin' AND g.institution_id = app_inst()))))
+);
+CREATE POLICY ins ON case_evidence FOR INSERT WITH CHECK (
+  app_is_regulator()
+  OR (case_id IS NOT NULL AND EXISTS (SELECT 1 FROM duplicate_cases c JOIN enrolments e ON e.id = ANY(c.enrolment_ids) WHERE c.id = case_id))
+  OR (grievance_id IS NOT NULL AND EXISTS (SELECT 1 FROM student_grievances g WHERE g.id = grievance_id AND (g.student_id = app_student() OR (app_role() = 'institution_admin' AND g.institution_id = app_inst()))))
+);
+CREATE POLICY upd ON case_evidence FOR UPDATE USING (
+  app_is_regulator() OR (app_role() = 'institution_admin')
+);
+
+-- case_decisions: regulators read/write; institutions read decisions on cases involving them
+ALTER TABLE case_decisions ENABLE ROW LEVEL SECURITY; ALTER TABLE case_decisions FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON case_decisions; DROP POLICY IF EXISTS ins ON case_decisions;
+CREATE POLICY sel ON case_decisions FOR SELECT USING (
+  app_is_regulator() OR EXISTS (SELECT 1 FROM duplicate_cases c JOIN enrolments e ON e.id = ANY(c.enrolment_ids) WHERE c.id = case_id)
+);
+CREATE POLICY ins ON case_decisions FOR INSERT WITH CHECK (
+  app_role() = 'aicte_officer'
+);
+
+-- evidence_ocr_jobs: regulators see all; institutions see OCR for their cases; students see OCR for their own grievances
+ALTER TABLE evidence_ocr_jobs ENABLE ROW LEVEL SECURITY; ALTER TABLE evidence_ocr_jobs FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON evidence_ocr_jobs; DROP POLICY IF EXISTS ins ON evidence_ocr_jobs; DROP POLICY IF EXISTS upd ON evidence_ocr_jobs;
+CREATE POLICY sel ON evidence_ocr_jobs FOR SELECT USING (
+  app_is_regulator() OR EXISTS (SELECT 1 FROM case_evidence e WHERE e.id = evidence_id)
+);
+CREATE POLICY ins ON evidence_ocr_jobs FOR INSERT WITH CHECK (
+  app_is_regulator() OR app_role() = 'institution_admin' OR app_role() = 'student'
+);
+CREATE POLICY upd ON evidence_ocr_jobs FOR UPDATE USING (
+  app_is_regulator() OR app_role() = 'institution_admin'
+);
+
 
 -- audit_logs: anyone authenticated may append as themselves; regulators read all; a student reads entries about them (D6)
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY; ALTER TABLE audit_logs FORCE ROW LEVEL SECURITY;
@@ -786,6 +858,61 @@ BEGIN
       decision_reason = p_reason, decided_at = now(), user_id = CASE WHEN p_decision = 'approved' THEN p_new_user END
     WHERE a.id = p_id RETURNING a.*;
 END $$;
+
+-- Phase 3 RLS Policies: Policy Replay, Seat-Impact Simulation & Integrity Analytics
+ALTER TABLE policy_definitions ENABLE ROW LEVEL SECURITY; ALTER TABLE policy_definitions FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON policy_definitions; DROP POLICY IF EXISTS ins ON policy_definitions; DROP POLICY IF EXISTS upd ON policy_definitions;
+CREATE POLICY sel ON policy_definitions FOR SELECT USING (true);
+CREATE POLICY ins ON policy_definitions FOR INSERT WITH CHECK (app_role() = 'aicte_officer');
+CREATE POLICY upd ON policy_definitions FOR UPDATE USING (app_role() = 'aicte_officer') WITH CHECK (app_role() = 'aicte_officer');
+
+ALTER TABLE policy_versions ENABLE ROW LEVEL SECURITY; ALTER TABLE policy_versions FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON policy_versions; DROP POLICY IF EXISTS ins ON policy_versions; DROP POLICY IF EXISTS upd ON policy_versions;
+CREATE POLICY sel ON policy_versions FOR SELECT USING (true);
+CREATE POLICY ins ON policy_versions FOR INSERT WITH CHECK (app_role() = 'aicte_officer');
+CREATE POLICY upd ON policy_versions FOR UPDATE USING (app_role() = 'aicte_officer') WITH CHECK (app_role() = 'aicte_officer');
+
+ALTER TABLE replay_snapshots ENABLE ROW LEVEL SECURITY; ALTER TABLE replay_snapshots FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON replay_snapshots; DROP POLICY IF EXISTS ins ON replay_snapshots;
+CREATE POLICY sel ON replay_snapshots FOR SELECT USING (app_is_regulator() OR institution_id = app_institution() OR institution_id IS NULL);
+CREATE POLICY ins ON replay_snapshots FOR INSERT WITH CHECK (app_is_regulator() OR institution_id = app_institution());
+
+ALTER TABLE replay_jobs ENABLE ROW LEVEL SECURITY; ALTER TABLE replay_jobs FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON replay_jobs; DROP POLICY IF EXISTS ins ON replay_jobs;
+CREATE POLICY sel ON replay_jobs FOR SELECT USING (app_is_regulator() OR EXISTS (SELECT 1 FROM replay_snapshots s WHERE s.id = snapshot_id AND (s.institution_id = app_institution() OR s.institution_id IS NULL)));
+CREATE POLICY ins ON replay_jobs FOR INSERT WITH CHECK (app_is_regulator() OR EXISTS (SELECT 1 FROM replay_snapshots s WHERE s.id = snapshot_id AND s.institution_id = app_institution()));
+
+ALTER TABLE seat_simulations ENABLE ROW LEVEL SECURITY; ALTER TABLE seat_simulations FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON seat_simulations; DROP POLICY IF EXISTS ins ON seat_simulations;
+CREATE POLICY sel ON seat_simulations FOR SELECT USING (app_is_regulator() OR EXISTS (SELECT 1 FROM replay_snapshots s WHERE s.id = snapshot_id AND (s.institution_id = app_institution() OR s.institution_id IS NULL)));
+CREATE POLICY ins ON seat_simulations FOR INSERT WITH CHECK (app_is_regulator());
+
+ALTER TABLE admission_integrity_findings ENABLE ROW LEVEL SECURITY; ALTER TABLE admission_integrity_findings FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON admission_integrity_findings; DROP POLICY IF EXISTS ins ON admission_integrity_findings; DROP POLICY IF EXISTS upd ON admission_integrity_findings;
+CREATE POLICY sel ON admission_integrity_findings FOR SELECT USING (app_is_regulator() OR institution_id = app_institution());
+CREATE POLICY ins ON admission_integrity_findings FOR INSERT WITH CHECK (app_is_regulator());
+CREATE POLICY upd ON admission_integrity_findings FOR UPDATE USING (app_is_regulator()) WITH CHECK (app_is_regulator());
+
+ALTER TABLE finding_reviews ENABLE ROW LEVEL SECURITY; ALTER TABLE finding_reviews FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON finding_reviews; DROP POLICY IF EXISTS ins ON finding_reviews;
+CREATE POLICY sel ON finding_reviews FOR SELECT USING (app_is_regulator() OR EXISTS (SELECT 1 FROM admission_integrity_findings f WHERE f.id = finding_id AND f.institution_id = app_institution()));
+CREATE POLICY ins ON finding_reviews FOR INSERT WITH CHECK (app_is_regulator());
+
+-- candidate_matches (Phase 5)
+ALTER TABLE candidate_matches ENABLE ROW LEVEL SECURITY; ALTER TABLE candidate_matches FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS sel ON candidate_matches; DROP POLICY IF EXISTS ins ON candidate_matches; DROP POLICY IF EXISTS upd ON candidate_matches;
+CREATE POLICY sel ON candidate_matches FOR SELECT USING (
+  app_is_regulator() OR (app_role() = 'institution_admin' AND (record_a_institution_id = app_inst() OR record_b_institution_id = app_inst()))
+);
+CREATE POLICY ins ON candidate_matches FOR INSERT WITH CHECK (
+  app_is_regulator() OR (app_role() = 'institution_admin' AND (record_a_institution_id = app_inst() OR record_b_institution_id = app_inst()))
+);
+CREATE POLICY upd ON candidate_matches FOR UPDATE USING (
+  app_is_regulator() OR (app_role() = 'institution_admin' AND (record_a_institution_id = app_inst() OR record_b_institution_id = app_inst()))
+) WITH CHECK (
+  app_is_regulator() OR (app_role() = 'institution_admin' AND (record_a_institution_id = app_inst() OR record_b_institution_id = app_inst()))
+);
+
 
 REVOKE ALL ON FUNCTION public_stats(text), public_account_search(text, text, text, int),
   issue_account_code(text, text, text, text, text), redeem_account_code(text, text, text, text),

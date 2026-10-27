@@ -143,7 +143,8 @@ CREATE TABLE IF NOT EXISTS duplicate_cases (
   id            bigserial PRIMARY KEY,
   student_id    bigint NOT NULL REFERENCES students(id),
   enrolment_ids bigint[] NOT NULL,
-  status        text NOT NULL CHECK (status IN ('flagged','confirmed_duplicate','false_positive','under_investigation')),
+  category      text NOT NULL DEFAULT 'E203',   -- E203: duplicate, E301/E302: over-intake
+  status        text NOT NULL CHECK (status IN ('flagged','confirmed_duplicate','false_positive','under_investigation','open','under_review','evidence_required','decision_pending','resolved','rejected','withdrawn','escalated')),
   resolution_note text,
   resolved_by   text,
   resolved_at   timestamptz,
@@ -381,3 +382,296 @@ CREATE TABLE IF NOT EXISTS access_requests (       -- verifier organisations ask
   user_id           text REFERENCES users(id),
   created_at        timestamptz NOT NULL DEFAULT now()
 );
+
+-- Phase 2 & Phase 6: Evidence-backed Case Management, Student Grievances & Record Correction Workflows
+CREATE TABLE IF NOT EXISTS student_grievances (
+  id                 bigserial PRIMARY KEY,
+  student_id         bigint NOT NULL REFERENCES students(id),
+  case_id            bigint REFERENCES duplicate_cases(id),
+  enrolment_id       bigint REFERENCES enrolments(id),
+  institution_id     text REFERENCES institutions(id),
+  record_type        text NOT NULL DEFAULT 'grievance' CHECK (record_type IN ('grievance','correction_request')),
+  category           text NOT NULL,
+  subject            text NOT NULL,
+  description        text NOT NULL,
+  proposed_changes   jsonb NOT NULL DEFAULT '{}',
+  current_values     jsonb NOT NULL DEFAULT '{}',
+  status             text NOT NULL DEFAULT 'submitted' CHECK (status IN ('submitted','acknowledged','under_review','response_required','needs_more_information','resolution_proposed','resolved','accepted','rejected','escalated','withdrawn','closed')),
+  assigned_to        text,
+  resolution_summary text,
+  review_decision    text CHECK (review_decision IN ('approved','rejected','more_info_needed','escalated')),
+  reviewed_by        text,
+  reviewed_at        timestamptz,
+  applied_at         timestamptz,
+  created_at         timestamptz NOT NULL DEFAULT now(),
+  updated_at         timestamptz NOT NULL DEFAULT now(),
+  resolved_at        timestamptz
+);
+CREATE INDEX IF NOT EXISTS student_grievances_student_idx ON student_grievances (student_id);
+CREATE INDEX IF NOT EXISTS student_grievances_case_idx ON student_grievances (case_id);
+CREATE INDEX IF NOT EXISTS student_grievances_enrolment_idx ON student_grievances (enrolment_id);
+CREATE INDEX IF NOT EXISTS student_grievances_inst_idx ON student_grievances (institution_id);
+
+-- Migration safety for pre-existing tables
+ALTER TABLE student_grievances ADD COLUMN IF NOT EXISTS enrolment_id bigint REFERENCES enrolments(id);
+ALTER TABLE student_grievances ADD COLUMN IF NOT EXISTS record_type text NOT NULL DEFAULT 'grievance';
+ALTER TABLE student_grievances ADD COLUMN IF NOT EXISTS proposed_changes jsonb NOT NULL DEFAULT '{}';
+ALTER TABLE student_grievances ADD COLUMN IF NOT EXISTS current_values jsonb NOT NULL DEFAULT '{}';
+ALTER TABLE student_grievances ADD COLUMN IF NOT EXISTS review_decision text;
+ALTER TABLE student_grievances ADD COLUMN IF NOT EXISTS reviewed_by text;
+ALTER TABLE student_grievances ADD COLUMN IF NOT EXISTS reviewed_at timestamptz;
+ALTER TABLE student_grievances ADD COLUMN IF NOT EXISTS applied_at timestamptz;
+DO $$
+BEGIN
+  ALTER TABLE student_grievances DROP CONSTRAINT IF EXISTS student_grievances_status_check;
+  ALTER TABLE student_grievances ADD CONSTRAINT student_grievances_status_check
+    CHECK (status IN ('submitted','acknowledged','under_review','response_required','needs_more_information','resolution_proposed','resolved','accepted','rejected','escalated','withdrawn','closed'));
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS grievance_responses (
+  id             bigserial PRIMARY KEY,
+  grievance_id   bigint NOT NULL REFERENCES student_grievances(id) ON DELETE CASCADE,
+  responder_id   text NOT NULL,
+  responder_role text NOT NULL,
+  message        text NOT NULL,
+  visibility     text NOT NULL DEFAULT 'student_visible' CHECK (visibility IN ('student_visible','internal_only')),
+  created_at     timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS grievance_responses_grievance_idx ON grievance_responses (grievance_id);
+
+CREATE TABLE IF NOT EXISTS case_evidence (
+  id                 bigserial PRIMARY KEY,
+  case_id            bigint REFERENCES duplicate_cases(id),
+  grievance_id       bigint REFERENCES student_grievances(id),
+  category           text NOT NULL,
+  filename           text NOT NULL,
+  media_type         text NOT NULL,
+  file_size          int NOT NULL,
+  sha256_digest      text NOT NULL,
+  storage_path       text NOT NULL,
+  status             text NOT NULL DEFAULT 'pending_review' CHECK (status IN ('pending_review','under_review','verified','rejected','needs_clarification')),
+  verification_notes text,
+  uploaded_by        text NOT NULL,
+  uploaded_at        timestamptz NOT NULL DEFAULT now(),
+  reviewed_by        text,
+  reviewed_at        timestamptz,
+  CHECK (case_id IS NOT NULL OR grievance_id IS NOT NULL)
+);
+CREATE INDEX IF NOT EXISTS case_evidence_case_idx ON case_evidence (case_id);
+CREATE INDEX IF NOT EXISTS case_evidence_grievance_idx ON case_evidence (grievance_id);
+
+CREATE TABLE IF NOT EXISTS case_decisions (
+  id               bigserial PRIMARY KEY,
+  case_id          bigint NOT NULL REFERENCES duplicate_cases(id),
+  outcome          text NOT NULL CHECK (outcome IN ('CONFIRMED','NOT_CONFIRMED','INSUFFICIENT_EVIDENCE','REFERRED_FOR_ESCALATION')),
+  reason           text NOT NULL,
+  evidence_ids     bigint[] NOT NULL DEFAULT '{}',
+  rule_ref         text,
+  previous_status  text NOT NULL,
+  resulting_status text NOT NULL,
+  decision_maker   text NOT NULL,
+  decided_at       timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS case_decisions_case_idx ON case_decisions (case_id);
+
+-- Offline OCR & Academic Field Extraction Subsystem
+CREATE TABLE IF NOT EXISTS evidence_ocr_jobs (
+  id                bigserial PRIMARY KEY,
+  evidence_id       bigint NOT NULL REFERENCES case_evidence(id) ON DELETE CASCADE,
+  source_digest     text NOT NULL,               -- SHA-256 of the exact evidence file at time of processing
+  status            text NOT NULL DEFAULT 'completed' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+  language          text NOT NULL DEFAULT 'eng',
+  extraction_method text NOT NULL DEFAULT 'hybrid' CHECK (extraction_method IN ('pdf_text_extraction', 'tesseract_ocr', 'hybrid')),
+  page_count        int NOT NULL DEFAULT 0,
+  pages_json        jsonb NOT NULL DEFAULT '[]', -- [{page_no, text, confidence, method}]
+  fields_json       jsonb NOT NULL DEFAULT '[]', -- candidate academic fields with provenance & review status
+  warnings          text[] NOT NULL DEFAULT '{}',
+  duration_ms       int NOT NULL DEFAULT 0,
+  created_at        timestamptz NOT NULL DEFAULT now(),
+  completed_at      timestamptz DEFAULT now(),
+  error_message     text
+);
+CREATE INDEX IF NOT EXISTS evidence_ocr_jobs_evidence_idx ON evidence_ocr_jobs (evidence_id);
+CREATE INDEX IF NOT EXISTS evidence_ocr_jobs_digest_idx ON evidence_ocr_jobs (source_digest);
+
+-- ============================================================================
+-- Phase 3: Policy Replay, Seat-Impact Simulation & Admission Integrity Analytics
+-- ============================================================================
+
+-- 1. Policy Definitions (Master catalog of statutory and regulatory policy documents)
+CREATE TABLE IF NOT EXISTS policy_definitions (
+  id                 text PRIMARY KEY,            -- e.g. 'POL-AICTE-INTAKE-2025'
+  title              text NOT NULL,
+  description        text NOT NULL,
+  policy_source      text NOT NULL,            -- Reference e.g. 'AICTE Handbook Clause 7.12'
+  academic_year      text NOT NULL,            -- e.g. '2025-26'
+  institution_scope  text[] NOT NULL DEFAULT '{"*"}',
+  programme_scope    text[] NOT NULL DEFAULT '{"*"}',
+  created_at         timestamptz NOT NULL DEFAULT now(),
+  created_by         text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS policy_definitions_year_idx ON policy_definitions (academic_year);
+
+-- 2. Policy Versions (Immutable, auditable revision history with formal lifecycle transitions)
+CREATE TABLE IF NOT EXISTS policy_versions (
+  id                 bigserial PRIMARY KEY,
+  policy_id          text NOT NULL REFERENCES policy_definitions(id) ON DELETE CASCADE,
+  version            int NOT NULL,
+  status             text NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'RETIRED')),
+  effective_date     date NOT NULL,
+  rules_json         jsonb NOT NULL,           -- Structured rule definitions (caps, multipliers, subcaps, age bounds)
+  change_summary     text NOT NULL,
+  created_at         timestamptz NOT NULL DEFAULT now(),
+  created_by         text NOT NULL,
+  approved_by        text,
+  approved_at        timestamptz,
+  activated_at       timestamptz,
+  UNIQUE (policy_id, version)
+);
+CREATE INDEX IF NOT EXISTS policy_versions_lookup_idx ON policy_versions (policy_id, version);
+CREATE INDEX IF NOT EXISTS policy_versions_status_idx ON policy_versions (status);
+
+-- 3. Replay Snapshots (Immutable versioned admission datasets with cryptographic digest binding)
+CREATE TABLE IF NOT EXISTS replay_snapshots (
+  id                 text PRIMARY KEY,            -- e.g. 'SNAP-2025-BATCH-108'
+  title              text NOT NULL,
+  academic_year      text NOT NULL,
+  institution_id     text REFERENCES institutions(id), -- NULL for multi-institution / national snapshots
+  batch_id           int REFERENCES upload_batches(id),
+  row_count          int NOT NULL,
+  input_digest       text NOT NULL,               -- Canonical SHA-256 of raw snapshot records
+  rows_json          jsonb NOT NULL,              -- Immutable snapshot records
+  created_at         timestamptz NOT NULL DEFAULT now(),
+  created_by         text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS replay_snapshots_year_idx ON replay_snapshots (academic_year);
+CREATE INDEX IF NOT EXISTS replay_snapshots_digest_idx ON replay_snapshots (input_digest);
+
+-- 4. Policy Replay Execution Jobs (Deterministic execution logs & reproducibility metadata)
+CREATE TABLE IF NOT EXISTS replay_jobs (
+  id                 bigserial PRIMARY KEY,
+  policy_id          text NOT NULL REFERENCES policy_definitions(id),
+  policy_version     int NOT NULL,
+  snapshot_id        text NOT NULL REFERENCES replay_snapshots(id),
+  engine_version     text NOT NULL DEFAULT '1.0.0-phase3',
+  input_digest       text NOT NULL,
+  result_digest      text NOT NULL,               -- SHA-256 of deterministic replay outcome
+  status             text NOT NULL DEFAULT 'completed' CHECK (status IN ('pending', 'running', 'completed', 'failed')),
+  started_at         timestamptz NOT NULL DEFAULT now(),
+  completed_at       timestamptz DEFAULT now(),
+  duration_ms        int NOT NULL DEFAULT 0,
+  summary_stats      jsonb NOT NULL DEFAULT '{}', -- Evaluated rows, violations, category breakdown
+  violations_json    jsonb NOT NULL DEFAULT '[]',
+  counters_json      jsonb NOT NULL DEFAULT '{}',
+  warnings           text[] NOT NULL DEFAULT '{}',
+  created_by         text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS replay_jobs_snapshot_idx ON replay_jobs (snapshot_id);
+CREATE INDEX IF NOT EXISTS replay_jobs_policy_idx ON replay_jobs (policy_id, policy_version);
+
+-- 5. Seat-Impact Simulations (Comparative policy impact analyses isolated from live admissions)
+CREATE TABLE IF NOT EXISTS seat_simulations (
+  id                 bigserial PRIMARY KEY,
+  title              text NOT NULL,
+  baseline_policy_id text NOT NULL REFERENCES policy_definitions(id),
+  baseline_version   int NOT NULL,
+  proposed_policy_id text NOT NULL REFERENCES policy_definitions(id),
+  proposed_version   int NOT NULL,
+  snapshot_id        text NOT NULL REFERENCES replay_snapshots(id),
+  simulation_scope   jsonb NOT NULL DEFAULT '{}', -- Optional filters by institution/programme
+  impact_summary     jsonb NOT NULL,              -- Capacity diff, allocation diff, violation deltas
+  programme_impacts  jsonb NOT NULL DEFAULT '[]', -- Breakdown per programme
+  new_violations     jsonb NOT NULL DEFAULT '[]', -- Newly introduced violations
+  resolved_violations jsonb NOT NULL DEFAULT '[]', -- Previously detected violations resolved
+  manual_review_cases jsonb NOT NULL DEFAULT '[]',-- Ambiguous border-case candidates
+  simulated_at       timestamptz NOT NULL DEFAULT now(),
+  simulated_by       text NOT NULL
+);
+CREATE INDEX IF NOT EXISTS seat_simulations_snapshot_idx ON seat_simulations (snapshot_id);
+
+-- 6. Explainable Admission Integrity Analytics Findings
+CREATE TABLE IF NOT EXISTS admission_integrity_findings (
+  id                 text PRIMARY KEY,            -- e.g. 'AIF-2025-0012'
+  indicator_type     text NOT NULL CHECK (indicator_type IN (
+                       'OVER_INTAKE_PERSISTENCE',
+                       'SUPERNUMERARY_QUOTA_SPIKE',
+                       'CROSS_INSTITUTION_DUPLICATE_CLUSTER',
+                       'DISPUTE_RESOLUTION_BOTTLENECK',
+                       'INTEGRITY_VERIFICATION_DEVIATION',
+                       'VOLATILE_ADMISSION_SWING'
+                     )),
+  institution_id     text NOT NULL REFERENCES institutions(id),
+  programme_id       text REFERENCES programmes(id),
+  academic_year      text NOT NULL,
+  severity           text NOT NULL CHECK (severity IN ('HIGH', 'MEDIUM', 'LOW')),
+  score              double precision NOT NULL,
+  detection_rule     text NOT NULL,
+  supporting_measurements jsonb NOT NULL,
+  explanation        text NOT NULL,
+  detected_at        timestamptz NOT NULL DEFAULT now(),
+  review_status      text NOT NULL DEFAULT 'NEW' CHECK (review_status IN ('NEW', 'UNDER_INVESTIGATION', 'DISMISSED', 'ESCALATED')),
+  review_notes       text,
+  reviewed_by        text,
+  reviewed_at        timestamptz
+);
+CREATE INDEX IF NOT EXISTS aif_inst_idx ON admission_integrity_findings (institution_id);
+CREATE INDEX IF NOT EXISTS aif_type_idx ON admission_integrity_findings (indicator_type);
+CREATE INDEX IF NOT EXISTS aif_status_idx ON admission_integrity_findings (review_status);
+
+-- 7. Finding Review Trail (Non-destructive human-in-the-loop review history)
+CREATE TABLE IF NOT EXISTS finding_reviews (
+  id                 bigserial PRIMARY KEY,
+  finding_id         text NOT NULL REFERENCES admission_integrity_findings(id) ON DELETE CASCADE,
+  action             text NOT NULL CHECK (action IN ('UNDER_INVESTIGATION', 'DISMISSED', 'ESCALATED')),
+  notes              text NOT NULL,
+  reviewer_id        text NOT NULL,
+  reviewed_at        timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS finding_reviews_finding_idx ON finding_reviews (finding_id);
+
+-- Phase 5: Privacy-Preserving Cross-Institution Matching
+CREATE TABLE IF NOT EXISTS candidate_matches (
+  id                      text PRIMARY KEY,             -- e.g. 'MATCH-2026-0001'
+  academic_year           text NOT NULL REFERENCES academic_years(code),
+  rule_version            text NOT NULL DEFAULT 'RULE_V1_0',
+  normalization_version   text NOT NULL DEFAULT 'NORM_V1_0',
+  classification          text NOT NULL CHECK (classification IN (
+                            'HIGH_CONFIDENCE_EXACT',
+                            'MULTI_FIELD_COMPOSITE',
+                            'CONFLICTING_INFO',
+                            'NAME_ONLY_LEAD'
+                          )),
+  status                  text NOT NULL DEFAULT 'PENDING_REVIEW' CHECK (status IN (
+                            'PENDING_REVIEW',
+                            'UNDER_REVIEW',
+                            'CONFIRMED_DUPLICATE',
+                            'FALSE_POSITIVE',
+                            'INSUFFICIENT_EVIDENCE',
+                            'ESCALATED'
+                          )),
+  record_a_institution_id text NOT NULL REFERENCES institutions(id),
+  record_a_enrolment_id   bigint NOT NULL REFERENCES enrolments(id),
+  record_b_institution_id text NOT NULL REFERENCES institutions(id),
+  record_b_enrolment_id   bigint NOT NULL REFERENCES enrolments(id),
+  matched_fields          text[] NOT NULL,
+  conflicting_fields      text[] NOT NULL DEFAULT '{}',
+  confidence_score        double precision NOT NULL,
+  measurements            jsonb NOT NULL DEFAULT '{}',
+  linked_case_id          bigint REFERENCES duplicate_cases(id),
+  created_at              timestamptz NOT NULL DEFAULT now(),
+  reviewed_by             text,
+  reviewed_at             timestamptz,
+  review_notes            text,
+  audit_ref               text
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS candidate_matches_pair_idx 
+  ON candidate_matches (LEAST(record_a_enrolment_id, record_b_enrolment_id), GREATEST(record_a_enrolment_id, record_b_enrolment_id), rule_version);
+CREATE INDEX IF NOT EXISTS candidate_matches_inst_a_idx ON candidate_matches (record_a_institution_id);
+CREATE INDEX IF NOT EXISTS candidate_matches_inst_b_idx ON candidate_matches (record_b_institution_id);
+CREATE INDEX IF NOT EXISTS candidate_matches_status_idx ON candidate_matches (status);
+CREATE INDEX IF NOT EXISTS candidate_matches_case_idx ON candidate_matches (linked_case_id);
+
+
+

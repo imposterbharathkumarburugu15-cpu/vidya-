@@ -4,7 +4,7 @@ Change this file first, then backend and frontend.
 """
 import re
 from datetime import date, datetime
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -355,19 +355,79 @@ class CheckpointOut(BaseModel):
     published_at: datetime
 
 
+class EvidenceOut(BaseModel):
+    id: int
+    case_id: int | None = None
+    grievance_id: int | None = None
+    category: str
+    filename: str
+    media_type: str
+    file_size: int
+    sha256_digest: str
+    status: str
+    verification_notes: str | None = None
+    uploaded_by: str
+    uploaded_at: datetime
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None
+    audit_ref: str | None = None
+
+
+class EvidenceReviewIn(BaseModel):
+    status: Literal["verified", "rejected", "needs_clarification", "under_review"]
+    notes: str = Field(min_length=3, max_length=500)
+
+
+class EvidenceIntegrityOut(BaseModel):
+    evidence_id: int
+    recorded_digest: str
+    computed_digest: str
+    is_valid: bool
+    byte_integrity: str = "INTACT"
+    verified_at: datetime
+    audit_ref: str | None = None
+    disclaimer: str = "Byte-level hash verification confirms file contents match the recorded upload digest. It does not certify legal validity or document authenticity without human evaluation."
+
+
+class CaseDecisionIn(BaseModel):
+    outcome: Literal["CONFIRMED", "NOT_CONFIRMED", "INSUFFICIENT_EVIDENCE", "REFERRED_FOR_ESCALATION"]
+    reason: str = Field(min_length=5, max_length=1000)
+    evidence_ids: list[int] = Field(default_factory=list)
+    rule_ref: str | None = Field(None, description="e.g. E203, E301, E302")
+    keep_enrolment_id: int | None = Field(None, description="Required if confirming duplicate: the enrolment that stands")
+
+
+class CaseDecisionOut(BaseModel):
+    id: int
+    case_id: int
+    outcome: str
+    reason: str
+    evidence_ids: list[int]
+    rule_ref: str | None
+    previous_status: str
+    resulting_status: str
+    decision_maker: str
+    decided_at: datetime
+    audit_ref: str | None = None
+
+
 class CaseOut(BaseModel):
     id: int
     status: str
+    case_type: str = "E203"
     created_at: datetime
     notice: str = Field(description="Neutral text: names no other institution (F4)")
     enrolment_ids: list[int] = Field(description="Institutions: only their own enrolments in the case. Regulators: all")
     resolution_note: str | None = Field(None, description="Regulators only")
     resolved_at: datetime | None = None
     detail: list[dict] | None = Field(None, description="AICTE officer only, from POST /v1/cases/{id}/unmask with a reason")
+    evidence: list[EvidenceOut] = Field(default_factory=list)
+    decisions: list[CaseDecisionOut] = Field(default_factory=list)
+    linked_grievances: list[int] = Field(default_factory=list)
 
 
 class CaseResolve(BaseModel):
-    status: Literal["confirmed_duplicate", "false_positive", "under_investigation"]
+    status: Literal["confirmed_duplicate", "false_positive", "under_investigation", "under_review", "evidence_required", "decision_pending", "resolved", "rejected", "withdrawn", "escalated"]
     note: str = Field(min_length=3, max_length=500)
     keep_enrolment_id: int | None = Field(None, description="Required for confirmed_duplicate: the enrolment that stands. "
                                           "Credentials of the other enrolments in the case are revoked")
@@ -375,6 +435,142 @@ class CaseResolve(BaseModel):
 
 class CaseUnmask(BaseModel):
     reason: str = Field(min_length=10, max_length=300, description="Recorded in the audit log and shown to the student (D6)")
+
+
+class CorrectionRequestIn(BaseModel):
+    category: str
+    subject: str = Field(min_length=5, max_length=150)
+    description: str = Field(min_length=10, max_length=2000)
+    enrolment_id: int | None = None
+    case_id: int | None = None
+    institution_id: str | None = None
+    proposed_changes: dict[str, Any] = Field(default_factory=dict)
+
+
+class CorrectionReviewIn(BaseModel):
+    decision: Literal["approved", "rejected", "more_info_needed", "escalated"]
+    rationale: str = Field(min_length=5, max_length=1000)
+    apply_changes: bool = True
+
+
+class GrievanceSubmitIn(BaseModel):
+    category: str
+    subject: str = Field(min_length=5, max_length=150)
+    description: str = Field(min_length=10, max_length=2000)
+    enrolment_id: int | None = None
+    case_id: int | None = None
+    institution_id: str | None = None
+    record_type: Literal["grievance", "correction_request"] = "grievance"
+    proposed_changes: dict[str, Any] = Field(default_factory=dict)
+
+
+class GrievanceResponseIn(BaseModel):
+    message: str = Field(min_length=2, max_length=2000)
+    visibility: Literal["student_visible", "internal_only"] = "student_visible"
+
+
+class GrievanceResponseOut(BaseModel):
+    id: int
+    grievance_id: int
+    responder_id: str
+    responder_role: str
+    message: str
+    visibility: str
+    created_at: datetime
+
+
+class GrievanceStatusUpdateIn(BaseModel):
+    status: Literal["acknowledged", "under_review", "response_required", "needs_more_information", "resolution_proposed", "resolved", "accepted", "rejected", "escalated", "withdrawn", "closed"]
+    summary: str | None = Field(None, max_length=500)
+
+
+class GrievanceOut(BaseModel):
+    id: int
+    student_id: int
+    case_id: int | None = None
+    enrolment_id: int | None = None
+    institution_id: str | None = None
+    record_type: str = "grievance"
+    category: str
+    subject: str
+    description: str
+    proposed_changes: dict[str, Any] = Field(default_factory=dict)
+    current_values: dict[str, Any] = Field(default_factory=dict)
+    status: str
+    assigned_to: str | None = None
+    resolution_summary: str | None = None
+    review_decision: str | None = None
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None
+    applied_at: datetime | None = None
+    created_at: datetime
+    updated_at: datetime
+    resolved_at: datetime | None = None
+    responses: list[GrievanceResponseOut] = Field(default_factory=list)
+    evidence: list[EvidenceOut] = Field(default_factory=list)
+
+
+# ---------- Offline OCR & Candidate Field Extraction Contracts ----------
+class OcrCapabilityOut(BaseModel):
+    tesseract_available: bool
+    tesseract_version: str | None = None
+    installed_languages: list[str] = Field(default_factory=list)
+    pymupdf_available: bool
+    pymupdf_version: str | None = None
+    supported_formats: list[str] = Field(default_factory=list)
+    offline_mode: bool = True
+    model_source: str
+
+
+class OcrJobTriggerIn(BaseModel):
+    language: str = "eng"
+    force_reprocess: bool = False
+
+
+class OcrPageResult(BaseModel):
+    page_number: int
+    extracted_text: str
+    confidence: float
+    extraction_method: str
+    word_count: int
+
+
+class OcrExtractedField(BaseModel):
+    field_key: str
+    label: str
+    candidate_value: str
+    confidence: float
+    source_page: int
+    provenance_context: str | None = None
+    review_status: Literal["pending_review", "accepted", "rejected", "corrected"] = "pending_review"
+    corrected_value: str | None = None
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None
+
+
+class OcrFieldReviewIn(BaseModel):
+    decision: Literal["accept", "reject", "correct"]
+    corrected_value: str | None = None
+    review_notes: str | None = None
+
+
+class OcrJobOut(BaseModel):
+    id: int
+    evidence_id: int
+    source_digest: str
+    status: str
+    language: str
+    extraction_method: str
+    page_count: int
+    pages: list[OcrPageResult] = Field(default_factory=list)
+    fields: list[OcrExtractedField] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    duration_ms: int = 0
+    created_at: datetime
+    completed_at: datetime | None = None
+    is_stale: bool = False
+    error_message: str | None = None
+
 
 
 class ConsentRequestIn(BaseModel):
@@ -411,11 +607,15 @@ class ConsentCredentialOut(BaseModel):
 
 
 class StudentEnrolment(BaseModel):
+    id: int | None = None
     programme: str
     institution: str
+    institution_id: str | None = None
     academic_year: str
     status: str
     institution_student_id: str
+    category_code: str | None = None
+    is_supernumerary: bool | None = None
 
 
 class StudentProfile(BaseModel):
@@ -744,3 +944,274 @@ class ColumnMapOut(BaseModel):
     missing: list[str] = Field(description="required template columns no header was matched to")
     source: Literal["gemini", "rules"]
     label: str
+
+
+# ============================================================================
+# Phase 3: Policy Replay, Seat-Impact Simulation & Admission Integrity Analytics
+# ============================================================================
+
+class PolicyDefinitionCreateIn(BaseModel):
+    id: str = Field(min_length=3, max_length=50, description="e.g. POL-AICTE-INTAKE-2025")
+    title: str = Field(min_length=5, max_length=150)
+    description: str = Field(min_length=10, max_length=500)
+    policy_source: str = Field(min_length=3, max_length=200, description="Handbook / Gazette reference")
+    academic_year: str = Field(min_length=4, max_length=10)
+    institution_scope: list[str] = Field(default_factory=lambda: ["*"])
+    programme_scope: list[str] = Field(default_factory=lambda: ["*"])
+    effective_date: str | None = None
+    initial_rules: dict[str, Any] | None = None
+
+
+class PolicyVersionOut(BaseModel):
+    id: int
+    policy_id: str
+    version: int
+    status: Literal["DRAFT", "UNDER_REVIEW", "APPROVED", "ACTIVE", "SUPERSEDED", "RETIRED"]
+    effective_date: str
+    rules: dict[str, Any]
+    change_summary: str
+    created_at: str | None = None
+    created_by: str
+    approved_by: str | None = None
+    approved_at: str | None = None
+    activated_at: str | None = None
+
+
+class PolicyDefinitionOut(BaseModel):
+    id: str
+    title: str
+    description: str
+    policy_source: str
+    academic_year: str
+    institution_scope: list[str]
+    programme_scope: list[str]
+    created_at: datetime
+    created_by: str
+    versions: list[PolicyVersionOut] = Field(default_factory=list)
+
+
+class PolicyVersionDraftIn(BaseModel):
+    effective_date: str
+    rules: dict[str, Any]
+    change_summary: str = Field(min_length=5, max_length=300)
+
+
+class PolicyVersionTransitionIn(BaseModel):
+    target_status: Literal["DRAFT", "UNDER_REVIEW", "APPROVED", "ACTIVE", "SUPERSEDED", "RETIRED"]
+    transition_note: str = Field(min_length=5, max_length=300)
+
+
+class ReplaySnapshotCreateIn(BaseModel):
+    title: str = Field(min_length=3, max_length=150)
+    academic_year: str = Field(min_length=4, max_length=10)
+    institution_id: str | None = None
+    batch_id: int | None = None
+
+
+class ReplaySnapshotOut(BaseModel):
+    id: str
+    title: str
+    academic_year: str
+    institution_id: str | None
+    batch_id: int | None
+    row_count: int
+    input_digest: str
+    created_at: datetime
+    created_by: str
+
+
+class ReplayJobTriggerIn(BaseModel):
+    policy_id: str
+    version: int
+    snapshot_id: str
+
+
+class ReplayJobOut(BaseModel):
+    id: int
+    policy_id: str
+    policy_version: int
+    snapshot_id: str
+    engine_version: str
+    input_digest: str
+    result_digest: str
+    status: str
+    started_at: datetime
+    completed_at: datetime | None = None
+    duration_ms: int
+    summary_stats: dict[str, Any]
+    violations_json: list[dict[str, Any]]
+    warnings: list[str] = Field(default_factory=list)
+    created_by: str
+
+
+class SeatSimulationTriggerIn(BaseModel):
+    title: str | None = None
+    baseline_policy_id: str
+    baseline_version: int
+    proposed_policy_id: str
+    proposed_version: int
+    snapshot_id: str
+    scope: dict[str, Any] | None = None
+
+
+class ProgrammeImpactOut(BaseModel):
+    programme_id: str
+    baseline_capacity: int
+    proposed_capacity: int
+    capacity_delta: int
+    baseline_excess: int
+    proposed_excess: int
+    excess_delta: int
+    regular_filled: int
+    supernumerary_filled: int
+
+
+class SeatSimulationOut(BaseModel):
+    id: int
+    title: str
+    baseline_policy_id: str
+    baseline_version: int
+    proposed_policy_id: str
+    proposed_version: int
+    snapshot_id: str
+    impact_summary: dict[str, Any]
+    programme_impacts: list[ProgrammeImpactOut]
+    new_violations: list[dict[str, Any]]
+    resolved_violations: list[dict[str, Any]]
+    manual_review_cases: list[dict[str, Any]]
+    simulated_at: datetime
+    simulated_by: str
+
+
+class IntegrityFindingOut(BaseModel):
+    id: str
+    indicator_type: str
+    institution_id: str
+    programme_id: str | None
+    academic_year: str
+    severity: Literal["HIGH", "MEDIUM", "LOW"]
+    score: float
+    detection_rule: str
+    supporting_measurements: dict[str, Any]
+    explanation: str
+    detected_at: datetime
+    review_status: Literal["NEW", "UNDER_INVESTIGATION", "DISMISSED", "ESCALATED"]
+    review_notes: str | None = None
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None
+
+
+class FindingReviewIn(BaseModel):
+    action: Literal["UNDER_INVESTIGATION", "DISMISSED", "ESCALATED"]
+    notes: str = Field(min_length=5, max_length=500)
+
+
+class PolicyComparisonReportOut(BaseModel):
+    generated_at: str
+    baseline_policy: str
+    proposed_policy: str
+    snapshot_id: str
+    total_evaluated: int
+    capacity_delta: int
+    excess_delta: int
+    new_violations_count: int
+    resolved_violations_count: int
+    programme_summary: list[dict[str, Any]]
+    policy_isolation: str
+
+
+# Phase 5: Privacy-Preserving Matching Contracts
+class CandidateEnrolmentDetail(BaseModel):
+    enrolment_id: int
+    institution_id: str
+    institution_name: str
+    programme_id: str | None = None
+    programme_name: str | None = None
+    institution_student_id: str | None = None
+    apaar_masked: str | None = None
+    is_own_institution: bool = False
+
+
+class CandidateMatchOut(BaseModel):
+    id: str
+    academic_year: str
+    rule_version: str
+    normalization_version: str
+    classification: Literal[
+        "HIGH_CONFIDENCE_EXACT",
+        "MULTI_FIELD_COMPOSITE",
+        "CONFLICTING_INFO",
+        "NAME_ONLY_LEAD"
+    ]
+    status: Literal[
+        "PENDING_REVIEW",
+        "UNDER_REVIEW",
+        "CONFIRMED_DUPLICATE",
+        "FALSE_POSITIVE",
+        "INSUFFICIENT_EVIDENCE",
+        "ESCALATED"
+    ]
+    confidence_score: float
+    matched_fields: list[str]
+    conflicting_fields: list[str]
+    measurements: dict[str, Any]
+    record_a: CandidateEnrolmentDetail
+    record_b: CandidateEnrolmentDetail
+    linked_case_id: int | None = None
+    created_at: datetime
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None
+    review_notes: str | None = None
+    audit_ref: str | None = None
+
+
+class CandidateMatchesPage(BaseModel):
+    items: list[CandidateMatchOut]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
+class MatchingJobTriggerIn(BaseModel):
+    academic_year: str = "2026-27"
+    rule_version: str = "RULE_V1_0"
+    target_institution_id: str | None = None
+
+
+class MatchingJobOut(BaseModel):
+    academic_year: str
+    rule_version: str
+    normalization_version: str
+    total_evaluated_records: int
+    candidate_pairs_evaluated: int
+    candidates_created: int
+    candidates_updated: int
+    total_candidates: int
+    duration_ms: int
+    executed_at: str
+    executed_by: str
+
+
+class MatchReviewIn(BaseModel):
+    action: Literal[
+        "CONFIRM_DUPLICATE",
+        "MARK_FALSE_POSITIVE",
+        "REQUEST_EVIDENCE",
+        "ESCALATE",
+        "SET_UNDER_REVIEW"
+    ]
+    notes: str = Field(min_length=5, max_length=1000)
+
+
+class MatchingStatsOut(BaseModel):
+    total_candidates: int
+    by_status: dict[str, int]
+    by_classification: dict[str, int]
+    pending_review_count: int
+    confirmed_duplicate_count: int
+    false_positive_count: int
+    rule_version: str
+    normalization_version: str
+
+

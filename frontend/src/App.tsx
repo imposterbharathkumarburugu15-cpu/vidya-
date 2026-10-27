@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import RegistrarHome from "./pages/Registrar";
 import StudentHome from "./pages/Student";
 import VerifierHome from "./pages/Verifier";
+import HowItWorks from "./pages/HowItWorks";
 import { go, PageHeader } from "./ui";
 
 /** Tiny hash router: #/inst, #/inst/batch/12, #/aicte. */
@@ -71,6 +72,10 @@ export default function App() {
         />
       </AppLayout>
     );
+  }
+
+  if (hash === "/how-it-works" || hash === "/how") {
+    return <HowItWorks />;
   }
 
   const batch = hash.match(/^\/inst\/batch\/(\d+)$/);

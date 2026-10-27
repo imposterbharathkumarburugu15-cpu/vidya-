@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { S } from "../../api/client";
 import IndiaMapLive from "./IndiaMapLive";
 import TrustBar from "./TrustBar";
@@ -38,16 +38,16 @@ export default function HeroSection({ stats, failed, demo = false }: { stats: S[
             Verified Education<br /><span className="gold-shimmer">for a Stronger, Fairer India.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300">
-            VidyaPramaan gives AICTE student-level, APAAR-keyed records from every approved institution: each row validated, every seat
+            Vidyadwaar gives AICTE student-level, APAAR-keyed records from every approved institution: each row validated, every seat
             checked against approved intake, and credentials that students share only when they choose to.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <button type="button" onClick={() => scrollTo("roles")} className={`${BTN_PRIMARY} group`}>
               Explore the Platform <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
             </button>
-            <button type="button" onClick={() => scrollTo("how")} className={`${BTN_SECONDARY} group`}>
-              See How it Works <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" aria-hidden />
-            </button>
+            <a href="#/how-it-works" className={`${BTN_SECONDARY} group`}>
+              See How it Works <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
+            </a>
             {demo && (
               <a href="#/signin" className="group inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#f1d488] underline decoration-[#d4af37]/40 underline-offset-4 hover:text-white">
                 Try the demo: one-click access <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />

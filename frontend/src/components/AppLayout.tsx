@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import {
   BadgeCheck, BarChart3, Building2, ClipboardList, FileSpreadsheet, Fingerprint, GraduationCap, History,
-  Inbox, LayoutDashboard, LogOut, ScrollText, Send, Share2, ShieldCheck, UploadCloud, UserPlus, Users, Wallet,
+  Inbox, LayoutDashboard, LogOut, Scale, ScrollText, Send, Share2, ShieldCheck, UploadCloud, UserPlus, Users, Wallet,
 } from "lucide-react";
 import type { Role, Session } from "../api/client";
 import { go } from "../ui";
@@ -59,6 +59,7 @@ function navFor(role: Role, canVerify: boolean): Group[] {
         { label: "My record", icon: LayoutDashboard, section: "top" },
         { label: "Consent requests", icon: Fingerprint, section: "consents" },
         { label: "Credential wallet", icon: Wallet, section: "wallet" },
+        { label: "Grievances & disputes", icon: Scale, section: "grievances" },
         { label: "Who accessed my data", icon: ScrollText, section: "access-log" },
       ] }];
   }

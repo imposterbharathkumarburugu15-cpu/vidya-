@@ -7,6 +7,7 @@ import {
 import { ApiError, download, getJson, uploadCsv, type S } from "../api/client";
 import { ColumnMatcher } from "../ai";
 import { EnrolmentLookup } from "./Registrar";
+import { DisputeQueueContent } from "../cases";
 import IndiaMap from "../components/IndiaMap";
 import { useMounted } from "../components/motion";
 import { COMPONENT_HELP, COMPONENT_LABEL, FLAG_INFO, FLAG_LABEL } from "../risk";
@@ -108,6 +109,12 @@ export default function InstitutionHome() {
             <EnrolmentLookup mode="institution" bare />
             <Tools />
           </div>
+        </Section>
+
+        <Section id="disputes" title="Student Corrections & Dispute Queue"
+          aside="Institutional Review Desk"
+          lede="Review student correction requests for your institution, inspect attached evidentiary documents, and commit authorized updates to authoritative records.">
+          <DisputeQueueContent canResolve={true} />
         </Section>
       </div>
     </div>

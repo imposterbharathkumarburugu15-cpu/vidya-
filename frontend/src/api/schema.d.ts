@@ -651,6 +651,686 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cases/{case_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Case
+         * @description Retrieve detailed case records, including attached evidence, structured decisions, and linked grievances.
+         */
+        get: operations["get_case_v1_cases__case_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{case_id}/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Transition Case
+         * @description Transition case lifecycle status with state-machine validation and audit logging.
+         */
+        post: operations["transition_case_v1_cases__case_id__transition_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{case_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Case Evidence
+         * @description Upload and cryptographically register evidence document for a case.
+         */
+        post: operations["upload_case_evidence_v1_cases__case_id__evidence_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence/{evidence_id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Evidence
+         * @description Authorized download of raw evidence binary with content-type preservation.
+         */
+        get: operations["download_evidence_v1_evidence__evidence_id__download_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence/{evidence_id}/verify-integrity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify Evidence
+         * @description Cryptographic integrity verification: recalculates SHA-256 over raw storage bytes and compares against recorded ledger digest.
+         */
+        post: operations["verify_evidence_v1_evidence__evidence_id__verify_integrity_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence/{evidence_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Evidence
+         * @description Record an official review verdict on submitted evidence.
+         */
+        post: operations["review_evidence_v1_evidence__evidence_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/ocr/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ocr Capabilities
+         * @description Readiness and capability discovery for the offline OCR subsystem (engines, installed languages, formats).
+         */
+        get: operations["ocr_capabilities_v1_ocr_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence/{evidence_id}/ocr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Evidence Ocr
+         * @description Retrieve page-level OCR text and candidate academic fields for an evidence record with source digest staleness check.
+         */
+        get: operations["get_evidence_ocr_v1_evidence__evidence_id__ocr_get"];
+        put?: never;
+        /**
+         * Trigger Evidence Ocr
+         * @description Trigger offline document OCR and candidate academic field extraction on an authorized evidence record.
+         */
+        post: operations["trigger_evidence_ocr_v1_evidence__evidence_id__ocr_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/evidence/{evidence_id}/ocr/fields/{field_key}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Ocr Field
+         * @description Non-destructively record an authorized human review decision (accept, reject, correct) on an extracted academic field.
+         */
+        post: operations["review_ocr_field_v1_evidence__evidence_id__ocr_fields__field_key__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cases/{case_id}/decide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Decision
+         * @description Record an authoritative human-in-the-loop decision on a case with policy and evidence references.
+         */
+        post: operations["record_decision_v1_cases__case_id__decide_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/students/me/grievances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Own Grievances
+         * @description List grievances and correction requests submitted by the authenticated student.
+         */
+        get: operations["list_own_grievances_v1_students_me_grievances_get"];
+        put?: never;
+        /**
+         * Submit Student Grievance
+         * @description Authenticated student submits an academic identity or enrolment dispute.
+         */
+        post: operations["submit_student_grievance_v1_students_me_grievances_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/students/me/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Student Correction
+         * @description Authenticated student submits a formal correction request for academic or identity records.
+         */
+        post: operations["submit_student_correction_v1_students_me_corrections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/students/me/grievances/{grievance_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Grievance Evidence
+         * @description Student uploads supporting document for their grievance or correction request.
+         */
+        post: operations["upload_grievance_evidence_v1_students_me_grievances__grievance_id__evidence_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/grievances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Grievances
+         * @description List grievances and correction requests within caller scope (regulators see all; institutions see their college).
+         */
+        get: operations["list_grievances_v1_grievances_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/grievances/{grievance_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Grievance
+         * @description Retrieve detailed grievance or correction record. Internal notes are filtered out for student callers.
+         */
+        get: operations["get_grievance_v1_grievances__grievance_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/grievances/{grievance_id}/responses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Grievance Response
+         * @description Add response to a grievance or correction thread. Visibility can be student_visible or internal_only.
+         */
+        post: operations["add_grievance_response_v1_grievances__grievance_id__responses_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/grievances/{grievance_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Update Grievance Status
+         * @description Update grievance lifecycle state (e.g. acknowledged, under_review, needs_more_information, resolved, rejected, withdrawn).
+         */
+        post: operations["update_grievance_status_v1_grievances__grievance_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/grievances/{grievance_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Grievance Or Correction
+         * @description Authorized reviewer (Institution Admin or AICTE Officer) reviews student correction request or dispute.
+         */
+        post: operations["review_grievance_or_correction_v1_grievances__grievance_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/grievances/{grievance_id}/link-case": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Link Grievance Case
+         * @description Link a grievance to a duplicate or over-intake case.
+         */
+        post: operations["link_grievance_case_v1_grievances__grievance_id__link_case_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Policies
+         * @description List all statutory policy definitions and current active versions.
+         */
+        get: operations["list_policies_v1_policies_get"];
+        put?: never;
+        /**
+         * Create Policy Definition
+         * @description Author a new policy definition catalog entry with initial Version 1 in DRAFT state.
+         */
+        post: operations["create_policy_definition_v1_policies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policies/{policy_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Policy
+         * @description Retrieve a specific policy definition with full version history.
+         */
+        get: operations["get_policy_v1_policies__policy_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policies/{policy_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Draft Policy Version
+         * @description Draft a new policy version for an existing statutory policy definition.
+         */
+        post: operations["draft_policy_version_v1_policies__policy_id__versions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policies/{policy_id}/versions/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Policy Version
+         * @description Retrieve a specific version of a statutory policy definition.
+         */
+        get: operations["get_policy_version_v1_policies__policy_id__versions__version__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/policies/{policy_id}/versions/{version}/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Transition Policy Version
+         * @description Transition a policy version through its formal lifecycle (DRAFT -> UNDER_REVIEW -> APPROVED -> ACTIVE -> SUPERSEDED / RETIRED).
+         */
+        post: operations["transition_policy_version_v1_policies__policy_id__versions__version__transition_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/replay/snapshots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Replay Snapshots
+         * @description List immutable replay snapshots available for evaluation.
+         */
+        get: operations["list_replay_snapshots_v1_replay_snapshots_get"];
+        put?: never;
+        /**
+         * Create Replay Snapshot
+         * @description Create an immutable, cryptographic input snapshot of admission enrolments for reproducible replay and simulation.
+         */
+        post: operations["create_replay_snapshot_v1_replay_snapshots_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/replay/snapshots/{snapshot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Replay Snapshot
+         * @description Retrieve details and canonical digest of an immutable replay snapshot.
+         */
+        get: operations["get_replay_snapshot_v1_replay_snapshots__snapshot_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/replay/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Policy Replay
+         * @description Execute a deterministic replay job evaluating an immutable admission snapshot against a specific policy version.
+         */
+        post: operations["run_policy_replay_v1_replay_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/replay/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Replay Job
+         * @description Retrieve status, evaluation summaries, and cryptographic result digest of a policy replay job.
+         */
+        get: operations["get_replay_job_v1_replay_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/simulations/seat-impact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Seat Simulations
+         * @description List seat-impact simulation runs with comparative capacity impact summaries.
+         */
+        get: operations["list_seat_simulations_v1_simulations_seat_impact_get"];
+        put?: never;
+        /**
+         * Run Seat Impact Simulation
+         * @description Simulate the impact of proposed policy changes against baseline rules on intake, supernumerary, and CIWG quotas.
+         */
+        post: operations["run_seat_impact_simulation_v1_simulations_seat_impact_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/simulations/seat-impact/{simulation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Seat Simulation
+         * @description Retrieve detailed seat-impact simulation comparative report, programme-level deltas, and violation transitions.
+         */
+        get: operations["get_seat_simulation_v1_simulations_seat_impact__simulation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/integrity/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Integrity Analytics
+         * @description Execute deterministic admission integrity detection rules (over-intake persistence, quota spikes, cross-institution duplicate clusters, etc.).
+         */
+        post: operations["run_integrity_analytics_v1_analytics_integrity_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/integrity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Integrity Findings
+         * @description Retrieve explainable admission integrity findings and detection indicators.
+         */
+        get: operations["list_integrity_findings_v1_analytics_integrity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/integrity/{finding_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Integrity Finding
+         * @description Record an authorized human review decision on an integrity finding (UNDER_INVESTIGATION, DISMISSED, ESCALATED).
+         */
+        post: operations["review_integrity_finding_v1_analytics_integrity__finding_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/config": {
         parameters: {
             query?: never;
@@ -1433,6 +2113,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/matching/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger Matching Job
+         * @description Trigger privacy-preserving cross-institution matching (AICTE Officer, Auditor, or Institution Admin).
+         */
+        post: operations["trigger_matching_job_v1_matching_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/matching/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Candidates
+         * @description List candidate matches with role-scoped data minimization.
+         */
+        get: operations["list_candidates_v1_matching_candidates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/matching/candidates/{match_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Candidate
+         * @description Retrieve detailed candidate match with role-scoped data minimization.
+         */
+        get: operations["get_candidate_v1_matching_candidates__match_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/matching/candidates/{match_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Candidate
+         * @description Record human review decision on candidate match, linking to E203 case resolution.
+         */
+        post: operations["review_candidate_v1_matching_candidates__match_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/matching/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Matching Stats
+         * @description Retrieve queue statistics for cross-institution matching.
+         */
+        get: operations["get_matching_stats_v1_matching_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1823,12 +2603,170 @@ export interface components {
              */
             replayed: boolean;
         };
+        /** Body_upload_case_evidence_v1_cases__case_id__evidence_post */
+        Body_upload_case_evidence_v1_cases__case_id__evidence_post: {
+            /** File */
+            file: string;
+            /**
+             * Category
+             * @default other
+             */
+            category: string;
+        };
+        /** Body_upload_grievance_evidence_v1_students_me_grievances__grievance_id__evidence_post */
+        Body_upload_grievance_evidence_v1_students_me_grievances__grievance_id__evidence_post: {
+            /** File */
+            file: string;
+            /**
+             * Category
+             * @default student_affidavit
+             */
+            category: string;
+        };
+        /** CandidateEnrolmentDetail */
+        CandidateEnrolmentDetail: {
+            /** Enrolment Id */
+            enrolment_id: number;
+            /** Institution Id */
+            institution_id: string;
+            /** Institution Name */
+            institution_name: string;
+            /** Programme Id */
+            programme_id?: string | null;
+            /** Programme Name */
+            programme_name?: string | null;
+            /** Institution Student Id */
+            institution_student_id?: string | null;
+            /** Apaar Masked */
+            apaar_masked?: string | null;
+            /**
+             * Is Own Institution
+             * @default false
+             */
+            is_own_institution: boolean;
+        };
+        /** CandidateMatchOut */
+        CandidateMatchOut: {
+            /** Id */
+            id: string;
+            /** Academic Year */
+            academic_year: string;
+            /** Rule Version */
+            rule_version: string;
+            /** Normalization Version */
+            normalization_version: string;
+            /**
+             * Classification
+             * @enum {string}
+             */
+            classification: "HIGH_CONFIDENCE_EXACT" | "MULTI_FIELD_COMPOSITE" | "CONFLICTING_INFO" | "NAME_ONLY_LEAD";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING_REVIEW" | "UNDER_REVIEW" | "CONFIRMED_DUPLICATE" | "FALSE_POSITIVE" | "INSUFFICIENT_EVIDENCE" | "ESCALATED";
+            /** Confidence Score */
+            confidence_score: number;
+            /** Matched Fields */
+            matched_fields: string[];
+            /** Conflicting Fields */
+            conflicting_fields: string[];
+            /** Measurements */
+            measurements: {
+                [key: string]: unknown;
+            };
+            record_a: components["schemas"]["CandidateEnrolmentDetail"];
+            record_b: components["schemas"]["CandidateEnrolmentDetail"];
+            /** Linked Case Id */
+            linked_case_id?: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
+            /** Review Notes */
+            review_notes?: string | null;
+            /** Audit Ref */
+            audit_ref?: string | null;
+        };
+        /** CandidateMatchesPage */
+        CandidateMatchesPage: {
+            /** Items */
+            items: components["schemas"]["CandidateMatchOut"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /** CaseDecisionIn */
+        CaseDecisionIn: {
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "CONFIRMED" | "NOT_CONFIRMED" | "INSUFFICIENT_EVIDENCE" | "REFERRED_FOR_ESCALATION";
+            /** Reason */
+            reason: string;
+            /** Evidence Ids */
+            evidence_ids?: number[];
+            /**
+             * Rule Ref
+             * @description e.g. E203, E301, E302
+             */
+            rule_ref?: string | null;
+            /**
+             * Keep Enrolment Id
+             * @description Required if confirming duplicate: the enrolment that stands
+             */
+            keep_enrolment_id?: number | null;
+        };
+        /** CaseDecisionOut */
+        CaseDecisionOut: {
+            /** Id */
+            id: number;
+            /** Case Id */
+            case_id: number;
+            /** Outcome */
+            outcome: string;
+            /** Reason */
+            reason: string;
+            /** Evidence Ids */
+            evidence_ids: number[];
+            /** Rule Ref */
+            rule_ref: string | null;
+            /** Previous Status */
+            previous_status: string;
+            /** Resulting Status */
+            resulting_status: string;
+            /** Decision Maker */
+            decision_maker: string;
+            /**
+             * Decided At
+             * Format: date-time
+             */
+            decided_at: string;
+            /** Audit Ref */
+            audit_ref?: string | null;
+        };
         /** CaseOut */
         CaseOut: {
             /** Id */
             id: number;
             /** Status */
             status: string;
+            /**
+             * Case Type
+             * @default E203
+             */
+            case_type: string;
             /**
              * Created At
              * Format: date-time
@@ -1858,6 +2796,12 @@ export interface components {
             detail?: {
                 [key: string]: unknown;
             }[] | null;
+            /** Evidence */
+            evidence?: components["schemas"]["EvidenceOut"][];
+            /** Decisions */
+            decisions?: components["schemas"]["CaseDecisionOut"][];
+            /** Linked Grievances */
+            linked_grievances?: number[];
         };
         /** CaseResolve */
         CaseResolve: {
@@ -1865,7 +2809,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "confirmed_duplicate" | "false_positive" | "under_investigation";
+            status: "confirmed_duplicate" | "false_positive" | "under_investigation" | "under_review" | "evidence_required" | "decision_pending" | "resolved" | "rejected" | "withdrawn" | "escalated";
             /** Note */
             note: string;
             /**
@@ -2080,6 +3024,40 @@ export interface components {
              */
             valid_days: number;
         };
+        /** CorrectionRequestIn */
+        CorrectionRequestIn: {
+            /** Category */
+            category: string;
+            /** Subject */
+            subject: string;
+            /** Description */
+            description: string;
+            /** Enrolment Id */
+            enrolment_id?: number | null;
+            /** Case Id */
+            case_id?: number | null;
+            /** Institution Id */
+            institution_id?: string | null;
+            /** Proposed Changes */
+            proposed_changes?: {
+                [key: string]: unknown;
+            };
+        };
+        /** CorrectionReviewIn */
+        CorrectionReviewIn: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approved" | "rejected" | "more_info_needed" | "escalated";
+            /** Rationale */
+            rationale: string;
+            /**
+             * Apply Changes
+             * @default true
+             */
+            apply_changes: boolean;
+        };
         /** CredentialOut */
         CredentialOut: {
             /** Id */
@@ -2189,6 +3167,80 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** EvidenceIntegrityOut */
+        EvidenceIntegrityOut: {
+            /** Evidence Id */
+            evidence_id: number;
+            /** Recorded Digest */
+            recorded_digest: string;
+            /** Computed Digest */
+            computed_digest: string;
+            /** Is Valid */
+            is_valid: boolean;
+            /**
+             * Byte Integrity
+             * @default INTACT
+             */
+            byte_integrity: string;
+            /**
+             * Verified At
+             * Format: date-time
+             */
+            verified_at: string;
+            /** Audit Ref */
+            audit_ref?: string | null;
+            /**
+             * Disclaimer
+             * @default Byte-level hash verification confirms file contents match the recorded upload digest. It does not certify legal validity or document authenticity without human evaluation.
+             */
+            disclaimer: string;
+        };
+        /** EvidenceOut */
+        EvidenceOut: {
+            /** Id */
+            id: number;
+            /** Case Id */
+            case_id?: number | null;
+            /** Grievance Id */
+            grievance_id?: number | null;
+            /** Category */
+            category: string;
+            /** Filename */
+            filename: string;
+            /** Media Type */
+            media_type: string;
+            /** File Size */
+            file_size: number;
+            /** Sha256 Digest */
+            sha256_digest: string;
+            /** Status */
+            status: string;
+            /** Verification Notes */
+            verification_notes?: string | null;
+            /** Uploaded By */
+            uploaded_by: string;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
+            /** Audit Ref */
+            audit_ref?: string | null;
+        };
+        /** EvidenceReviewIn */
+        EvidenceReviewIn: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "verified" | "rejected" | "needs_clarification" | "under_review";
+            /** Notes */
+            notes: string;
+        };
         /** ExcessRow */
         ExcessRow: {
             /** Programme Id */
@@ -2207,6 +3259,16 @@ export interface components {
             cap: number;
             /** Excess */
             excess: number;
+        };
+        /** FindingReviewIn */
+        FindingReviewIn: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "UNDER_INVESTIGATION" | "DISMISSED" | "ESCALATED";
+            /** Notes */
+            notes: string;
         };
         /** FlagReviewIn */
         FlagReviewIn: {
@@ -2247,6 +3309,134 @@ export interface components {
              * @default false
              */
             replayed: boolean;
+        };
+        /** GrievanceOut */
+        GrievanceOut: {
+            /** Id */
+            id: number;
+            /** Student Id */
+            student_id: number;
+            /** Case Id */
+            case_id?: number | null;
+            /** Enrolment Id */
+            enrolment_id?: number | null;
+            /** Institution Id */
+            institution_id?: string | null;
+            /**
+             * Record Type
+             * @default grievance
+             */
+            record_type: string;
+            /** Category */
+            category: string;
+            /** Subject */
+            subject: string;
+            /** Description */
+            description: string;
+            /** Proposed Changes */
+            proposed_changes?: {
+                [key: string]: unknown;
+            };
+            /** Current Values */
+            current_values?: {
+                [key: string]: unknown;
+            };
+            /** Status */
+            status: string;
+            /** Assigned To */
+            assigned_to?: string | null;
+            /** Resolution Summary */
+            resolution_summary?: string | null;
+            /** Review Decision */
+            review_decision?: string | null;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
+            /** Applied At */
+            applied_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Resolved At */
+            resolved_at?: string | null;
+            /** Responses */
+            responses?: components["schemas"]["GrievanceResponseOut"][];
+            /** Evidence */
+            evidence?: components["schemas"]["EvidenceOut"][];
+        };
+        /** GrievanceResponseIn */
+        GrievanceResponseIn: {
+            /** Message */
+            message: string;
+            /**
+             * Visibility
+             * @default student_visible
+             * @enum {string}
+             */
+            visibility: "student_visible" | "internal_only";
+        };
+        /** GrievanceResponseOut */
+        GrievanceResponseOut: {
+            /** Id */
+            id: number;
+            /** Grievance Id */
+            grievance_id: number;
+            /** Responder Id */
+            responder_id: string;
+            /** Responder Role */
+            responder_role: string;
+            /** Message */
+            message: string;
+            /** Visibility */
+            visibility: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** GrievanceStatusUpdateIn */
+        GrievanceStatusUpdateIn: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "acknowledged" | "under_review" | "response_required" | "needs_more_information" | "resolution_proposed" | "resolved" | "accepted" | "rejected" | "escalated" | "withdrawn" | "closed";
+            /** Summary */
+            summary?: string | null;
+        };
+        /** GrievanceSubmitIn */
+        GrievanceSubmitIn: {
+            /** Category */
+            category: string;
+            /** Subject */
+            subject: string;
+            /** Description */
+            description: string;
+            /** Enrolment Id */
+            enrolment_id?: number | null;
+            /** Case Id */
+            case_id?: number | null;
+            /** Institution Id */
+            institution_id?: string | null;
+            /**
+             * Record Type
+             * @default grievance
+             * @enum {string}
+             */
+            record_type: "grievance" | "correction_request";
+            /** Proposed Changes */
+            proposed_changes?: {
+                [key: string]: unknown;
+            };
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -2316,6 +3506,50 @@ export interface components {
             dqs: components["schemas"]["Dqs"] | null;
             /** Flags */
             flags: components["schemas"]["AnomalyFlag"][];
+        };
+        /** IntegrityFindingOut */
+        IntegrityFindingOut: {
+            /** Id */
+            id: string;
+            /** Indicator Type */
+            indicator_type: string;
+            /** Institution Id */
+            institution_id: string;
+            /** Programme Id */
+            programme_id: string | null;
+            /** Academic Year */
+            academic_year: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "HIGH" | "MEDIUM" | "LOW";
+            /** Score */
+            score: number;
+            /** Detection Rule */
+            detection_rule: string;
+            /** Supporting Measurements */
+            supporting_measurements: {
+                [key: string]: unknown;
+            };
+            /** Explanation */
+            explanation: string;
+            /**
+             * Detected At
+             * Format: date-time
+             */
+            detected_at: string;
+            /**
+             * Review Status
+             * @enum {string}
+             */
+            review_status: "NEW" | "UNDER_INVESTIGATION" | "DISMISSED" | "ESCALATED";
+            /** Review Notes */
+            review_notes?: string | null;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
         };
         /** Issue */
         Issue: {
@@ -2395,6 +3629,79 @@ export interface components {
             institution_id: string | null;
             /** Display Name */
             display_name: string;
+        };
+        /** MatchReviewIn */
+        MatchReviewIn: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "CONFIRM_DUPLICATE" | "MARK_FALSE_POSITIVE" | "REQUEST_EVIDENCE" | "ESCALATE" | "SET_UNDER_REVIEW";
+            /** Notes */
+            notes: string;
+        };
+        /** MatchingJobOut */
+        MatchingJobOut: {
+            /** Academic Year */
+            academic_year: string;
+            /** Rule Version */
+            rule_version: string;
+            /** Normalization Version */
+            normalization_version: string;
+            /** Total Evaluated Records */
+            total_evaluated_records: number;
+            /** Candidate Pairs Evaluated */
+            candidate_pairs_evaluated: number;
+            /** Candidates Created */
+            candidates_created: number;
+            /** Candidates Updated */
+            candidates_updated: number;
+            /** Total Candidates */
+            total_candidates: number;
+            /** Duration Ms */
+            duration_ms: number;
+            /** Executed At */
+            executed_at: string;
+            /** Executed By */
+            executed_by: string;
+        };
+        /** MatchingJobTriggerIn */
+        MatchingJobTriggerIn: {
+            /**
+             * Academic Year
+             * @default 2026-27
+             */
+            academic_year: string;
+            /**
+             * Rule Version
+             * @default RULE_V1_0
+             */
+            rule_version: string;
+            /** Target Institution Id */
+            target_institution_id?: string | null;
+        };
+        /** MatchingStatsOut */
+        MatchingStatsOut: {
+            /** Total Candidates */
+            total_candidates: number;
+            /** By Status */
+            by_status: {
+                [key: string]: number;
+            };
+            /** By Classification */
+            by_classification: {
+                [key: string]: number;
+            };
+            /** Pending Review Count */
+            pending_review_count: number;
+            /** Confirmed Duplicate Count */
+            confirmed_duplicate_count: number;
+            /** False Positive Count */
+            false_positive_count: number;
+            /** Rule Version */
+            rule_version: string;
+            /** Normalization Version */
+            normalization_version: string;
         };
         /** NetworkComponent */
         NetworkComponent: {
@@ -2486,6 +3793,135 @@ export interface components {
             /** Note */
             note: string;
         };
+        /** OcrCapabilityOut */
+        OcrCapabilityOut: {
+            /** Tesseract Available */
+            tesseract_available: boolean;
+            /** Tesseract Version */
+            tesseract_version?: string | null;
+            /** Installed Languages */
+            installed_languages?: string[];
+            /** Pymupdf Available */
+            pymupdf_available: boolean;
+            /** Pymupdf Version */
+            pymupdf_version?: string | null;
+            /** Supported Formats */
+            supported_formats?: string[];
+            /**
+             * Offline Mode
+             * @default true
+             */
+            offline_mode: boolean;
+            /** Model Source */
+            model_source: string;
+        };
+        /** OcrExtractedField */
+        OcrExtractedField: {
+            /** Field Key */
+            field_key: string;
+            /** Label */
+            label: string;
+            /** Candidate Value */
+            candidate_value: string;
+            /** Confidence */
+            confidence: number;
+            /** Source Page */
+            source_page: number;
+            /** Provenance Context */
+            provenance_context?: string | null;
+            /**
+             * Review Status
+             * @default pending_review
+             * @enum {string}
+             */
+            review_status: "pending_review" | "accepted" | "rejected" | "corrected";
+            /** Corrected Value */
+            corrected_value?: string | null;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
+        };
+        /** OcrFieldReviewIn */
+        OcrFieldReviewIn: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "accept" | "reject" | "correct";
+            /** Corrected Value */
+            corrected_value?: string | null;
+            /** Review Notes */
+            review_notes?: string | null;
+        };
+        /** OcrJobOut */
+        OcrJobOut: {
+            /** Id */
+            id: number;
+            /** Evidence Id */
+            evidence_id: number;
+            /** Source Digest */
+            source_digest: string;
+            /** Status */
+            status: string;
+            /** Language */
+            language: string;
+            /** Extraction Method */
+            extraction_method: string;
+            /** Page Count */
+            page_count: number;
+            /** Pages */
+            pages?: components["schemas"]["OcrPageResult"][];
+            /** Fields */
+            fields?: components["schemas"]["OcrExtractedField"][];
+            /** Warnings */
+            warnings?: string[];
+            /**
+             * Duration Ms
+             * @default 0
+             */
+            duration_ms: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /**
+             * Is Stale
+             * @default false
+             */
+            is_stale: boolean;
+            /** Error Message */
+            error_message?: string | null;
+        };
+        /** OcrJobTriggerIn */
+        OcrJobTriggerIn: {
+            /**
+             * Language
+             * @default eng
+             */
+            language: string;
+            /**
+             * Force Reprocess
+             * @default false
+             */
+            force_reprocess: boolean;
+        };
+        /** OcrPageResult */
+        OcrPageResult: {
+            /** Page Number */
+            page_number: number;
+            /** Extracted Text */
+            extracted_text: string;
+            /** Confidence */
+            confidence: number;
+            /** Extraction Method */
+            extraction_method: string;
+            /** Word Count */
+            word_count: number;
+        };
         /** PasskeyCredentialIn */
         PasskeyCredentialIn: {
             /**
@@ -2546,6 +3982,135 @@ export interface components {
             fdr_q: number;
             /** Note */
             note: string;
+        };
+        /** PolicyDefinitionCreateIn */
+        PolicyDefinitionCreateIn: {
+            /**
+             * Id
+             * @description e.g. POL-AICTE-INTAKE-2025
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /**
+             * Policy Source
+             * @description Handbook / Gazette reference
+             */
+            policy_source: string;
+            /** Academic Year */
+            academic_year: string;
+            /** Institution Scope */
+            institution_scope?: string[];
+            /** Programme Scope */
+            programme_scope?: string[];
+            /** Effective Date */
+            effective_date?: string | null;
+            /** Initial Rules */
+            initial_rules?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** PolicyDefinitionOut */
+        PolicyDefinitionOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** Policy Source */
+            policy_source: string;
+            /** Academic Year */
+            academic_year: string;
+            /** Institution Scope */
+            institution_scope: string[];
+            /** Programme Scope */
+            programme_scope: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created By */
+            created_by: string;
+            /** Versions */
+            versions?: components["schemas"]["PolicyVersionOut"][];
+        };
+        /** PolicyVersionDraftIn */
+        PolicyVersionDraftIn: {
+            /** Effective Date */
+            effective_date: string;
+            /** Rules */
+            rules: {
+                [key: string]: unknown;
+            };
+            /** Change Summary */
+            change_summary: string;
+        };
+        /** PolicyVersionOut */
+        PolicyVersionOut: {
+            /** Id */
+            id: number;
+            /** Policy Id */
+            policy_id: string;
+            /** Version */
+            version: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "UNDER_REVIEW" | "APPROVED" | "ACTIVE" | "SUPERSEDED" | "RETIRED";
+            /** Effective Date */
+            effective_date: string;
+            /** Rules */
+            rules: {
+                [key: string]: unknown;
+            };
+            /** Change Summary */
+            change_summary: string;
+            /** Created At */
+            created_at?: string | null;
+            /** Created By */
+            created_by: string;
+            /** Approved By */
+            approved_by?: string | null;
+            /** Approved At */
+            approved_at?: string | null;
+            /** Activated At */
+            activated_at?: string | null;
+        };
+        /** PolicyVersionTransitionIn */
+        PolicyVersionTransitionIn: {
+            /**
+             * Target Status
+             * @enum {string}
+             */
+            target_status: "DRAFT" | "UNDER_REVIEW" | "APPROVED" | "ACTIVE" | "SUPERSEDED" | "RETIRED";
+            /** Transition Note */
+            transition_note: string;
+        };
+        /** ProgrammeImpactOut */
+        ProgrammeImpactOut: {
+            /** Programme Id */
+            programme_id: string;
+            /** Baseline Capacity */
+            baseline_capacity: number;
+            /** Proposed Capacity */
+            proposed_capacity: number;
+            /** Capacity Delta */
+            capacity_delta: number;
+            /** Baseline Excess */
+            baseline_excess: number;
+            /** Proposed Excess */
+            proposed_excess: number;
+            /** Excess Delta */
+            excess_delta: number;
+            /** Regular Filled */
+            regular_filled: number;
+            /** Supernumerary Filled */
+            supernumerary_filled: number;
         };
         /** ProgrammeSeats */
         ProgrammeSeats: {
@@ -2656,6 +4221,90 @@ export interface components {
              */
             source: "mock";
         };
+        /** ReplayJobOut */
+        ReplayJobOut: {
+            /** Id */
+            id: number;
+            /** Policy Id */
+            policy_id: string;
+            /** Policy Version */
+            policy_version: number;
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Engine Version */
+            engine_version: string;
+            /** Input Digest */
+            input_digest: string;
+            /** Result Digest */
+            result_digest: string;
+            /** Status */
+            status: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Duration Ms */
+            duration_ms: number;
+            /** Summary Stats */
+            summary_stats: {
+                [key: string]: unknown;
+            };
+            /** Violations Json */
+            violations_json: {
+                [key: string]: unknown;
+            }[];
+            /** Warnings */
+            warnings?: string[];
+            /** Created By */
+            created_by: string;
+        };
+        /** ReplayJobTriggerIn */
+        ReplayJobTriggerIn: {
+            /** Policy Id */
+            policy_id: string;
+            /** Version */
+            version: number;
+            /** Snapshot Id */
+            snapshot_id: string;
+        };
+        /** ReplaySnapshotCreateIn */
+        ReplaySnapshotCreateIn: {
+            /** Title */
+            title: string;
+            /** Academic Year */
+            academic_year: string;
+            /** Institution Id */
+            institution_id?: string | null;
+            /** Batch Id */
+            batch_id?: number | null;
+        };
+        /** ReplaySnapshotOut */
+        ReplaySnapshotOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Academic Year */
+            academic_year: string;
+            /** Institution Id */
+            institution_id: string | null;
+            /** Batch Id */
+            batch_id: number | null;
+            /** Row Count */
+            row_count: number;
+            /** Input Digest */
+            input_digest: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created By */
+            created_by: string;
+        };
         /** ReviewerRow */
         ReviewerRow: {
             /** Reviewer */
@@ -2717,6 +4366,67 @@ export interface components {
             /** Excess */
             excess: number;
         };
+        /** SeatSimulationOut */
+        SeatSimulationOut: {
+            /** Id */
+            id: number;
+            /** Title */
+            title: string;
+            /** Baseline Policy Id */
+            baseline_policy_id: string;
+            /** Baseline Version */
+            baseline_version: number;
+            /** Proposed Policy Id */
+            proposed_policy_id: string;
+            /** Proposed Version */
+            proposed_version: number;
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Impact Summary */
+            impact_summary: {
+                [key: string]: unknown;
+            };
+            /** Programme Impacts */
+            programme_impacts: components["schemas"]["ProgrammeImpactOut"][];
+            /** New Violations */
+            new_violations: {
+                [key: string]: unknown;
+            }[];
+            /** Resolved Violations */
+            resolved_violations: {
+                [key: string]: unknown;
+            }[];
+            /** Manual Review Cases */
+            manual_review_cases: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Simulated At
+             * Format: date-time
+             */
+            simulated_at: string;
+            /** Simulated By */
+            simulated_by: string;
+        };
+        /** SeatSimulationTriggerIn */
+        SeatSimulationTriggerIn: {
+            /** Title */
+            title?: string | null;
+            /** Baseline Policy Id */
+            baseline_policy_id: string;
+            /** Baseline Version */
+            baseline_version: number;
+            /** Proposed Policy Id */
+            proposed_policy_id: string;
+            /** Proposed Version */
+            proposed_version: number;
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Scope */
+            scope?: {
+                [key: string]: unknown;
+            } | null;
+        };
         /** SetupOut */
         SetupOut: {
             /**
@@ -2750,16 +4460,24 @@ export interface components {
         };
         /** StudentEnrolment */
         StudentEnrolment: {
+            /** Id */
+            id?: number | null;
             /** Programme */
             programme: string;
             /** Institution */
             institution: string;
+            /** Institution Id */
+            institution_id?: string | null;
             /** Academic Year */
             academic_year: string;
             /** Status */
             status: string;
             /** Institution Student Id */
             institution_student_id: string;
+            /** Category Code */
+            category_code?: string | null;
+            /** Is Supernumerary */
+            is_supernumerary?: boolean | null;
         };
         /**
          * StudentLoginIn
@@ -3910,6 +5628,1248 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CaseOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_case_v1_cases__case_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transition_case_v1_cases__case_id__transition_post: {
+        parameters: {
+            query: {
+                target_status: string;
+                note: string;
+            };
+            header?: never;
+            path: {
+                case_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_case_evidence_v1_cases__case_id__evidence_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_case_evidence_v1_cases__case_id__evidence_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    download_evidence_v1_evidence__evidence_id__download_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evidence_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_evidence_v1_evidence__evidence_id__verify_integrity_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evidence_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceIntegrityOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_evidence_v1_evidence__evidence_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evidence_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvidenceReviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ocr_capabilities_v1_ocr_capabilities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OcrCapabilityOut"];
+                };
+            };
+        };
+    };
+    get_evidence_ocr_v1_evidence__evidence_id__ocr_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evidence_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OcrJobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_evidence_ocr_v1_evidence__evidence_id__ocr_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evidence_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OcrJobTriggerIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OcrJobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_ocr_field_v1_evidence__evidence_id__ocr_fields__field_key__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evidence_id: number;
+                field_key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OcrFieldReviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OcrJobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_decision_v1_cases__case_id__decide_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CaseDecisionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseDecisionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_own_grievances_v1_students_me_grievances_get: {
+        parameters: {
+            query?: {
+                record_type?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_student_grievance_v1_students_me_grievances_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrievanceSubmitIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_student_correction_v1_students_me_corrections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionRequestIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_grievance_evidence_v1_students_me_grievances__grievance_id__evidence_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grievance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_grievance_evidence_v1_students_me_grievances__grievance_id__evidence_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_grievances_v1_grievances_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                record_type?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_grievance_v1_grievances__grievance_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grievance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_grievance_response_v1_grievances__grievance_id__responses_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grievance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrievanceResponseIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceResponseOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_grievance_status_v1_grievances__grievance_id__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grievance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrievanceStatusUpdateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_grievance_or_correction_v1_grievances__grievance_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grievance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionReviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    link_grievance_case_v1_grievances__grievance_id__link_case_post: {
+        parameters: {
+            query: {
+                case_id: number;
+            };
+            header?: never;
+            path: {
+                grievance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrievanceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_policies_v1_policies_get: {
+        parameters: {
+            query?: {
+                institution_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyDefinitionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_policy_definition_v1_policies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PolicyDefinitionCreateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyDefinitionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_policy_v1_policies__policy_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                policy_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyDefinitionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    draft_policy_version_v1_policies__policy_id__versions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                policy_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PolicyVersionDraftIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyVersionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_policy_version_v1_policies__policy_id__versions__version__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                policy_id: string;
+                version: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyVersionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transition_policy_version_v1_policies__policy_id__versions__version__transition_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                policy_id: string;
+                version: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PolicyVersionTransitionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PolicyVersionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_replay_snapshots_v1_replay_snapshots_get: {
+        parameters: {
+            query?: {
+                institution_id?: number | null;
+                academic_year?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplaySnapshotOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_replay_snapshot_v1_replay_snapshots_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplaySnapshotCreateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplaySnapshotOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_replay_snapshot_v1_replay_snapshots__snapshot_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                snapshot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplaySnapshotOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_policy_replay_v1_replay_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplayJobTriggerIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplayJobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_replay_job_v1_replay_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplayJobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_seat_simulations_v1_simulations_seat_impact_get: {
+        parameters: {
+            query?: {
+                institution_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeatSimulationOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_seat_impact_simulation_v1_simulations_seat_impact_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SeatSimulationTriggerIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeatSimulationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_seat_simulation_v1_simulations_seat_impact__simulation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                simulation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeatSimulationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_integrity_analytics_v1_analytics_integrity_run_post: {
+        parameters: {
+            query?: {
+                academic_year?: string | null;
+                institution_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrityFindingOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_integrity_findings_v1_analytics_integrity_get: {
+        parameters: {
+            query?: {
+                institution_id?: number | null;
+                academic_year?: string | null;
+                indicator_type?: string | null;
+                severity?: string | null;
+                review_status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrityFindingOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_integrity_finding_v1_analytics_integrity__finding_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                finding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FindingReviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrityFindingOut"];
                 };
             };
             /** @description Validation Error */
@@ -5099,6 +8059,171 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccessLogEntry"][];
+                };
+            };
+        };
+    };
+    trigger_matching_job_v1_matching_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatchingJobTriggerIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchingJobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_candidates_v1_matching_candidates_get: {
+        parameters: {
+            query?: {
+                academic_year?: string | null;
+                classification?: string | null;
+                status?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateMatchesPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_candidate_v1_matching_candidates__match_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateMatchOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_candidate_v1_matching_candidates__match_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                match_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatchReviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateMatchOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_matching_stats_v1_matching_stats_get: {
+        parameters: {
+            query?: {
+                academic_year?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchingStatsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

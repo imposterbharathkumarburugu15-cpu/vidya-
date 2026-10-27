@@ -53,6 +53,7 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
   const reduce = useReducedMotion();
   const box = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ name: string; x: number; y: number } | null>(null);
+  const [selectedState, setSelectedState] = useState<string | null>("Maharashtra");
   const pts = useMemo(() => CITIES.map(([, lon, lat]) => project(lon, lat)), []);
   const web = useMemo(() => {  // each city to its two nearest neighbours: a constellation, not a hub-and-spoke
     const seen = new Set<string>(), out: [number, number][] = [];
@@ -74,7 +75,13 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
     const r = box.current!.getBoundingClientRect();
     setHover({ name, x: e.clientX - r.left, y: e.clientY - r.top });
   };
+  const onClickState = (name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedState(name);
+    onMove(name)(e);
+  };
   const h = hover ? by.get(hover.name) : undefined;
+  const selectedData = selectedState ? by.get(selectedState) : undefined;
   const summary = states.filter((s) => s.reporting).map((s) => `${s.state}: ${s.students == null ? "fewer than 10" : s.students.toLocaleString("en-IN")} students`).join("; ");
 
   return (
@@ -103,11 +110,24 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
 
         {/* states: lighter = fewer students, darker = more */}
         {STATE_PATHS.map((s) => {
-          const on = hover?.name === s.name;
+          const on = hover?.name === s.name || selectedState === s.name;
           return (
-            <path key={s.name} d={s.d} fill={fill(s.name)} fillOpacity={0.92} stroke={on ? "#FFF1C2" : "rgba(255,226,150,0.35)"}
-              strokeWidth={on ? 2 : 0.7} strokeLinejoin="round" onMouseMove={onMove(s.name)}
-              style={{ filter: on ? "drop-shadow(0 0 6px rgba(255,214,120,0.9))" : undefined, transition: "stroke-width 120ms" }} />
+            <path
+              key={s.name}
+              d={s.d}
+              fill={fill(s.name)}
+              fillOpacity={0.92}
+              stroke={on ? "#FFF1C2" : "rgba(255,226,150,0.35)"}
+              strokeWidth={on ? 2.4 : 0.7}
+              strokeLinejoin="round"
+              onMouseMove={onMove(s.name)}
+              onClick={(e) => onClickState(s.name, e)}
+              style={{
+                cursor: "pointer",
+                filter: on ? "drop-shadow(0 0 8px rgba(255,214,120,0.95))" : undefined,
+                transition: "stroke-width 120ms, filter 120ms",
+              }}
+            />
           );
         })}
         <rect x={VB.x} y={VB.y} width={VB.w} height={VB.h} fill={`url(#dots-${u})`} clipPath={`url(#land-${u})`} pointerEvents="none" />
@@ -187,6 +207,76 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
         <span className="h-2 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, ${ramp(0)}, ${ramp(0.5)}, ${ramp(1)})` }} />
         <span>More students</span>
       </div>
+
+      <p className="mt-2 text-center text-xs text-amber-200/90 font-medium">
+        👆 <strong>Click any state on the map or select below</strong> to inspect live enrolled student counts &amp; college reporting status.
+      </p>
+
+      {/* Quick State Selector Pills */}
+      <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5 px-2">
+        {states.map((s) => {
+          const isSelected = selectedState === s.state;
+          return (
+            <button
+              key={s.state}
+              type="button"
+              onClick={() => setSelectedState(s.state)}
+              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all ${
+                isSelected
+                  ? "bg-gradient-to-r from-[#F5C067] to-[#E5A93C] text-black font-bold shadow-md shadow-amber-500/20 scale-105"
+                  : "bg-slate-800/80 border border-slate-700/80 text-slate-300 hover:text-white hover:border-amber-400/50 hover:bg-slate-750"
+              }`}
+            >
+              {s.state} {s.students != null ? `(${s.students})` : ""}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selected State Live Inspection Dossier Card */}
+      {selectedState && (
+        <div className="glass-premium mt-3 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-950/70 via-slate-900/95 to-slate-950 p-4 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-amber-400/20 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] animate-ping" />
+              <h4 className="font-bold text-white text-base tracking-tight">{selectedState}</h4>
+              <span className="rounded-full bg-amber-400/15 border border-amber-400/30 px-2.5 py-0.5 text-[10px] font-bold text-amber-300">
+                STATE DATA
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedState(null)}
+              className="rounded-lg border border-white/10 px-2 py-0.5 text-xs text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              ✕ Clear
+            </button>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+            <div className="rounded-xl bg-black/50 p-3 border border-white/5">
+              <span className="text-slate-400 block text-[11px] font-medium">Enrolled Students</span>
+              <span className="text-xl font-bold text-amber-300 font-mono mt-1 block">
+                {selectedData?.students == null ? (selectedData?.reporting ? "Fewer than 10" : "0") : selectedData.students.toLocaleString("en-IN")}
+              </span>
+            </div>
+            <div className="rounded-xl bg-black/50 p-3 border border-white/5">
+              <span className="text-slate-400 block text-[11px] font-medium">Approved Colleges</span>
+              <span className="text-xl font-bold text-white font-mono mt-1 block">
+                {selectedData?.reporting ?? 0} <span className="text-xs text-slate-400 font-normal">/ {selectedData?.institutions ?? 0} reporting</span>
+              </span>
+            </div>
+            <div className="rounded-xl bg-black/50 p-3 border border-white/5 col-span-2 sm:col-span-1">
+              <span className="text-slate-400 block text-[11px] font-medium">Reporting Status</span>
+              <span className={`text-xs font-semibold block mt-1.5 ${
+                (selectedData?.reporting ?? 0) > 0 ? "text-amber-300" : "text-slate-400"
+              }`}>
+                {(selectedData?.reporting ?? 0) > 0 ? "✓ Actively Reporting" : "No Approved Batches Yet"}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

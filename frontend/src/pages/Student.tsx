@@ -11,6 +11,7 @@ import { ApiError, approveWithPasskey, getJson, sendJson, type S } from "../api/
 import { passkeyError } from "../webauthn";
 import { CertificateButton, CredentialCard, downloadJson } from "../credentials";
 import { Badge, Button, Card, Empty, ErrorNote, fmtTime, Loading, Table, Td, Updated, usePoll } from "../ui";
+import { StudentGrievanceSection } from "../components/StudentGrievance";
 
 const ACTION_LABEL: Record<string, string> = {
   "credential.verify": "Verified a credential", "credential.issue": "Issued a credential", "credential.read": "Viewed your credentials",
@@ -222,6 +223,9 @@ export default function StudentHome() {
           </div>
         )}
       </Card>
+
+      {/* Student Grievance & Dispute Resolution */}
+      <StudentGrievanceSection />
 
       {/* Access Audit Log */}
       <Card id="access-log"

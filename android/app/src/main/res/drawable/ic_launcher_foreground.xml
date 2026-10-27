@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Academic Gateway / Vidyadwaar Shield Motif -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M54,24L28,36v18c0,16 11.1,31 26,34.8c14.9,-3.8 26,-18.8 26,-34.8V36L54,24zM54,42c6.6,0 12,5.4 12,12c0,6.6 -5.4,12 -12,12s-12,-5.4 -12,-12C42,47.4 47.4,42 54,42zM54,62c4.4,0 8,-3.6 8,-8s-3.6,-8 -8,-8s-8,3.6 -8,8S49.6,62 54,62z" />
+    <path
+        android:fillColor="#F3E5AB"
+        android:pathData="M54,46l4,8h-8z" />
+</vector>

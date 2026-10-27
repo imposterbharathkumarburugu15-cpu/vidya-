@@ -8,13 +8,13 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Literal
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import ValidationError
 
-from . import accounts, ai, auth, cases, consent, credentials, crypto, dashboards, db, i18n, ingest, ledger, passkeys, reports, risk, webhooks
+from . import accounts, ai, auth, cases, consent, credentials, crypto, dashboards, db, i18n, ingest, ledger, matching, ocr, passkeys, policy, reports, risk, webhooks
 from .auth import require
 from .contracts import (CSV_COLUMNS, REQUIRED_COLUMNS, AiSummary, ColumnMapIn, ColumnMapOut, AccessRequestCreated, AccessRequestDecided, AccessRequestDecisionIn, AccessRequestIn,
                         AccessRequestOut, AccountActivateIn, AccountActivateOut, AccountCodeIn, AccountCodeOut, PublicAccount, PublicStats, AccessLogEntry, FlagReviewIn, FlagReviewOut, NetworkOut, PeerStatus, RulePerformance, ActivateIn, ActivationCodeIn, ActivationCodeOut, AuthConfig, PasskeyCredentialIn,
@@ -22,7 +22,16 @@ from .contracts import (CSV_COLUMNS, REQUIRED_COLUMNS, AiSummary, ColumnMapIn, C
                         WebhookDelivery, WebhookIn, WebhookOut, AicteDashboard, AnomalyFlag, InspectionEntry, InstitutionRisk, BatchJsonIn, BatchOut, CertificateOut, CheckpointOut, ConsentApprove,
                         ConsentCredentialOut, ConsentOut, ConsentRequestIn, CredentialOut, CredentialStatusIn, EnrolmentOut,
                         EnrolmentPatch, InstitutionDashboard, IssueIn, IssuesPage, LedgerVerifyOut, LoginIn, LoginOut,
-                        ProgrammeSeats, RegistryIssuer, StudentLoginIn, StudentProfile, VerifyIn, VerifyOut)
+                        ProgrammeSeats, RegistryIssuer, StudentLoginIn, StudentProfile, VerifyIn, VerifyOut,
+                        EvidenceOut, EvidenceReviewIn, EvidenceIntegrityOut, CaseDecisionIn, CaseDecisionOut,
+                        GrievanceSubmitIn, GrievanceResponseIn, GrievanceResponseOut, GrievanceStatusUpdateIn, GrievanceOut,
+                        CorrectionRequestIn, CorrectionReviewIn,
+                        OcrCapabilityOut, OcrJobTriggerIn, OcrFieldReviewIn, OcrJobOut,
+                        PolicyDefinitionCreateIn, PolicyDefinitionOut, PolicyVersionDraftIn, PolicyVersionTransitionIn,
+                        PolicyVersionOut, ReplaySnapshotCreateIn, ReplaySnapshotOut, ReplayJobTriggerIn, ReplayJobOut,
+                        SeatSimulationTriggerIn, SeatSimulationOut, ProgrammeImpactOut, IntegrityFindingOut, FindingReviewIn,
+                        PolicyComparisonReportOut, CandidateEnrolmentDetail, CandidateMatchOut, CandidateMatchesPage,
+                        MatchingJobTriggerIn, MatchingJobOut, MatchReviewIn, MatchingStatsOut)
 from .validation import missing_columns
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
@@ -34,7 +43,7 @@ async def lifespan(_app):
     yield
 
 
-app = FastAPI(title="VidyaPramaan: APAAR Student Data & Verification Platform (SIH26263 prototype)", version="0.1.0", lifespan=lifespan,
+app = FastAPI(title="Vidyadwaar: Academic Identity & Integrity Platform (SIH 2026 PS 26263)", version="0.1.0", lifespan=lifespan,
               description="Prototype. APAAR registry, AICTE approval registry, OTP and identity provider are MOCKS. Synthetic data only.")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
                    allow_methods=["*"], allow_headers=["*"], expose_headers=["X-Request-Id"])
@@ -549,6 +558,282 @@ def unmask_case(case_id: int, body: CaseUnmask, request: Request, user=Depends(r
     return cases.unmask(conn, user, case_id, body.reason, request)
 
 
+@app.get("/v1/cases/{case_id}", response_model=CaseOut,
+         description="Retrieve detailed case records, including attached evidence, structured decisions, and linked grievances.")
+def get_case(case_id: int, user=Depends(require("institution_admin", "aicte_officer", "auditor")), conn=Depends(get_conn)):
+    return cases.get_case_detail(conn, user, case_id)
+
+
+@app.post("/v1/cases/{case_id}/transition", response_model=CaseOut,
+          description="Transition case lifecycle status with state-machine validation and audit logging.")
+def transition_case(case_id: int, target_status: str, note: str, request: Request,
+                    user=Depends(require("institution_admin", "aicte_officer")), conn=Depends(get_conn)):
+    return cases.transition_case_state(conn, user, case_id, target_status, note, request)
+
+
+@app.post("/v1/cases/{case_id}/evidence", response_model=EvidenceOut,
+          description="Upload and cryptographically register evidence document for a case.")
+async def upload_case_evidence(case_id: int, file: UploadFile = File(...), category: str = Form("other"),
+                               request: Request = None, user=Depends(require("institution_admin", "aicte_officer")),
+                               conn=Depends(get_conn)):
+    file_bytes = await file.read()
+    return cases.attach_evidence(conn, user, file_bytes, file.filename or "evidence.dat",
+                                 file.content_type or "application/octet-stream", category, case_id=case_id, request=request)
+
+
+@app.get("/v1/evidence/{evidence_id}/download",
+         description="Authorized download of raw evidence binary with content-type preservation.")
+def download_evidence(evidence_id: int, user=Depends(require("student", "institution_admin", "aicte_officer", "auditor")),
+                      conn=Depends(get_conn)):
+    data, media_type, filename = cases.get_evidence_file(conn, user, evidence_id)
+    return Response(content=data, media_type=media_type, headers={"Content-Disposition": f'inline; filename="{filename}"'})
+
+
+@app.post("/v1/evidence/{evidence_id}/verify-integrity", response_model=EvidenceIntegrityOut,
+          description="Cryptographic integrity verification: recalculates SHA-256 over raw storage bytes and compares against recorded ledger digest.")
+def verify_evidence(evidence_id: int, user=Depends(require("institution_admin", "aicte_officer", "auditor")), conn=Depends(get_conn)):
+    return cases.verify_evidence_integrity(conn, user, evidence_id)
+
+
+@app.post("/v1/evidence/{evidence_id}/review", response_model=EvidenceOut,
+          description="Record an official review verdict on submitted evidence.")
+def review_evidence(evidence_id: int, body: EvidenceReviewIn, request: Request,
+                    user=Depends(require("institution_admin", "aicte_officer", "auditor")), conn=Depends(get_conn)):
+    return cases.review_evidence(conn, user, evidence_id, body.status, body.notes, request)
+
+
+# ---------- Offline OCR & Candidate Academic Field Extraction ----------
+@app.get("/v1/ocr/capabilities", response_model=OcrCapabilityOut,
+         description="Readiness and capability discovery for the offline OCR subsystem (engines, installed languages, formats).")
+def ocr_capabilities():
+    return ocr.get_ocr_capabilities()
+
+
+@app.post("/v1/evidence/{evidence_id}/ocr", response_model=OcrJobOut,
+          description="Trigger offline document OCR and candidate academic field extraction on an authorized evidence record.")
+def trigger_evidence_ocr(evidence_id: int, body: OcrJobTriggerIn, request: Request,
+                         user=Depends(require("institution_admin", "aicte_officer", "auditor")), conn=Depends(get_conn)):
+    return ocr.process_evidence_ocr(conn, user, evidence_id, body.language, body.force_reprocess, request)
+
+
+@app.get("/v1/evidence/{evidence_id}/ocr", response_model=OcrJobOut,
+         description="Retrieve page-level OCR text and candidate academic fields for an evidence record with source digest staleness check.")
+def get_evidence_ocr(evidence_id: int, user=Depends(require("student", "institution_admin", "aicte_officer", "auditor")),
+                     conn=Depends(get_conn)):
+    return ocr.get_evidence_ocr(conn, user, evidence_id)
+
+
+@app.post("/v1/evidence/{evidence_id}/ocr/fields/{field_key}/review", response_model=OcrJobOut,
+          description="Non-destructively record an authorized human review decision (accept, reject, correct) on an extracted academic field.")
+def review_ocr_field(evidence_id: int, field_key: str, body: OcrFieldReviewIn, request: Request,
+                     user=Depends(require("institution_admin", "aicte_officer", "auditor")), conn=Depends(get_conn)):
+    return ocr.review_ocr_field(conn, user, evidence_id, field_key, body.model_dump(), request)
+
+
+@app.post("/v1/cases/{case_id}/decide", response_model=CaseDecisionOut,
+          description="Record an authoritative human-in-the-loop decision on a case with policy and evidence references.")
+def record_decision(case_id: int, body: CaseDecisionIn, request: Request,
+                    user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
+    return cases.record_case_decision(conn, user, case_id, body.model_dump(), request)
+
+
+# ---------- Phase 2 & Phase 6: Student Grievances, Disputes & Record Corrections ----------
+@app.post("/v1/students/me/grievances", response_model=GrievanceOut,
+          description="Authenticated student submits an academic identity or enrolment dispute.")
+def submit_student_grievance(body: GrievanceSubmitIn, request: Request, user=Depends(require("student")), conn=Depends(get_conn)):
+    return cases.submit_grievance(conn, user, body.model_dump(), request)
+
+
+@app.post("/v1/students/me/corrections", response_model=GrievanceOut,
+          description="Authenticated student submits a formal correction request for academic or identity records.")
+def submit_student_correction(body: CorrectionRequestIn, request: Request, user=Depends(require("student")), conn=Depends(get_conn)):
+    data = body.model_dump() | {"record_type": "correction_request"}
+    return cases.submit_grievance(conn, user, data, request)
+
+
+@app.get("/v1/students/me/grievances", response_model=list[GrievanceOut],
+         description="List grievances and correction requests submitted by the authenticated student.")
+def list_own_grievances(record_type: str | None = None, user=Depends(require("student")), conn=Depends(get_conn)):
+    return cases.list_student_grievances(conn, user, record_type)
+
+
+@app.post("/v1/students/me/grievances/{grievance_id}/evidence", response_model=EvidenceOut,
+          description="Student uploads supporting document for their grievance or correction request.")
+async def upload_grievance_evidence(grievance_id: int, file: UploadFile = File(...), category: str = Form("student_affidavit"),
+                                    request: Request = None, user=Depends(require("student")), conn=Depends(get_conn)):
+    file_bytes = await file.read()
+    return cases.attach_evidence(conn, user, file_bytes, file.filename or "evidence.dat",
+                                 file.content_type or "application/octet-stream", category, grievance_id=grievance_id, request=request)
+
+
+@app.get("/v1/grievances", response_model=list[GrievanceOut],
+         description="List grievances and correction requests within caller scope (regulators see all; institutions see their college).")
+def list_grievances(status: str | None = None, record_type: str | None = None,
+                    user=Depends(require("institution_admin", "aicte_officer", "auditor")),
+                    conn=Depends(get_conn)):
+    return cases.list_all_grievances(conn, user, status, record_type)
+
+
+@app.get("/v1/grievances/{grievance_id}", response_model=GrievanceOut,
+         description="Retrieve detailed grievance or correction record. Internal notes are filtered out for student callers.")
+def get_grievance(grievance_id: int, user=Depends(require("student", "institution_admin", "aicte_officer", "auditor")),
+                  conn=Depends(get_conn)):
+    return cases.get_grievance(conn, user, grievance_id)
+
+
+@app.post("/v1/grievances/{grievance_id}/responses", response_model=GrievanceResponseOut,
+          description="Add response to a grievance or correction thread. Visibility can be student_visible or internal_only.")
+def add_grievance_response(grievance_id: int, body: GrievanceResponseIn, request: Request,
+                           user=Depends(require("student", "institution_admin", "aicte_officer", "auditor")),
+                           conn=Depends(get_conn)):
+    return cases.add_grievance_response(conn, user, grievance_id, body.model_dump(), request)
+
+
+@app.post("/v1/grievances/{grievance_id}/status", response_model=GrievanceOut,
+          description="Update grievance lifecycle state (e.g. acknowledged, under_review, needs_more_information, resolved, rejected, withdrawn).")
+def update_grievance_status(grievance_id: int, body: GrievanceStatusUpdateIn, request: Request,
+                            user=Depends(require("student", "institution_admin", "aicte_officer")),
+                            conn=Depends(get_conn)):
+    return cases.update_grievance_status(conn, user, grievance_id, body.model_dump(), request)
+
+
+@app.post("/v1/grievances/{grievance_id}/review", response_model=GrievanceOut,
+          description="Authorized reviewer (Institution Admin or AICTE Officer) reviews student correction request or dispute.")
+def review_grievance_or_correction(grievance_id: int, body: CorrectionReviewIn, request: Request,
+                                   user=Depends(require("institution_admin", "aicte_officer", "auditor")), conn=Depends(get_conn)):
+    return cases.review_correction(conn, user, grievance_id, body.model_dump(), request)
+
+
+@app.post("/v1/grievances/{grievance_id}/link-case", response_model=GrievanceOut,
+          description="Link a grievance to a duplicate or over-intake case.")
+def link_grievance_case(grievance_id: int, case_id: int, request: Request,
+                        user=Depends(require("institution_admin", "aicte_officer")), conn=Depends(get_conn)):
+    return cases.link_grievance_to_case(conn, user, grievance_id, case_id, request)
+
+
+# ---------- Phase 3: Policy Replay, Seat-Impact Simulation & Admission Integrity Analytics ----------
+
+@app.post("/v1/policies", response_model=PolicyDefinitionOut, status_code=201,
+          description="Author a new policy definition catalog entry with initial Version 1 in DRAFT state.")
+def create_policy_definition(body: PolicyDefinitionCreateIn, request: Request,
+                             user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
+    return policy.create_policy_definition(conn, user, body.model_dump(), request)
+
+
+@app.get("/v1/policies", response_model=list[PolicyDefinitionOut],
+         description="List all statutory policy definitions and current active versions.")
+def list_policies(institution_id: int | None = None,
+                  user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.list_policy_definitions(conn, institution_id)
+
+
+@app.get("/v1/policies/{policy_id}", response_model=PolicyDefinitionOut,
+         description="Retrieve a specific policy definition with full version history.")
+def get_policy(policy_id: str,
+               user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.get_policy_definition(conn, policy_id)
+
+
+@app.post("/v1/policies/{policy_id}/versions", response_model=PolicyVersionOut, status_code=201,
+          description="Draft a new policy version for an existing statutory policy definition.")
+def draft_policy_version(policy_id: str, body: PolicyVersionDraftIn, request: Request,
+                         user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
+    return policy.create_policy_draft_version(conn, user, policy_id, body.model_dump(), request)
+
+
+@app.get("/v1/policies/{policy_id}/versions/{version}", response_model=PolicyVersionOut,
+         description="Retrieve a specific version of a statutory policy definition.")
+def get_policy_version(policy_id: str, version: int,
+                       user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.get_policy_version(conn, policy_id, version)
+
+
+@app.post("/v1/policies/{policy_id}/versions/{version}/transition", response_model=PolicyVersionOut,
+          description="Transition a policy version through its formal lifecycle (DRAFT -> UNDER_REVIEW -> APPROVED -> ACTIVE -> SUPERSEDED / RETIRED).")
+def transition_policy_version(policy_id: str, version: int, body: PolicyVersionTransitionIn, request: Request,
+                              user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
+    return policy.transition_policy_version(conn, user, policy_id, version, body.model_dump(), request)
+
+
+@app.post("/v1/replay/snapshots", response_model=ReplaySnapshotOut, status_code=201,
+          description="Create an immutable, cryptographic input snapshot of admission enrolments for reproducible replay and simulation.")
+def create_replay_snapshot(body: ReplaySnapshotCreateIn, request: Request,
+                           user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.create_replay_snapshot(conn, user, body.model_dump(), request)
+
+
+@app.get("/v1/replay/snapshots", response_model=list[ReplaySnapshotOut],
+         description="List immutable replay snapshots available for evaluation.")
+def list_replay_snapshots(institution_id: int | None = None, academic_year: str | None = None,
+                          user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.list_replay_snapshots(conn, institution_id, academic_year)
+
+
+@app.get("/v1/replay/snapshots/{snapshot_id}", response_model=ReplaySnapshotOut,
+         description="Retrieve details and canonical digest of an immutable replay snapshot.")
+def get_replay_snapshot(snapshot_id: str,
+                        user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.get_replay_snapshot(conn, snapshot_id)
+
+
+@app.post("/v1/replay/jobs", response_model=ReplayJobOut, status_code=201,
+          description="Execute a deterministic replay job evaluating an immutable admission snapshot against a specific policy version.")
+def run_policy_replay(body: ReplayJobTriggerIn, request: Request,
+                      user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.run_policy_replay(conn, user, body.model_dump(), request)
+
+
+@app.get("/v1/replay/jobs/{job_id}", response_model=ReplayJobOut,
+         description="Retrieve status, evaluation summaries, and cryptographic result digest of a policy replay job.")
+def get_replay_job(job_id: str,
+                   user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.get_replay_job(conn, job_id)
+
+
+@app.post("/v1/simulations/seat-impact", response_model=SeatSimulationOut, status_code=201,
+          description="Simulate the impact of proposed policy changes against baseline rules on intake, supernumerary, and CIWG quotas.")
+def run_seat_impact_simulation(body: SeatSimulationTriggerIn, request: Request,
+                               user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.run_seat_impact_simulation(conn, user, body.model_dump(), request)
+
+
+@app.get("/v1/simulations/seat-impact", response_model=list[SeatSimulationOut],
+         description="List seat-impact simulation runs with comparative capacity impact summaries.")
+def list_seat_simulations(institution_id: int | None = None,
+                          user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.list_seat_simulations(conn, institution_id)
+
+
+@app.get("/v1/simulations/seat-impact/{simulation_id}", response_model=SeatSimulationOut,
+         description="Retrieve detailed seat-impact simulation comparative report, programme-level deltas, and violation transitions.")
+def get_seat_simulation(simulation_id: str,
+                        user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.get_seat_simulation(conn, simulation_id)
+
+
+@app.post("/v1/analytics/integrity/run", response_model=list[IntegrityFindingOut],
+          description="Execute deterministic admission integrity detection rules (over-intake persistence, quota spikes, cross-institution duplicate clusters, etc.).")
+def run_integrity_analytics(academic_year: str | None = None, institution_id: int | None = None, request: Request = None,
+                            user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
+    return policy.run_integrity_analytics(conn, user, academic_year, institution_id, request)
+
+
+@app.get("/v1/analytics/integrity", response_model=list[IntegrityFindingOut],
+         description="Retrieve explainable admission integrity findings and detection indicators.")
+def list_integrity_findings(institution_id: int | None = None, academic_year: str | None = None,
+                            indicator_type: str | None = None, severity: str | None = None, review_status: str | None = None,
+                            user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return policy.list_integrity_findings(conn, institution_id, academic_year, indicator_type, severity, review_status)
+
+
+@app.post("/v1/analytics/integrity/{finding_id}/review", response_model=IntegrityFindingOut,
+          description="Record an authorized human review decision on an integrity finding (UNDER_INVESTIGATION, DISMISSED, ESCALATED).")
+def review_integrity_finding(finding_id: str, body: FindingReviewIn, request: Request,
+                             user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
+    return policy.review_integrity_finding(conn, user, finding_id, body.model_dump(), request)
+
+
+
 # ---------- passkeys (P1, Req 5/8) ----------
 @app.get("/v1/auth/config", response_model=AuthConfig, description="Public: which sign-in paths are enabled.")
 def auth_config():
@@ -921,7 +1206,8 @@ def student_me(user=Depends(require_person("student", "guardian")), conn=Depends
     s = conn.execute("SELECT apaar_masked, provisional_id, apaar_status FROM students WHERE id=%s", (user["student_id"],)).fetchone()
     if s is None:
         raise HTTPException(404, "Student not found")
-    ens = conn.execute("SELECT p.name programme, i.name institution, e.academic_year, e.status, e.institution_student_id "
+    ens = conn.execute("SELECT e.id, p.name programme, i.name institution, p.institution_id, e.academic_year, e.status, "
+                       "e.institution_student_id, e.seat_category_code category_code, e.is_supernumerary "
                        "FROM enrolments e JOIN programmes p ON p.id=e.programme_id JOIN institutions i ON i.id=p.institution_id "
                        "WHERE e.student_id=%s ORDER BY e.id DESC", (user["student_id"],)).fetchall()
     return {**s, "enrolments": ens, "passkey_cooldown_until": passkeys.cooldown_until(conn), "viewer": user["role"]}
@@ -932,3 +1218,63 @@ def student_me(user=Depends(require_person("student", "guardian")), conn=Depends
 def student_access_log(user=Depends(require_person("student", "guardian")), conn=Depends(get_conn)):
     return conn.execute("SELECT ts, actor, role, action, reason, entity, entity_id FROM audit_logs WHERE student_id=%s "
                         "ORDER BY ts DESC LIMIT 500", (user["student_id"],)).fetchall()
+
+
+# ---------- Phase 5: Privacy-Preserving Matching Endpoints ----------
+@app.post("/v1/matching/run", response_model=MatchingJobOut,
+          description="Trigger privacy-preserving cross-institution matching (AICTE Officer, Auditor, or Institution Admin).")
+def trigger_matching_job(body: MatchingJobTriggerIn, user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    result = matching.run_cross_institution_matching(
+        conn,
+        user=user,
+        academic_year=body.academic_year,
+        rule_version=body.rule_version,
+        target_institution_id=body.target_institution_id,
+    )
+    conn.commit()
+    return result
+
+
+@app.get("/v1/matching/candidates", response_model=CandidateMatchesPage,
+         description="List candidate matches with role-scoped data minimization.")
+def list_candidates(academic_year: str | None = None, classification: str | None = None,
+                    status: str | None = None, page: int = 1, page_size: int = 20,
+                    user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return matching.list_candidate_matches(
+        conn,
+        user=user,
+        academic_year=academic_year,
+        classification=classification,
+        status=status,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@app.get("/v1/matching/candidates/{match_id}", response_model=CandidateMatchOut,
+         description="Retrieve detailed candidate match with role-scoped data minimization.")
+def get_candidate(match_id: str, user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return matching.get_candidate_match(conn, user=user, match_id=match_id)
+
+
+@app.post("/v1/matching/candidates/{match_id}/review", response_model=CandidateMatchOut,
+          description="Record human review decision on candidate match, linking to E203 case resolution.")
+def review_candidate(match_id: str, body: MatchReviewIn,
+                     user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    res = matching.review_candidate_match(
+        conn,
+        user=user,
+        match_id=match_id,
+        action=body.action,
+        notes=body.notes,
+    )
+    conn.commit()
+    return res
+
+
+@app.get("/v1/matching/stats", response_model=MatchingStatsOut,
+         description="Retrieve queue statistics for cross-institution matching.")
+def get_matching_stats(academic_year: str | None = None,
+                       user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
+    return matching.get_matching_stats(conn, user=user, academic_year=academic_year)
+
