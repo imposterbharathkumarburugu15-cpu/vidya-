@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X, Zap } from "lucide-react";
 import { BrandLogo } from "./BrandMark";
 import { BTN_PRIMARY } from "./landing/styles";
 
@@ -8,27 +8,26 @@ const LINKS = [
   ["#/how-it-works", "How it works", "how"],
   ["#/?s=data", "Live data", "data"],
   ["#/?s=roles", "Who it's for", "roles"],
-  ["#/?s=get-started", "One-Click Join", "get-started"],
   ["#/activate", "Activate account", "/activate"],
 ] as const;
 
 /**
  * Public header (sticky, glass): Vidyadwaar lockup, section links, mobile navigation,
- * and a gold Sign in button.
+ * secondary credentials sign-in, and a prominent gold "Get Started · One-Click" primary CTA.
  */
 export default function Navbar({ current = "/" }: { demo?: boolean; current?: string }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#07090E]/85 backdrop-blur-2xl transition-all">
-      <div className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-8 px-6 sm:px-10">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-6 px-6 sm:px-10">
         {/* Approved Brand Logo */}
         <a href="#/" aria-label="Vidyadwaar home" className="shrink-0 transition-transform hover:scale-[1.01]">
           <BrandLogo size="md" />
         </a>
 
         {/* Desktop Navigation — Centered & evenly spaced */}
-        <nav aria-label="Main" className="hidden items-center justify-center gap-2 font-inter lg:flex flex-1 max-w-2xl mx-auto">
+        <nav aria-label="Main" className="hidden items-center justify-center gap-1 font-inter lg:flex flex-1 max-w-2xl mx-auto">
           {LINKS.map(([href, text, key]) => {
             const on = current === key;
             return (
@@ -56,12 +55,32 @@ export default function Navbar({ current = "/" }: { demo?: boolean; current?: st
 
         {/* Action Controls & Mobile Toggle */}
         <div className="flex shrink-0 items-center gap-3 font-inter">
+          {/* Secondary Sign In for credentials */}
           <a
             href="#/signin"
-            className={`${BTN_PRIMARY} group !px-5 !py-2.5 !text-[14px] !font-bold shadow-[0_0_24px_rgba(245,192,103,0.3)] hover:shadow-[0_0_32px_rgba(245,192,103,0.45)]`}
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.04] px-3.5 py-2 text-[13px] font-semibold text-slate-300 hover:text-white hover:border-amber-400/40 hover:bg-white/[0.08] transition-all"
           >
             <span>Sign in</span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
+          </a>
+
+          {/* Primary High-Impact CTA: Get Started · One-Click */}
+          <a
+            href="#/?s=get-started"
+            onClick={(e) => {
+              const hash = window.location.hash;
+              if (hash === "" || hash === "#/" || hash.startsWith("#/?")) {
+                const el = document.getElementById("get-started");
+                if (el) {
+                  e.preventDefault();
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }
+            }}
+            className={`${BTN_PRIMARY} group !px-5 !py-2.5 !text-[14px] !font-extrabold shadow-[0_0_24px_rgba(245,192,103,0.38)] hover:shadow-[0_0_36px_rgba(245,192,103,0.55)] ring-1 ring-amber-400/40 hover:ring-amber-300 transition-all`}
+          >
+            <Zap className="h-4 w-4 text-black fill-black shrink-0" aria-hidden />
+            <span>Get Started · One-Click</span>
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 shrink-0" aria-hidden />
           </a>
 
           {/* Mobile hamburger button */}
@@ -79,24 +98,53 @@ export default function Navbar({ current = "/" }: { demo?: boolean; current?: st
 
       {/* Mobile Drawer Menu */}
       {mobileOpen && (
-        <div className="border-b border-white/10 bg-[#07090E]/98 px-6 py-5 backdrop-blur-2xl lg:hidden animate-fade-in space-y-2">
-          {LINKS.map(([href, text, key]) => {
-            const on = current === key;
-            return (
-              <a
-                key={href}
-                href={href}
-                onClick={() => setMobileOpen(false)}
-                className={`block rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
-                  on
-                    ? "bg-amber-400/10 text-amber-300 font-bold border border-amber-400/30"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {text}
-              </a>
-            );
-          })}
+        <div className="border-b border-white/10 bg-[#07090E]/98 px-6 py-5 backdrop-blur-2xl lg:hidden animate-fade-in space-y-3">
+          <a
+            href="#/?s=get-started"
+            onClick={(e) => {
+              setMobileOpen(false);
+              const hash = window.location.hash;
+              if (hash === "" || hash === "#/" || hash.startsWith("#/?")) {
+                const el = document.getElementById("get-started");
+                if (el) {
+                  e.preventDefault();
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F5C067] to-[#D4AF37] px-4 py-3 text-sm font-black text-black shadow-lg shadow-amber-500/25"
+          >
+            <Zap className="h-4 w-4 fill-black text-black" />
+            <span>Get Started · One-Click Sign In</span>
+            <ArrowRight className="h-4 w-4" />
+          </a>
+
+          <div className="space-y-1 pt-1">
+            {LINKS.map(([href, text, key]) => {
+              const on = current === key;
+              return (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                    on
+                      ? "bg-amber-400/10 text-amber-300 font-bold border border-amber-400/30"
+                      : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  {text}
+                </a>
+              );
+            })}
+            <a
+              href="#/signin"
+              onClick={() => setMobileOpen(false)}
+              className="block rounded-xl px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-white"
+            >
+              Sign in with credentials
+            </a>
+          </div>
         </div>
       )}
     </header>

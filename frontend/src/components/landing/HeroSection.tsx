@@ -3,7 +3,14 @@ import type { S } from "../../api/client";
 import IndiaMapLive from "./IndiaMapLive";
 import { BTN_PRIMARY, BTN_SECONDARY, fmt } from "./styles";
 
-const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+const scrollTo = (id: string) => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    el.classList.add("ring-2", "ring-amber-400/80", "rounded-3xl", "transition-all", "duration-500");
+    setTimeout(() => el.classList.remove("ring-2", "ring-amber-400/80"), 2500);
+  }
+};
 
 export default function HeroSection({ stats, failed }: { stats: S["PublicStats"] | null; failed: boolean; demo?: boolean }) {
   const reportingInstitutions = stats ? Math.max(348, stats.institutions_reporting * 116) : 348;
@@ -55,10 +62,11 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
             <button
               type="button"
               onClick={() => scrollTo("get-started")}
-              className={`${BTN_PRIMARY} group !px-7 !py-4 !text-[15px] !font-bold shadow-[0_0_30px_rgba(245,192,103,0.35)] hover:shadow-[0_0_40px_rgba(245,192,103,0.5)]`}
+              className={`${BTN_PRIMARY} group !px-8 !py-4 !text-[15.5px] !font-black tracking-wide shadow-[0_0_35px_rgba(245,192,103,0.45)] hover:shadow-[0_0_50px_rgba(245,192,103,0.6)] cursor-pointer ring-1 ring-amber-400/50 hover:ring-amber-300`}
             >
-              <span>Get Started · One-Click Join In</span>
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
+              <Zap className="h-4.5 w-4.5 text-black fill-black" />
+              <span>Get Started · One-Click Sign In</span>
+              <ArrowRight className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1" aria-hidden />
             </button>
 
             <a

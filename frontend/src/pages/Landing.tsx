@@ -13,6 +13,7 @@ import {
   Sparkles,
   Upload,
   UserRound,
+  Zap,
 } from "lucide-react";
 import { ApiError, getJson, login, studentLogin, type S, type Session } from "../api/client";
 import HeroSection from "../components/landing/HeroSection";
@@ -349,22 +350,23 @@ export default function Landing({
       </section>
 
       {/* One-Click Join In / Get Started Section */}
-      <section id="get-started" aria-labelledby="get-started-heading" className="scroll-mt-28 space-y-8 pt-4 pb-12">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
-          <div className="space-y-2 max-w-2xl">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-amber-400">
-              ONE-CLICK LIVE DEMO · ZERO SETUP REQUIRED
-            </span>
-            <h2 id="get-started-heading" className="font-inter text-3xl sm:text-4xl font-black tracking-[-0.02em] text-white">
-              Get Started — <span className={GOLD_TEXT}>One-Click Join In</span>
+      <section id="get-started" aria-labelledby="get-started-heading" className="scroll-mt-28 space-y-8 pt-6 pb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/35 bg-amber-400/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-300">
+              <Zap className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
+              <span>ONE-CLICK LIVE DEMO · ZERO SETUP REQUIRED</span>
+            </div>
+            <h2 id="get-started-heading" className="font-inter text-3xl sm:text-4xl lg:text-5xl font-black tracking-[-0.03em] text-white">
+              Get Started with <span className={GOLD_TEXT}>One-Click Sign In</span>
             </h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              No manual registration or password needed. Click any evaluative persona below to instantly join into their live portal with pre-loaded statutory intake ledgers, cryptographic credentials, and audit logs.
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+              No manual registration, passwords, or credentials needed. Click any portal below to instantly enter an active authenticated session with live student ledgers and cryptographic tools.
             </p>
           </div>
           <a
             href="#/signin"
-            className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-200 hover:border-amber-400/50 hover:text-white transition-all"
+            className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-4 py-3 text-xs font-bold text-slate-200 hover:border-amber-400/60 hover:text-white hover:bg-white/10 transition-all shadow-sm"
           >
             <span>Or Custom Passkey Sign In</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -431,7 +433,7 @@ export default function Landing({
         )}
 
         {/* 6 One-Click Join Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {ONE_CLICK_ROLES.map((role) => {
             const Icon = role.icon;
             const isBusy = busyKey === role.key;
@@ -439,39 +441,51 @@ export default function Landing({
               <div
                 key={role.key}
                 onMouseMove={spotlight}
-                className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-amber-400/50 hover:bg-[#1c1810]/70 hover:shadow-[0_0_30px_rgba(245,192,103,0.18)]"
+                onClick={() => !busyKey && handleJoin(role)}
+                className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-slate-900/70 p-6 backdrop-blur-xl transition-all duration-200 hover:-translate-y-1.5 hover:border-amber-400/60 hover:bg-[#1a160f]/80 hover:shadow-[0_0_35px_rgba(245,192,103,0.22)] cursor-pointer"
               >
                 <div>
                   <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                    <span className="rounded-full bg-white/5 px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-amber-300 border border-white/10">
+                    <span className="rounded-full bg-amber-400/10 px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-amber-300 border border-amber-400/20">
                       {role.tag}
                     </span>
-                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-400/10 text-amber-300 group-hover:bg-amber-400 group-hover:text-black transition-colors">
-                      <Icon className="h-4 w-4" />
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Live Ready
                     </span>
                   </div>
 
-                  <h3 className="mt-4 font-inter text-base font-bold text-white group-hover:text-amber-300 transition-colors">
-                    {role.title}
-                  </h3>
-                  <p className="mt-1.5 text-xs text-slate-400 leading-relaxed font-normal">
-                    {role.desc}
-                  </p>
+                  <div className="mt-4 flex items-start gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-400/15 text-amber-300 group-hover:bg-amber-400 group-hover:text-black transition-colors shadow-sm">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <h3 className="font-inter text-base font-bold text-white group-hover:text-amber-200 transition-colors leading-snug">
+                        {role.title}
+                      </h3>
+                      <p className="mt-1 text-xs text-slate-400 leading-relaxed font-normal">
+                        {role.desc}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-slate-500">
-                    One-Click Sandbox
-                  </span>
+                <div className="mt-6 pt-4 border-t border-white/10">
                   <button
                     type="button"
                     disabled={busyKey !== null}
-                    onClick={() => handleJoin(role)}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#F5C067] to-[#D4AF37] px-4 py-2 text-xs font-bold text-black shadow-md shadow-amber-500/20 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleJoin(role);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F5C067] to-[#D4AF37] py-3 px-4 text-xs sm:text-[13px] font-black text-black shadow-lg shadow-amber-500/25 group-hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
                   >
-                    <span>{isBusy ? "Joining In…" : "Join In"}</span>
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                    <Zap className="h-4 w-4 fill-black text-black shrink-0" />
+                    <span>{isBusy ? "Signing into Portal…" : "One-Click Sign In →"}</span>
                   </button>
+                  <span className="mt-2 block text-center text-[10px] font-mono text-slate-500">
+                    Instant sandbox authentication · No password
+                  </span>
                 </div>
               </div>
             );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, ShieldAlert, Sparkles, Building2, Landmark, GraduationCap, BadgeCheck, UserRound } from "lucide-react";
+import { ArrowRight, ShieldAlert, Sparkles, Building2, Landmark, GraduationCap, BadgeCheck, UserRound, Zap } from "lucide-react";
 import { ApiError, getJson, login, studentLogin, type S, type Session } from "../api/client";
 import AccountSearch, { type Account } from "../components/AccountSearch";
 import PasswordField from "../components/PasswordField";
@@ -194,11 +194,14 @@ export default function SignIn({ onLogin, demo = true, initialRole }: { onLogin:
                   </p>
                 </div>
 
-                <div className="mt-4 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
-                  <span className="text-amber-300 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                    {isThisBusy ? "Signing in…" : "One-Click Enter →"}
+                <div className="mt-4 pt-3 border-t border-white/10">
+                  <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F5C067] to-[#D4AF37] py-2 px-3 text-xs font-black text-black shadow-md shadow-amber-500/20 group-hover:brightness-110 transition-all">
+                    <Zap className="h-3.5 w-3.5 fill-black text-black shrink-0" />
+                    <span>{isThisBusy ? "Signing in…" : "One-Click Sign In →"}</span>
+                  </div>
+                  <span className="mt-1.5 block text-center text-[10px] uppercase font-mono text-slate-500">
+                    Instant Evaluator Session
                   </span>
-                  <span className="text-slate-500 text-[10px] uppercase font-mono">Instant Session</span>
                 </div>
               </button>
             );

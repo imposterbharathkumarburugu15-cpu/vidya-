@@ -44,8 +44,14 @@ export default function DemoAccess({ tab, onLogin }: { tab: string; onLogin: (s:
                 <span className="block text-[13.5px] font-semibold leading-snug text-white">{a.name}</span>
                 <span className="mt-0.5 block text-[12px] leading-snug text-[#a3a9b3]">{a.role}: {a.shows}</span>
               </span>
-              <span className="mt-0.5 shrink-0 text-[12.5px] font-semibold text-[#f1d488]">
-                {busy === a.key ? "Opening…" : <span className="inline-flex items-center gap-1">Enter <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden /></span>}
+              <span className="mt-0.5 shrink-0">
+                {busy === a.key ? (
+                  <span className="text-xs font-bold text-amber-300">Opening…</span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#F5C067] to-[#D4AF37] px-3 py-1.5 text-xs font-bold text-black shadow-sm group-hover:brightness-110 transition-all">
+                    1-Click Enter <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                  </span>
+                )}
               </span>
             </button>
           </li>
