@@ -60,22 +60,21 @@ export default function App() {
     setUnauthorizedHandler(logout);
   }, []);
 
-  if (!session) {
-    return (
-      <AppLayout currentHash="/login">
-        <Login
-          hash={hash}
-          onLogin={(s) => {
-            setSession(s);
-            go(HOME[s.role]);
-          }}
-        />
-      </AppLayout>
-    );
-  }
-
+  // Public full-screen interactive walkthrough
   if (hash === "/how-it-works" || hash === "/how") {
     return <HowItWorks />;
+  }
+
+  if (!session) {
+    return (
+      <Login
+        hash={hash}
+        onLogin={(s) => {
+          setSession(s);
+          go(HOME[s.role]);
+        }}
+      />
+    );
   }
 
   const batch = hash.match(/^\/inst\/batch\/(\d+)$/);
