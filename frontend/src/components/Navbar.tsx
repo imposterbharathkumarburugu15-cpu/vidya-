@@ -20,7 +20,7 @@ export default function Navbar({ current = "/" }: { demo?: boolean; current?: st
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#07090E]/85 backdrop-blur-2xl transition-all">
-      <div className="mx-auto flex h-[88px] w-full max-w-[1440px] items-center justify-between gap-8 px-6 sm:px-10">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-8 px-6 sm:px-10">
         {/* Approved Brand Logo */}
         <a href="#/" aria-label="Vidyadwaar home" className="shrink-0 transition-transform hover:scale-[1.01]">
           <BrandLogo size="md" />
@@ -45,7 +45,7 @@ export default function Navbar({ current = "/" }: { demo?: boolean; current?: st
                 {on && (
                   <span
                     aria-hidden
-                    className="absolute inset-x-3.5 -bottom-[22px] h-[2.5px] rounded-full bg-gradient-to-r from-[#F5C067] to-[#D4AF37] shadow-[0_0_12px_rgba(245,192,103,0.8)]"
+                    className="absolute inset-x-3.5 -bottom-[14px] h-[2.5px] rounded-full bg-gradient-to-r from-[#F5C067] to-[#D4AF37] shadow-[0_0_12px_rgba(245,192,103,0.8)]"
                   />
                 )}
               </a>

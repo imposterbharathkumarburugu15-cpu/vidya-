@@ -14,7 +14,7 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
   ] : [];
 
   return (
-    <section className="relative isolate -mx-6 -mt-6 overflow-hidden px-6 pb-20 pt-4 sm:-mx-10 sm:px-10 lg:pb-28 lg:pt-8">
+    <section className="relative isolate -mx-6 -mt-6 overflow-hidden px-6 pb-16 pt-0 sm:-mx-10 sm:px-10 lg:pb-24 lg:pt-1">
       {/* Deep cinematic background lighting */}
       <div aria-hidden className="absolute inset-0 -z-10 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px]" />
@@ -22,9 +22,9 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
         <div className="absolute -top-10 inset-x-0 h-40 bg-gradient-to-b from-[#07090E] via-[#07090E]/60 to-transparent" />
       </div>
 
-      <div className="mx-auto max-w-[1400px] grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
+      <div className="mx-auto max-w-[1400px] grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
         {/* Left Column: Confident Academic Platform Narrative (58% / 7 cols) */}
-        <div className="rise lg:col-span-7 space-y-7 pt-2 lg:pt-6">
+        <div className="rise lg:col-span-7 space-y-6 pt-0 lg:pt-2">
           {/* Small Uppercase Gold Eyebrow */}
           <div>
             <span className="inline-flex items-center gap-2.5 rounded-full border border-amber-400/35 bg-amber-400/10 px-4 py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-amber-300 shadow-[0_0_20px_rgba(245,192,103,0.18)]">

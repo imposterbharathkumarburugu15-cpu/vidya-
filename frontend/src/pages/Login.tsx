@@ -38,7 +38,7 @@ function PublicShell({ demo, current, children }: { demo: boolean; current: stri
       <Backdrop />
       <div aria-hidden className="ambient-grid pointer-events-none fixed inset-0 z-0 opacity-35" />
       <Navbar demo={demo} current={current} />
-      <main className="relative z-10 mx-auto w-full max-w-[1440px] px-5 pb-14 pt-6 sm:px-8">{children}</main>
+      <main className="relative z-10 mx-auto w-full max-w-[1440px] px-5 pb-14 pt-2 sm:px-8">{children}</main>
       <footer className="relative z-10 mx-auto max-w-[1440px] space-y-1 border-t border-white/[0.06] px-5 py-6 text-[11.5px] text-[#7d838d] sm:px-8">
         <p>Prototype for the AICTE problem statement SIH26263. Not an official Government of India or AICTE website.</p>
         <p>Synthetic data. The APAAR registry, AICTE approval registry and identity provider are simulated (MOCK). No real students or institutions.</p>
