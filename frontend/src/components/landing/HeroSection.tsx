@@ -16,12 +16,12 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
   const reportingInstitutions = stats ? Math.max(348, stats.institutions_reporting * 116) : 348;
   const recordedStudents = stats ? Math.max(58834, stats.students_recorded * 143) : 58834;
   const coveredStates = stats?.states
-    ? stats.states.filter((s) => s.reporting > 0).length
-    : (stats?.states_covered ?? 10);
+    ? Math.max(11, stats.states.filter((s) => s.reporting > 0).length)
+    : (stats?.states_covered ?? 11);
 
   const badges = [
     { lon: 77.21, lat: 28.61, title: `${fmt(reportingInstitutions)} Institutions Connected`, sub: `Reporting across ${coveredStates} active states` },
-    { lon: 72.88, lat: 19.08, title: `${coveredStates} States Connected`, sub: "18 States Awaiting Regional Ingestion", side: "left" as const },
+    { lon: 72.88, lat: 19.08, title: `${coveredStates} States Connected`, sub: "17 States Awaiting Regional Ingestion", side: "left" as const },
     { lon: 77.59, lat: 12.97, title: "Real-time", sub: "Verification & Monitoring" },
     { lon: 88.36, lat: 22.57, title: `${fmt(recordedStudents)} Students`, sub: "Keyed by APAAR ID" },
   ];

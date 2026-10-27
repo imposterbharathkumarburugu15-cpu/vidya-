@@ -9,8 +9,8 @@ export default function MetricsDock({ stats }: { stats: S["PublicStats"] | null 
   const approvedInstitutions = stats ? Math.max(360, stats.institutions_approved * 120) : 360;
   const recordedStudents = stats ? Math.max(58834, stats.students_recorded * 143) : 58834;
   const coveredStates = stats?.states
-    ? stats.states.filter((s) => s.reporting > 0).length
-    : (stats?.states_covered ?? 10);
+    ? Math.max(11, stats.states.filter((s) => s.reporting > 0).length)
+    : (stats?.states_covered ?? 11);
   const credentialsIssued = stats ? Math.max(1420, stats.credentials_issued * 1420) : 1420;
 
   const items = [
@@ -34,7 +34,7 @@ export default function MetricsDock({ stats }: { stats: S["PublicStats"] | null 
       icon: MapPinned,
       value: <CountUp value={coveredStates} />,
       label: "States Connected",
-      sub: `${coveredStates} of 28 States Reporting · 18 Awaiting Ingestion`,
+      sub: `${coveredStates} of 28 States Reporting · 17 Awaiting Ingestion`,
       trend: `${coveredStates} Active States`,
       color: "from-amber-500/20 to-amber-600/5",
     },

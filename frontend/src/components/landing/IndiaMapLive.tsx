@@ -227,17 +227,20 @@ const CITIES: [string, number, number, 1 | 2 | 3][] = [
   ["Goa", 73.83, 15.49, 3], ["Mangaluru", 74.86, 12.91, 3], ["Jodhpur", 73.02, 26.24, 3], ["Udaipur", 73.71, 24.58, 3],
 ];
 
-/** Dark frontier territories and contrast regions */
+/** Dark frontier territories and contrast regions (17 states awaiting regional ingestion) */
 export const DARK_REGIONS = new Set([
-  // Northern Himalayan Crest
+  // Northern Himalayan Crest & Frontier
   "Ladakh",
+  "Jammu & Kashmir",
   "Himachal Pradesh",
   "Uttarakhand",
+  "Haryana",
 
   // Western Desert Expanse
   "Rajasthan",
 
-  // Central-Eastern Belt
+  // Central-Eastern Belt Awaiting Ingestion
+  "Bihar",
   "Chhattisgarh",
   "Jharkhand",
   "Odisha",
