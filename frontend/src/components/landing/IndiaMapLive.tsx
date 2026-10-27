@@ -227,9 +227,26 @@ const CITIES: [string, number, number, 1 | 2 | 3][] = [
   ["Goa", 73.83, 15.49, 3], ["Mangaluru", 74.86, 12.91, 3], ["Jodhpur", 73.02, 26.24, 3], ["Udaipur", 73.71, 24.58, 3],
 ];
 
-/** Dark frontier territories and tail regions */
+/** Dark frontier territories and contrast regions */
 export const DARK_REGIONS = new Set([
+  // Northern Himalayan Crest
   "Ladakh",
+  "Himachal Pradesh",
+  "Uttarakhand",
+
+  // Western Desert Expanse
+  "Rajasthan",
+
+  // Central-Eastern Belt
+  "Chhattisgarh",
+  "Jharkhand",
+  "Odisha",
+
+  // Coastal Strip
+  "Kerala",
+  "Goa",
+
+  // Eastern Tail
   "Mizoram",
   "Manipur",
   "Nagaland",
@@ -239,6 +256,8 @@ export const DARK_REGIONS = new Set([
   "Sikkim",
   "Assam",
   "Andaman & Nicobar",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Puducherry",
 ]);
 
 /** Stars/cities in the eastern tail to keep darkened */
@@ -535,32 +554,50 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
         </div>
       ))}
 
-      {/* Glass hover card */}
-      {hover && !selectedState && (
+      {/* Glass hover card — always visible on pointing */}
+      {hover && (
         <div
           role="status"
-          className="glass-premium pointer-events-none absolute z-30 w-64 rounded-xl px-4 py-3 text-sm border border-amber-400/40 shadow-2xl backdrop-blur-xl bg-slate-900/90"
+          className="glass-premium pointer-events-none absolute z-50 min-w-[240px] max-w-[300px] rounded-xl px-4 py-3 text-sm border border-amber-400/50 shadow-2xl backdrop-blur-xl bg-slate-950/95 transition-all duration-75"
           style={{
-            left: Math.max(8, Math.min(hover.x + 18, (box.current?.clientWidth ?? 600) - 264)),
-            top: Math.max(8, hover.y - 96),
+            left: Math.max(12, Math.min(hover.x + 16, (box.current?.clientWidth ?? 600) - 310)),
+            top: Math.max(12, hover.y - 85),
           }}
         >
-          <div className="flex items-center gap-1.5 font-bold text-white">
-            <MapPin className="h-3.5 w-3.5 text-amber-400" />
-            <span>{hover.name}</span>
+          <div className="flex items-center justify-between gap-2 border-b border-amber-400/20 pb-1.5">
+            <div className="flex items-center gap-1.5 font-extrabold text-white text-sm">
+              <MapPin className="h-4 w-4 text-amber-400 shrink-0" />
+              <span>{hover.name}</span>
+            </div>
+            <span className="font-mono text-[10px] font-bold text-amber-300 bg-amber-400/15 px-1.5 py-0.5 rounded border border-amber-400/30">
+              {STATE_COLLEGES[hover.name]?.code ?? "IN"}
+            </span>
           </div>
-          {h && h.reporting ? (
-            <>
-              <p className="mt-1 text-[15px] font-extrabold text-amber-300 font-mono">
-                {h.students == null ? "Fewer than 10 students" : `${h.students.toLocaleString("en-IN")} students`}
-              </p>
-              <p className="text-slate-300 text-xs mt-0.5">
-                {h.reporting} of {h.institutions} approved colleges reporting
-              </p>
-            </>
-          ) : (
-            <p className="mt-1 text-slate-400 text-xs">Click to view state college registry</p>
-          )}
+
+          <div className="mt-2 space-y-1">
+            {h && h.reporting > 0 ? (
+              <>
+                <p className="text-[13px] font-extrabold text-amber-300 font-mono">
+                  {h.students == null ? "Fewer than 10 students" : `${h.students.toLocaleString("en-IN")} Verified Students`}
+                </p>
+                <p className="text-slate-300 text-[11px]">
+                  {h.reporting} of {h.institutions} institutions reporting live
+                </p>
+              </>
+            ) : STATE_COLLEGES[hover.name] ? (
+              <>
+                <p className="text-[12px] font-bold text-amber-200 line-clamp-1">
+                  {STATE_COLLEGES[hover.name].colleges[0]}
+                </p>
+                <div className="flex items-center justify-between text-[11px] text-slate-300 pt-0.5">
+                  <span>Cap: {STATE_COLLEGES[hover.name].quota.toLocaleString("en-IN")}</span>
+                  <span className="text-emerald-400 font-semibold">{STATE_COLLEGES[hover.name].compliance} AICTE</span>
+                </div>
+              </>
+            ) : (
+              <p className="text-slate-400 text-xs">National Academic Network · Telemetry Online</p>
+            )}
+          </div>
         </div>
       )}
 
