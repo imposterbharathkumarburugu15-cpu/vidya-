@@ -35,7 +35,7 @@ const ONE_CLICK_DEMOS: {
   {
     role: "institution",
     tag: "INSTITUTION (CLEAN)",
-    title: "Kalyani Devi Hegde Inst of Tech",
+    title: "Vidyapeeth Inst of Tech & Science (VITS)",
     desc: "3,200 students · 100% compliant · Live upload & intake ledger",
     icon: Building2,
     action: () => login("inst-a", "demo"),
@@ -43,7 +43,7 @@ const ONE_CLICK_DEMOS: {
   {
     role: "institution",
     tag: "INSTITUTION (EXCESS SEATS)",
-    title: "Anandrao Kulkarni Engineering College",
+    title: "Apex Global Inst of Engineering & Tech",
     desc: "42 rejected rows · Seat ceiling breached · Multilingual AI fix",
     icon: Building2,
     action: () => login("inst-b", "demo"),
@@ -59,7 +59,7 @@ const ONE_CLICK_DEMOS: {
   {
     role: "university",
     tag: "UNIVERSITY REGISTRAR",
-    title: "Narmada Valley Technological Univ",
+    title: "Bharathiar National Technological Univ (BNTU)",
     desc: "32 affiliated colleges · Issue W3C digital degrees & Ed25519 signatures",
     icon: GraduationCap,
     action: () => login("univ", "demo"),
@@ -67,7 +67,7 @@ const ONE_CLICK_DEMOS: {
   {
     role: "verifier",
     tag: "EMPLOYER / VERIFIER",
-    title: "Kaveri Talent Solutions Pvt Ltd",
+    title: "Tata Consultancy & Skills Verification (TCS V-Desk)",
     desc: "Sub-12ms offline degree verification via QR & consent handshake",
     icon: BadgeCheck,
     action: () => login("employer", "demo"),
@@ -75,7 +75,7 @@ const ONE_CLICK_DEMOS: {
   {
     role: "student",
     tag: "STUDENT WALLET",
-    title: "Asha Joshi (APAAR: ...1724)",
+    title: "Aarav Sharma (APAAR: ...1724)",
     desc: "W3C VC 2.0 credential wallet · Privacy consent inbox · Access logs",
     icon: UserRound,
     action: () => studentLogin("328865551724", "2006-11-05"),

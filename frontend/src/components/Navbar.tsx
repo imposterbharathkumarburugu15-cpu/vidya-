@@ -8,6 +8,7 @@ const LINKS = [
   ["#/how-it-works", "How it works", "how"],
   ["#/?s=data", "Live data", "data"],
   ["#/?s=roles", "Who it's for", "roles"],
+  ["#/?s=get-started", "One-Click Join", "get-started"],
   ["#/activate", "Activate account", "/activate"],
 ] as const;
 

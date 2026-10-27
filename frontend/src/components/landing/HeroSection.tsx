@@ -50,10 +50,10 @@ export default function HeroSection({ stats, failed }: { stats: S["PublicStats"]
           <div className="pt-2 flex flex-wrap items-center gap-4">
             <button
               type="button"
-              onClick={() => scrollTo("roles")}
+              onClick={() => scrollTo("get-started")}
               className={`${BTN_PRIMARY} group !px-7 !py-4 !text-[15px] !font-bold shadow-[0_0_30px_rgba(245,192,103,0.35)] hover:shadow-[0_0_40px_rgba(245,192,103,0.5)]`}
             >
-              <span>Explore the Platform</span>
+              <span>One-Click Join In</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
             </button>
 

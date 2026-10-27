@@ -4,17 +4,17 @@ import { ApiError, login, studentLogin, type Session } from "../api/client";
 
 /** One-click sign-in to the seeded demo accounts (shown only when the API runs in demo mode). Synthetic data. */
 const ACCOUNTS: { key: string; tab: string; icon: LucideIcon; role: string; name: string; shows: string; go: () => Promise<Session> }[] = [
-  { key: "inst-a", tab: "institution", icon: Building2, role: "Institution · clean data", name: "Kalyani Devi Hegde Institute of Technology, Hubballi",
+  { key: "inst-a", tab: "institution", icon: Building2, role: "Institution · clean data", name: "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
     shows: "Upload, seats vs intake, data quality, student records and certificates", go: () => login("inst-a", "demo") },
-  { key: "inst-b", tab: "institution", icon: FileWarning, role: "Institution · messy data", name: "Anandrao Kulkarni College of Engineering, Solapur",
+  { key: "inst-b", tab: "institution", icon: FileWarning, role: "Institution · messy data", name: "Apex Global Institute of Engineering & Technology, Pune",
     shows: "Rejected rows, every error type, excess seats, AI fix checklist, 13 languages", go: () => login("inst-b", "demo") },
   { key: "aicte", tab: "aicte", icon: Landmark, role: "AICTE officer", name: "Monitoring & Evaluation Cell, AICTE",
     shows: "National monitoring, duplicate cases, inspection priorities, shared students, reports", go: () => login("aicte", "demo") },
-  { key: "univ", tab: "university", icon: GraduationCap, role: "University registrar", name: "Narmada Valley Technological University",
+  { key: "univ", tab: "university", icon: GraduationCap, role: "University registrar", name: "Bharathiar National Technological University (BNTU)",
     shows: "Award degree credentials to students who completed", go: () => login("univ", "demo") },
-  { key: "employer", tab: "verifier", icon: BadgeCheck, role: "Verifier (employer)", name: "Kaveri Talent Solutions Pvt Ltd",
+  { key: "employer", tab: "verifier", icon: BadgeCheck, role: "Verifier (employer)", name: "Tata Consultancy & Skills Verification (TCS V-Desk)",
     shows: "Ask a student for consent, then verify their credential", go: () => login("employer", "demo") },
-  { key: "student", tab: "student", icon: UserRound, role: "Student", name: "Asha Joshi",
+  { key: "student", tab: "student", icon: UserRound, role: "Student", name: "Aarav Sharma",
     shows: "Credential wallet, consent inbox, certificate with QR, who accessed my data", go: () => studentLogin("328865551724", "2006-11-05") },
 ];
 
