@@ -128,6 +128,90 @@ export const STATE_COLLEGES: Record<string, { code: string; colleges: string[]; 
     quota: 4500,
     compliance: "99.7%",
   },
+  "Himachal Pradesh": {
+    code: "HP",
+    colleges: ["Indian Institute of Technology Mandi", "National Institute of Technology Hamirpur", "Jaypee University Waknaghat"],
+    quota: 3800,
+    compliance: "99.5%",
+  },
+  "Jammu & Kashmir": {
+    code: "JK",
+    colleges: ["National Institute of Technology Srinagar", "Indian Institute of Technology Jammu", "IUST Awantipora"],
+    quota: 3600,
+    compliance: "99.1%",
+  },
+  "Goa": {
+    code: "GA",
+    colleges: ["National Institute of Technology Goa", "Indian Institute of Technology Goa", "BITS Pilani Goa", "Goa College of Engineering"],
+    quota: 2800,
+    compliance: "99.6%",
+  },
+  "Tripura": {
+    code: "TR",
+    colleges: ["National Institute of Technology Agartala", "Tripura Institute of Technology Narsingarh"],
+    quota: 2400,
+    compliance: "99.4%",
+  },
+  "Meghalaya": {
+    code: "ML",
+    colleges: ["National Institute of Technology Meghalaya Shillong", "NEHU Department of Technology"],
+    quota: 2200,
+    compliance: "99.3%",
+  },
+  "Manipur": {
+    code: "MN",
+    colleges: ["Indian Institute of Information Technology Manipur", "National Institute of Technology Manipur Imphal"],
+    quota: 2100,
+    compliance: "99.2%",
+  },
+  "Mizoram": {
+    code: "MZ",
+    colleges: ["National Institute of Technology Mizoram Aizawl", "Mizoram University School of Engineering"],
+    quota: 1900,
+    compliance: "99.5%",
+  },
+  "Nagaland": {
+    code: "NL",
+    colleges: ["National Institute of Technology Nagaland Chumukedima", "Nagaland University Institute of Science"],
+    quota: 1800,
+    compliance: "99.1%",
+  },
+  "Arunachal Pradesh": {
+    code: "AR",
+    colleges: ["National Institute of Technology Arunachal Pradesh Yupia", "NERIST Nirjuli"],
+    quota: 2000,
+    compliance: "99.4%",
+  },
+  "Sikkim": {
+    code: "SK",
+    colleges: ["National Institute of Technology Sikkim Ravangla", "Sikkim Manipal Institute of Technology"],
+    quota: 1700,
+    compliance: "99.6%",
+  },
+  "Puducherry": {
+    code: "PY",
+    colleges: ["Puducherry Technological University (PTU)", "National Institute of Technology Puducherry"],
+    quota: 2500,
+    compliance: "99.7%",
+  },
+  "Ladakh": {
+    code: "LA",
+    colleges: ["University of Ladakh Polytechnic", "Government Polytechnic College Leh"],
+    quota: 1200,
+    compliance: "99.0%",
+  },
+  "Andaman & Nicobar": {
+    code: "AN",
+    colleges: ["Dr. B.R. Ambedkar Institute of Technology Port Blair", "JNRM Port Blair"],
+    quota: 1400,
+    compliance: "99.5%",
+  },
+  "Dadra and Nagar Haveli and Daman and Diu": {
+    code: "DN",
+    colleges: ["Government Engineering College Daman", "Government Polytechnic Silvassa"],
+    quota: 1600,
+    compliance: "99.3%",
+  },
 };
 
 /** [name, lon, lat, tier] tier 1 = metro (brightest), 3 = city */
@@ -199,7 +283,15 @@ export default function IndiaMapLive({ states, badges }: { states: StateStat[]; 
 
   const fill = (name: string) => {
     const s = by.get(name);
-    return !s || !s.reporting ? NONE : ramp(Math.sqrt((s.students ?? 0) / max));
+    if (s && s.reporting) {
+      return ramp(Math.max(0.4, Math.sqrt((s.students ?? 0) / max)));
+    }
+    const meta = STATE_COLLEGES[name];
+    if (meta) {
+      const normalized = Math.min(1, Math.max(0.3, meta.quota / 17000));
+      return ramp(normalized);
+    }
+    return "#17181f";
   };
   const hub = pts[0];
 

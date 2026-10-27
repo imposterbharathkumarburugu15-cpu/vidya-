@@ -7,7 +7,7 @@
     {"id": "1-0000000001", "name": "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru", "state": "Karnataka", "status": "approved"},
     {"id": "1-0000000002", "name": "Apex Global Institute of Engineering & Technology, Pune", "state": "Maharashtra", "status": "approved"},
     {"id": "1-0000000003", "name": "Saraswati National Institute of Management Studies, Kanpur", "state": "Uttar Pradesh", "status": "approved"},
-    {"id": "1-0000000004", "name": "Deccan Polytechnic Institute, Belagavi", "state": "Karnataka", "status": "closed"}
+    {"id": "1-0000000004", "name": "Patliputra Polytechnic Institute, Patna", "state": "Bihar", "status": "closed"}
   ],
   "programmes": [
     {"institution_id": "1-0000000001", "code": "CSE", "name": "B.E. Computer Science and Engineering", "level": "UG", "duration_years": 4},
@@ -53,7 +53,7 @@
     {"id": "inst-a", "role": "institution_admin", "institution_id": "1-0000000001", "display_name": "Admin, Vidyapeeth Institute of Technology & Science (VITS), Bengaluru"},
     {"id": "inst-b", "role": "institution_admin", "institution_id": "1-0000000002", "display_name": "Admin, Apex Global Institute of Engineering & Technology, Pune"},
     {"id": "inst-c", "role": "institution_admin", "institution_id": "1-0000000003", "display_name": "Admin, Saraswati National Institute of Management Studies, Kanpur"},
-    {"id": "inst-d", "role": "institution_admin", "institution_id": "1-0000000004", "display_name": "Admin, Deccan Polytechnic Institute, Belagavi"},
+    {"id": "inst-d", "role": "institution_admin", "institution_id": "1-0000000004", "display_name": "Admin, Patliputra Polytechnic Institute, Patna"},
     {"id": "aicte", "role": "aicte_officer", "display_name": "Monitoring & Evaluation Cell, AICTE"},
     {"id": "auditor", "role": "auditor", "display_name": "National Education Audit Office (read-only)"},
     {"id": "employer", "role": "verifier", "display_name": "Tata Consultancy & Skills Verification (TCS V-Desk)"},

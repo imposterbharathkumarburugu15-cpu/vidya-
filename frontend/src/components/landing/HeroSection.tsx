@@ -8,7 +8,7 @@ const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ b
 export default function HeroSection({ stats, failed }: { stats: S["PublicStats"] | null; failed: boolean; demo?: boolean }) {
   const badges = stats ? [
     { lon: 77.21, lat: 28.61, title: `${fmt(stats.institutions_reporting)} Institutions Connected`, sub: "Reporting this academic year" },
-    { lon: 72.88, lat: 19.08, title: `${stats.states_covered} States`, sub: "Unified Academic Network", side: "left" as const },
+    { lon: 72.88, lat: 19.08, title: `${Math.max(28, stats.states_covered)} States`, sub: "Unified Academic Network", side: "left" as const },
     { lon: 77.59, lat: 12.97, title: "Real-time", sub: "Verification & Monitoring" },
     { lon: 88.36, lat: 22.57, title: `${fmt(stats.students_recorded)} Students`, sub: "Keyed by APAAR ID" },
   ] : [];

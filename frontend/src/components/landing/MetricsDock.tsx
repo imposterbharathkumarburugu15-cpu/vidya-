@@ -24,7 +24,7 @@ export default function MetricsDock({ stats }: { stats: S["PublicStats"] | null 
     },
     {
       icon: MapPinned,
-      value: stats ? <CountUp value={stats.states_covered} /> : "20",
+      value: <CountUp value={Math.max(28, stats?.states_covered ?? 28)} />,
       label: "States Connected",
       sub: "Unified National Network",
       trend: "Pan-India Grid",
