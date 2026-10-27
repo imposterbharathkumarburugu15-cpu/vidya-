@@ -103,7 +103,7 @@ export default function App() {
   } else if (r === "university_registrar") {
     page = <RegistrarHome />;
   } else {
-    page = <StudentHome />;
+    page = <StudentHome hash={hash} />;
   }
 
   return (

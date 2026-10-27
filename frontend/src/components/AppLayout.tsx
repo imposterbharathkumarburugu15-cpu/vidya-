@@ -56,11 +56,11 @@ function navFor(role: Role, canVerify: boolean): Group[] {
       return [{ items: [{ label: "Award degrees", icon: GraduationCap, section: "top" }] }, ...verify];
     default:
       return [{ items: [
-        { label: "My record", icon: LayoutDashboard, section: "top" },
-        { label: "Consent requests", icon: Fingerprint, section: "consents" },
-        { label: "Credential wallet", icon: Wallet, section: "wallet" },
-        { label: "Grievances & disputes", icon: Scale, section: "grievances" },
-        { label: "Who accessed my data", icon: ScrollText, section: "access-log" },
+        { label: "My record", icon: LayoutDashboard, route: "/student" },
+        { label: "Consent requests", icon: Fingerprint, route: "/student/consents" },
+        { label: "Credential wallet", icon: Wallet, route: "/student/wallet" },
+        { label: "Grievances & disputes", icon: Scale, route: "/student/grievances" },
+        { label: "Who accessed my data", icon: ScrollText, route: "/student/access-log" },
       ] }];
   }
 }
@@ -167,9 +167,9 @@ export default function AppLayout({ session, roleLabel, onLogout, canVerify = fa
             <div className="hidden items-center justify-between gap-4 px-8 py-4 lg:flex">
               <div className="flex min-w-0 items-center gap-4 whitespace-nowrap text-[15px] text-mute">
                 <span className="flex items-center gap-2">
-                  <span>{roleLabel}</span>
-                  <span className="text-slate-300" aria-hidden>/</span>
-                  <span className="font-display font-semibold text-slate-800">{PAGE_LABEL(currentHash, home, groups.flatMap((g) => g.items))}</span>
+                  <span className="text-slate-400">{roleLabel}</span>
+                  <span className="text-white/20" aria-hidden>/</span>
+                  <span className="font-display font-semibold text-champagne">{PAGE_LABEL(currentHash, home, groups.flatMap((g) => g.items))}</span>
                 </span>
                 <span aria-hidden className="h-4 w-px bg-white/10" />
                 <span className="hidden truncate text-[13.5px] text-slate-500 xl:inline">SIH26263 prototype · not an official Government of India or AICTE website</span>

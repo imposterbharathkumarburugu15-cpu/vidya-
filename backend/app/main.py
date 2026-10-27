@@ -194,9 +194,25 @@ async def create_batch(request: Request, idempotency_key: str | None = Header(No
     return JSONResponse(BatchOut(**out).model_dump(mode="json"), status_code=200 if out["replayed"] else 201)
 
 
-@app.get("/v1/batches/template.csv", description="Empty upload template: the header row of the data dictionary.")
+@app.get("/v1/batches/template.csv", description="Pre-filled upload template with valid demo student records.")
 def batch_template(user=Depends(require("institution_admin"))):
-    return Response(",".join(CSV_COLUMNS) + "\n", media_type="text/csv",
+    header = ",".join(CSV_COLUMNS)
+    demo_rows = [
+        "251282538206,,KDHT/CSE/2026/0101,Lakshmi Gupta,2007-10-17,Lakshmi Guardian,CSE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "566392613993,,KDHT/ECE/2026/0102,Imran Sharma,2007-11-24,Imran Guardian,ECE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "128355454532,,KDHT/CSE/2026/0103,Pooja Shetty,2006-01-31,Pooja Guardian,CSE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "590573056992,,KDHT/ECE/2026/0104,Imran Verma,2006-07-23,Imran Guardian,ECE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "275259659197,,KDHT/CSE/2026/0105,Ravi Desai,2006-10-12,Ravi Guardian,CSE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "213114812281,,KDHT/ECE/2026/0106,Sneha Desai,2006-12-15,Sneha Guardian,ECE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "985899371430,,KDHT/CSE/2026/0107,Aishwarya Yadav,2007-01-25,Aishwarya Guardian,CSE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "187525138707,,KDHT/ECE/2026/0108,Vikram Gowda,2008-01-18,Vikram Guardian,ECE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "328865551724,,KDHT/CSE/2026/0109,Asha Joshi,2006-11-05,Asha Guardian,CSE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        ",PENDING,KDHT/ECE/2026/0110,Kiran Hegde,2006-08-20,Kiran Guardian,ECE,2026-27,1,REGULAR,N,N,N,N,N,N,2026-08-14,60",
+        "419208314562,,KDHT/CSE/2026/0111,Priya Patel,2005-07-23,Priya Guardian,CSE,2026-27,1,SN_FN_OCI_CIWG,Y,N,Y,N,N,N,2026-08-14,60",
+        "982103471209,,KDHT/ECE/2026/0112,Rohan Kulkarni,2004-11-05,Rohan Guardian,ECE,2026-27,1,SN_FN_OCI_CIWG,Y,N,N,Y,N,N,2026-08-14,60"
+    ]
+    csv_body = header + "\n" + "\n".join(demo_rows) + "\n"
+    return Response(csv_body, media_type="text/csv",
                     headers={"Content-Disposition": 'attachment; filename="apaar-upload-template.csv"'})
 
 
