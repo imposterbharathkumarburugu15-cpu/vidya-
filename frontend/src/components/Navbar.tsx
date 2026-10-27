@@ -20,14 +20,14 @@ export default function Navbar({ current = "/" }: { demo?: boolean; current?: st
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#07090E]/85 backdrop-blur-2xl transition-all">
-      <div className="mx-auto flex h-[88px] w-full max-w-[1440px] items-center justify-between gap-6 px-6 sm:px-10">
+      <div className="mx-auto flex h-[88px] w-full max-w-[1440px] items-center justify-between gap-8 px-6 sm:px-10">
         {/* Approved Brand Logo */}
         <a href="#/" aria-label="Vidyadwaar home" className="shrink-0 transition-transform hover:scale-[1.01]">
           <BrandLogo size="md" />
         </a>
 
-        {/* Desktop Navigation */}
-        <nav aria-label="Main" className="hidden items-center gap-1.5 font-inter lg:flex">
+        {/* Desktop Navigation — Centered & evenly spaced */}
+        <nav aria-label="Main" className="hidden items-center justify-center gap-2 font-inter lg:flex flex-1 max-w-2xl mx-auto">
           {LINKS.map(([href, text, key]) => {
             const on = current === key;
             return (
@@ -35,7 +35,7 @@ export default function Navbar({ current = "/" }: { demo?: boolean; current?: st
                 key={href}
                 href={href}
                 aria-current={on ? "page" : undefined}
-                className={`relative px-4 py-2 text-[14px] font-medium tracking-wide transition-all ${
+                className={`relative px-4 py-2 text-[14.5px] font-medium tracking-wide transition-all ${
                   on
                     ? "text-[#F5C067] font-semibold"
                     : "text-slate-300 hover:text-white hover:bg-white/[0.04] rounded-lg"
