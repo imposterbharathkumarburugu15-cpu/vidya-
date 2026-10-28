@@ -10,6 +10,7 @@ import os
 import uuid
 import zlib
 from datetime import date, datetime, timedelta, timezone
+from typing import Any
 
 from psycopg.types.json import Jsonb
 
@@ -101,7 +102,7 @@ def registry_public_key() -> str:
 # ---------- Bitstring Status List ----------
 def encode_list(bits: bytes) -> str:
     """Multibase base64url (no padding) of the GZIP-compressed bitstring (W3C Bitstring Status List §2.1)."""
-    return "u" + base64.urlsafe_b64encode(gzip.compress(bytes(bits), mtime=0)).rstrip(b"=").decode()
+    return "u" + base64.urlsafe_b64encode(gzip.compress(bits, mtime=0)).rstrip(b"=").decode()
 
 
 def decode_list(encoded: str) -> bytes:
@@ -252,7 +253,7 @@ def verify(conn, vc: dict, at: datetime | None = None) -> dict:
     at = at or now_utc()
     checks = {"well_formed": False, "issuer_trusted": False, "signature_valid": False,
               "within_validity": False, "not_revoked": False, "not_suspended": False}
-    out = {"result": "MALFORMED", "checks": checks, "issuer_name": None, "subject": None}
+    out: dict[str, Any] = {"result": "MALFORMED", "checks": checks, "issuer_name": None, "subject": None}
     try:
         issuer_did = vc["issuer"]["id"] if isinstance(vc["issuer"], dict) else vc["issuer"]
         vm_id = vc["proof"]["verificationMethod"]

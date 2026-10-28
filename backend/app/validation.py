@@ -142,8 +142,8 @@ def validate_batch(rows: list[dict], ctx: Ctx) -> list[dict]:
     outcomes, seen, seen_sid, declared_flagged = [], {}, {}, set()
     for i, raw in enumerate(rows, start=1):
         data, issues = parse_row(i, raw)
-        o = {"row_no": i, "data": data, "issues": issues, "accepted": False,
-             "apaar_status": None, "programme_id": None, "counter_keys": []}
+        o: dict[str, Any] = {"row_no": i, "data": data, "issues": issues, "accepted": False,
+                             "apaar_status": None, "programme_id": None, "counter_keys": [], "bi": None}
         outcomes.append(o)
         if data is None:
             continue

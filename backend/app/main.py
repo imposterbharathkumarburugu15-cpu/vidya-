@@ -631,8 +631,8 @@ def transition_case(case_id: int, target_status: str, note: str, request: Reques
 
 @app.post("/v1/cases/{case_id}/evidence", response_model=EvidenceOut,
           description="Upload and cryptographically register evidence document for a case.")
-async def upload_case_evidence(case_id: int, file: UploadFile = File(...), category: str = Form("other"),
-                               request: Request | None = None, user=Depends(require("institution_admin", "aicte_officer")),
+async def upload_case_evidence(case_id: int, request: Request, file: UploadFile = File(...), category: str = Form("other"),
+                               user=Depends(require("institution_admin", "aicte_officer")),
                                conn=Depends(get_conn)):
     file_bytes = await file.read()
     return cases.attach_evidence(conn, user, file_bytes, file.filename or "evidence.dat",
@@ -717,8 +717,8 @@ def list_own_grievances(record_type: str | None = None, user=Depends(require("st
 
 @app.post("/v1/students/me/grievances/{grievance_id}/evidence", response_model=EvidenceOut,
           description="Student uploads supporting document for their grievance or correction request.")
-async def upload_grievance_evidence(grievance_id: int, file: UploadFile = File(...), category: str = Form("student_affidavit"),
-                                    request: Request | None = None, user=Depends(require("student")), conn=Depends(get_conn)):
+async def upload_grievance_evidence(grievance_id: int, request: Request, file: UploadFile = File(...), category: str = Form("student_affidavit"),
+                                    user=Depends(require("student")), conn=Depends(get_conn)):
     file_bytes = await file.read()
     return cases.attach_evidence(conn, user, file_bytes, file.filename or "evidence.dat",
                                  file.content_type or "application/octet-stream", category, grievance_id=grievance_id, request=request)
@@ -871,7 +871,7 @@ def get_seat_simulation(simulation_id: str,
 
 @app.post("/v1/analytics/integrity/run", response_model=list[IntegrityFindingOut],
           description="Execute deterministic admission integrity detection rules (over-intake persistence, quota spikes, cross-institution duplicate clusters, etc.).")
-def run_integrity_analytics(academic_year: str | None = None, institution_id: int | None = None, request: Request | None = None,
+def run_integrity_analytics(request: Request, academic_year: str | None = None, institution_id: int | None = None,
                             user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
     return policy.run_integrity_analytics(conn, user, academic_year, str(institution_id) if institution_id is not None else None, request=request)
 
