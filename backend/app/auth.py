@@ -163,7 +163,10 @@ def require_setup(user: dict = Depends(current_user)) -> dict:
 
 
 def audit(conn, user: dict, action: str, entity: str, entity_id=None, *, student_id=None, reason=None, request: Request | None = None):
+    actor = user.get("id") or user.get("sub") or user.get("username") or "demo-user"
+    role = user.get("role", "student")
+    req_id = getattr(getattr(request, "state", None), "request_id", None) if request is not None else None
     conn.execute("INSERT INTO audit_logs (actor, role, action, entity, entity_id, student_id, reason, request_id) "
                  "VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
-                 (user["id"], user["role"], action, entity, None if entity_id is None else str(entity_id), student_id, reason,
-                  request.state.request_id if request is not None else None))
+                 (actor, role, action, entity, None if entity_id is None else str(entity_id), student_id, reason, req_id))
+
