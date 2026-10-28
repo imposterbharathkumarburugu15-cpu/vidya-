@@ -26,7 +26,7 @@ export default function PublicSite({ hash, onLogin }: { hash: string; onLogin: (
 }
 
 export function useDemoMode() {
-  const [demo, setDemo] = useState(false);
+  const [demo, setDemo] = useState(true);
   useEffect(() => { getJson<S["AuthConfig"]>("/v1/auth/config").then((c) => setDemo(c.demo_mode)).catch(() => {}); }, []);
   return demo;
 }

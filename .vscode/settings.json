@@ -1,5 +1,14 @@
 {
   "files.associations": {
     ".vercelignore": "ignore"
-  }
+  },
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/backend"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/backend"
+  ],
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.gradle.enabled": true,
+  "java.autobuild.enabled": true
 }

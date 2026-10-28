@@ -436,6 +436,159 @@ export async function getJson<T>(path: string): Promise<T> {
         viewer: "student",
       } as unknown as T;
     }
+    if (path.includes("/v1/auth/config")) {
+      return { demo_mode: true, passkeys_enabled: true } as unknown as T;
+    }
+    if (path.includes("/v1/dashboard/institution")) {
+      return {
+        institution: {
+          id: "1-0000000001",
+          name: "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+          state: "Karnataka",
+          status: "approved",
+        },
+        academic_year: "2026-27",
+        window_open: true,
+        deadline: "2026-11-15T23:59:59+05:30",
+        days_to_deadline: 18,
+        programmes: [
+          {
+            id: "1-0000000001:CSE",
+            code: "CSE",
+            name: "B.E. Computer Science and Engineering",
+            level: "UG",
+            duration_years: 4,
+            approved_intake: 60,
+            academic_year: "2026-27",
+            lines: [
+              { category_code: "REGULAR", filled: 54, cap: 60, excess: 0 },
+              { category_code: "SN_FN_OCI_CIWG", filled: 2, cap: 9, excess: 0 },
+            ],
+          },
+          {
+            id: "1-0000000001:ECE",
+            code: "ECE",
+            name: "B.E. Electronics and Communication Engineering",
+            level: "UG",
+            duration_years: 4,
+            approved_intake: 60,
+            academic_year: "2026-27",
+            lines: [
+              { category_code: "REGULAR", filled: 48, cap: 60, excess: 0 },
+            ],
+          },
+        ],
+        batches: [
+          {
+            id: 1,
+            channel: "portal_csv",
+            academic_year: "2026-27",
+            created_at: "2026-10-20T10:30:00Z",
+            completed_at: "2026-10-20T10:31:00Z",
+            row_counts_json: { total: 60, valid: 60, rejected: 0, flagged: 0 },
+            status: "validated",
+          },
+        ],
+        apaar_coverage: { VERIFIED: 54, PENDING: 6, NOT_GENERATED: 0, REFUSED: 0 },
+        stats: {
+          programmes_count: 2,
+          total_intake: 120,
+          total_enrolled: 104,
+          fill_percentage: 86.7,
+          total_batches: 1,
+          total_rejections: 0,
+          open_cases: 0,
+        },
+      } as unknown as T;
+    }
+    if (path.includes("/v1/dqs")) {
+      return {
+        institution_id: "1-0000000001",
+        academic_year: "2026-27",
+        dqs: { total: 94.5, completeness: 95.0, timeliness: 92.0, consistency: 96.0, validity: 95.0 },
+        risk_score: 42.0,
+        flag_points: 0,
+        flags: [],
+        why: ["Intake strictly complies with AICTE ceiling", "Zero duplicate collisions"],
+        computed_at: "2026-10-26T12:00:00Z",
+      } as unknown as T;
+    }
+    if (path.includes("/v1/enrolments")) {
+      return [
+        {
+          id: 1,
+          student_id: 1,
+          name: "Aarav Sharma",
+          apaar_id: "328865551724",
+          dob: "2006-11-05",
+          gender: "Male",
+          institution_id: "1-0000000001",
+          institution_name: "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+          programme_id: "1-0000000001:CSE",
+          programme_name: "B.E. Computer Science and Engineering",
+          academic_year: "2026-27",
+          status: "active",
+          institution_student_id: "VITS-2026-CSE-042",
+          category_code: "REGULAR",
+          is_supernumerary: false,
+          created_at: "2026-10-20T10:30:00Z",
+          credentials: [
+            {
+              id: "vc-bntu-2026-001",
+              type: "EnrolmentCredential",
+              issuer_did: "did:web:registry.aicte-demo.in:univ:dtu-demo",
+              issued_at: "2026-10-21T09:00:00Z",
+              status: { revoked: false, suspended: false },
+            },
+          ],
+        },
+      ] as unknown as T;
+    }
+    if (path.includes("/v1/cases")) {
+      return [
+        {
+          id: 101,
+          enrolment_ids: [1, 2],
+          status: "flagged",
+          anomaly_type: "DUPLICATE_CANDIDATE",
+          score: 0.88,
+          severity: "medium",
+          created_at: "2026-10-22T14:10:00Z",
+          summary: "Potential concurrent enrolment match between VITS Bengaluru and Apex Global Pune.",
+          institution_ids: ["1-0000000001", "1-0000000002"],
+          student_name: "Aarav Sharma",
+        },
+      ] as unknown as T;
+    }
+    if (path.includes("/v1/reports")) {
+      return [
+        {
+          id: 1,
+          title: "AICTE National Intake & Dual Admission Risk Synthesis 2026-27",
+          generated_at: "2026-10-26T14:00:00Z",
+          format: "PDF",
+          file_size: 1450200,
+          download_url: "#",
+        },
+      ] as unknown as T;
+    }
+    if (path.includes("/v1/batches")) {
+      return [
+        {
+          id: 1,
+          batch_id: 1,
+          institution_id: "1-0000000001",
+          programme_id: "1-0000000001:CSE",
+          academic_year: "2026-27",
+          status: "validated",
+          channel: "portal_csv",
+          created_by: "inst-a",
+          row_counts_json: { total: 60, valid: 60, rejected: 0, flagged: 0 },
+          created_at: "2026-10-20T10:30:00Z",
+          completed_at: "2026-10-20T10:31:00Z",
+        },
+      ] as unknown as T;
+    }
     throw err;
   }
 }
