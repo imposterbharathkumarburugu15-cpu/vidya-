@@ -9,6 +9,7 @@ import os
 import re
 import secrets
 from pathlib import Path
+from typing import Any
 from urllib.parse import quote
 
 import psycopg
@@ -54,7 +55,7 @@ def app_password() -> str:
     return pw
 
 
-def connect(dbname: str = DB_NAME, autocommit: bool = False) -> psycopg.Connection:
+def connect(dbname: str = DB_NAME, autocommit: bool = False) -> Any:
     """Admin connection (bypasses RLS). Never use for request handling."""
     return psycopg.connect(database_url(), dbname=dbname, row_factory=dict_row, connect_timeout=5, autocommit=autocommit)
 
@@ -109,5 +110,5 @@ def load_schema(name: str = DB_NAME) -> None:
     ensure_app_role()
     here = Path(__file__).parent
     with connect(name) as c:
-        c.execute((here / "schema.sql").read_text())
-        c.execute((here / "rls.sql").read_text())
+        c.execute(sql.SQL((here / "schema.sql").read_text()))
+        c.execute(sql.SQL((here / "rls.sql").read_text()))

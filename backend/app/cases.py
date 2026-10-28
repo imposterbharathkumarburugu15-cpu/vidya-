@@ -586,42 +586,6 @@ def record_case_decision(conn, user: dict, case_id: int, decision_in: dict, requ
 # STUDENT GRIEVANCE & DISPUTE WORKFLOW
 # ==============================================================================
 
-def _grievance_out(conn, g: dict, user: dict) -> dict:
-    # Student visibility filtering: students only receive 'student_visible' messages
-    if user.get("role") == "student":
-        responses_sql = "SELECT * FROM grievance_responses WHERE grievance_id=%s AND visibility='student_visible' ORDER BY id ASC"
-    else:
-        responses_sql = "SELECT * FROM grievance_responses WHERE grievance_id=%s ORDER BY id ASC"
-
-    responses = conn.execute(responses_sql, (g["id"],)).fetchall()
-    resp_list = [{
-        "id": r["id"],
-        "grievance_id": r["grievance_id"],
-        "responder_id": r["responder_id"],
-        "responder_role": r["responder_role"],
-        "message": r["message"],
-        "visibility": r["visibility"],
-        "created_at": r["created_at"]
-    } for r in responses]
-
-    evidence_rows = conn.execute("SELECT * FROM case_evidence WHERE grievance_id=%s ORDER BY id DESC", (g["id"],)).fetchall()
-    ev_list = [{
-        "id": r["id"],
-        "case_id": r["case_id"],
-        "grievance_id": r["grievance_id"],
-        "category": r["category"],
-        "filename": r["filename"],
-        "media_type": r["media_type"],
-        "file_size": r["file_size"],
-        "sha256_digest": r["sha256_digest"],
-        "status": r["status"],
-        "verification_notes": r["verification_notes"],
-        "uploaded_by": r["uploaded_by"],
-        "uploaded_at": r["uploaded_at"],
-        "reviewed_by": r["reviewed_by"],
-        "reviewed_at": r["reviewed_at"]
-    } for r in evidence_rows]
-
 def _parse_json_dict(val):
     if isinstance(val, dict):
         return val
