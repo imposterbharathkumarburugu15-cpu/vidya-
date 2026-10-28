@@ -101,6 +101,13 @@ async def credential_problem(_, exc: credentials.CredentialError):
     return problem(exc.status, exc.detail)
 
 
+@app.exception_handler(Exception)
+async def unhandled_problem(_, exc: Exception):
+    import logging
+    logging.getLogger("uvicorn.error").exception("Unhandled server error: %s", exc)
+    return problem(500, "Internal Server Error", str(exc))
+
+
 def require_person(*roles: str):
     """require() plus M3: a guardian acts only while the student is under 18 (checked on every request)."""
     def dep(user=Depends(require(*roles)), conn=Depends(get_conn)) -> dict:
@@ -124,12 +131,20 @@ def get_conn(user=Depends(auth.optional_user)):
 
 
 @app.get("/healthz")
-def healthz(conn=Depends(get_conn)):
+def healthz():
+    db_status = "connected"
     try:
-        conn.execute("SELECT 1")
-    except Exception:
-        pass
-    return {"ok": True, "service": "Vidyadwaar API", "connected_states": 11, "status": "active"}
+        with db.app_connect(None) as conn:
+            conn.execute("SELECT 1")
+    except Exception as e:
+        db_status = f"unreachable: {str(e)}"
+    return {
+        "ok": True,
+        "service": "Vidyadwaar API",
+        "connected_states": 11,
+        "status": "active" if db_status == "connected" else "degraded",
+        "database": db_status
+    }
 
 
 @app.post("/v1/auth/login", response_model=LoginOut)
@@ -1129,7 +1144,7 @@ def verify_credential(body: VerifyIn, request: Request,
     if vc is None and body.qr:
         try:
             vc = credentials.from_qr_payload(body.qr.strip())
-        except (ValueError, zlib.error, json.JSONDecodeError, UnicodeDecodeError):
+        except (ValueError, zlib.error):
             vc = {}
     if not isinstance(vc, dict):
         raise HTTPException(422, "Give credential (JSON) or qr (AV1 text)")

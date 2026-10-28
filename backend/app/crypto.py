@@ -88,7 +88,7 @@ def encrypt(table: str, column: str, row_id, plaintext: str) -> bytes:
     return nonce + AESGCM(_key("k_enc")).encrypt(nonce, plaintext.encode(), _aad(table, column, row_id))
 
 
-def decrypt(table: str, column: str, row_id, blob: bytes) -> str:
+def decrypt(table: str, column: str, row_id, blob: bytes | memoryview) -> str:
     blob = bytes(blob)
     return AESGCM(_key("k_enc")).decrypt(blob[:12], blob[12:], _aad(table, column, row_id)).decode()
 
