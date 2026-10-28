@@ -24,3 +24,4 @@ skills-lock.json
 backend/data/tesseract/
 tools/tesseract/
 _uv/
+frontend/public/plugins/
