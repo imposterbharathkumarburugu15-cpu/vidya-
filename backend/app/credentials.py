@@ -363,8 +363,9 @@ def from_qr_payload(payload: str) -> dict:
 
 def qr_svg(payload: str) -> str:
     import qrcode
+    from qrcode.constants import ERROR_CORRECT_M
     import qrcode.image.svg
-    img = qrcode.make(payload, image_factory=qrcode.image.svg.SvgPathImage, error_correction=qrcode.constants.ERROR_CORRECT_M,
+    img = qrcode.make(payload, image_factory=qrcode.image.svg.SvgPathImage, error_correction=ERROR_CORRECT_M,
                       box_size=4, border=2)
     return img.to_string(encoding="unicode")
 

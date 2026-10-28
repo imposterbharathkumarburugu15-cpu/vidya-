@@ -5,8 +5,10 @@ dependencies = [ "annotated-doc==0.0.5", "annotated-types==0.8.0", "anyio==4.15.
 requires-python = "~=3.14.0"
 
 [tool.pyright]
-extraPaths = ["backend"]
-include = [".", "backend"]
+venvPath = "."
+venv = ".venv"
+extraPaths = ["backend", "tools/erp_connector"]
+include = ["backend/app"]
 
 [tool.pytest.ini_options]
 pythonpath = ["backend"]

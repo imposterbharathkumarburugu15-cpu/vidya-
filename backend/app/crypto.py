@@ -36,6 +36,7 @@ def _load() -> dict:
             _keys = {k: os.urandom(32).hex() for k in _SYMMETRIC}
             _keys["signing"] = {}
             _save()
+    assert _keys is not None
     return _keys
 
 

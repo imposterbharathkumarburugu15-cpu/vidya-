@@ -198,7 +198,7 @@ async def create_batch(request: Request, idempotency_key: str | None = Header(No
             rows = list(reader)
         except UnicodeDecodeError:
             return problem(422, "File must be UTF-8 CSV")
-        missing = missing_columns(reader.fieldnames or [])
+        missing = missing_columns(list(reader.fieldnames or []))
         if missing:
             return problem(422, "Missing required columns", {"missing": missing})
         channel = "portal_csv"
@@ -632,7 +632,7 @@ def transition_case(case_id: int, target_status: str, note: str, request: Reques
 @app.post("/v1/cases/{case_id}/evidence", response_model=EvidenceOut,
           description="Upload and cryptographically register evidence document for a case.")
 async def upload_case_evidence(case_id: int, file: UploadFile = File(...), category: str = Form("other"),
-                               request: Request = None, user=Depends(require("institution_admin", "aicte_officer")),
+                               request: Request | None = None, user=Depends(require("institution_admin", "aicte_officer")),
                                conn=Depends(get_conn)):
     file_bytes = await file.read()
     return cases.attach_evidence(conn, user, file_bytes, file.filename or "evidence.dat",
@@ -718,7 +718,7 @@ def list_own_grievances(record_type: str | None = None, user=Depends(require("st
 @app.post("/v1/students/me/grievances/{grievance_id}/evidence", response_model=EvidenceOut,
           description="Student uploads supporting document for their grievance or correction request.")
 async def upload_grievance_evidence(grievance_id: int, file: UploadFile = File(...), category: str = Form("student_affidavit"),
-                                    request: Request = None, user=Depends(require("student")), conn=Depends(get_conn)):
+                                    request: Request | None = None, user=Depends(require("student")), conn=Depends(get_conn)):
     file_bytes = await file.read()
     return cases.attach_evidence(conn, user, file_bytes, file.filename or "evidence.dat",
                                  file.content_type or "application/octet-stream", category, grievance_id=grievance_id, request=request)
@@ -810,14 +810,14 @@ def get_policy_version(policy_id: str, version: int,
           description="Transition a policy version through its formal lifecycle (DRAFT -> UNDER_REVIEW -> APPROVED -> ACTIVE -> SUPERSEDED / RETIRED).")
 def transition_policy_version(policy_id: str, version: int, body: PolicyVersionTransitionIn, request: Request,
                               user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
-    return policy.transition_policy_version(conn, user, policy_id, version, body.model_dump(), request)
+    return policy.transition_policy_version(conn, user, policy_id, version, body.model_dump(), request=request)
 
 
 @app.post("/v1/replay/snapshots", response_model=ReplaySnapshotOut, status_code=201,
           description="Create an immutable, cryptographic input snapshot of admission enrolments for reproducible replay and simulation.")
 def create_replay_snapshot(body: ReplaySnapshotCreateIn, request: Request,
                            user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
-    return policy.create_replay_snapshot(conn, user, body.model_dump(), request)
+    return policy.create_replay_snapshot(conn, user, body.model_dump(), request=request)
 
 
 @app.get("/v1/replay/snapshots", response_model=list[ReplaySnapshotOut],
@@ -838,7 +838,7 @@ def get_replay_snapshot(snapshot_id: str,
           description="Execute a deterministic replay job evaluating an immutable admission snapshot against a specific policy version.")
 def run_policy_replay(body: ReplayJobTriggerIn, request: Request,
                       user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
-    return policy.run_policy_replay(conn, user, body.model_dump(), request)
+    return policy.run_policy_replay(conn, user, body.model_dump(), request=request)
 
 
 @app.get("/v1/replay/jobs/{job_id}", response_model=ReplayJobOut,
@@ -852,7 +852,7 @@ def get_replay_job(job_id: str,
           description="Simulate the impact of proposed policy changes against baseline rules on intake, supernumerary, and CIWG quotas.")
 def run_seat_impact_simulation(body: SeatSimulationTriggerIn, request: Request,
                                user=Depends(require("aicte_officer", "auditor", "institution_admin")), conn=Depends(get_conn)):
-    return policy.run_seat_impact_simulation(conn, user, body.model_dump(), request)
+    return policy.run_seat_impact_simulation(conn, user, body.model_dump(), request=request)
 
 
 @app.get("/v1/simulations/seat-impact", response_model=list[SeatSimulationOut],
@@ -871,9 +871,9 @@ def get_seat_simulation(simulation_id: str,
 
 @app.post("/v1/analytics/integrity/run", response_model=list[IntegrityFindingOut],
           description="Execute deterministic admission integrity detection rules (over-intake persistence, quota spikes, cross-institution duplicate clusters, etc.).")
-def run_integrity_analytics(academic_year: str | None = None, institution_id: int | None = None, request: Request = None,
+def run_integrity_analytics(academic_year: str | None = None, institution_id: int | None = None, request: Request | None = None,
                             user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
-    return policy.run_integrity_analytics(conn, user, academic_year, institution_id, request)
+    return policy.run_integrity_analytics(conn, user, academic_year, str(institution_id) if institution_id is not None else None, request=request)
 
 
 @app.get("/v1/analytics/integrity", response_model=list[IntegrityFindingOut],
@@ -888,7 +888,7 @@ def list_integrity_findings(institution_id: int | None = None, academic_year: st
           description="Record an authorized human review decision on an integrity finding (UNDER_INVESTIGATION, DISMISSED, ESCALATED).")
 def review_integrity_finding(finding_id: str, body: FindingReviewIn, request: Request,
                              user=Depends(require("aicte_officer")), conn=Depends(get_conn)):
-    return policy.review_integrity_finding(conn, user, finding_id, body.model_dump(), request)
+    return policy.review_integrity_finding(conn, user, finding_id, body.model_dump(), request=request)
 
 
 

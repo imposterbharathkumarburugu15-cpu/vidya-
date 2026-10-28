@@ -7,6 +7,7 @@ import math
 import re
 from dataclasses import dataclass, field
 from datetime import date
+from typing import Any
 
 from rapidfuzz import fuzz
 
@@ -31,7 +32,7 @@ class Ctx:
     year: dict                      # {code, window_start: date, window_end: date}
     programmes: dict                # code -> {id, approved_intake: int|None, duration_years}
     seat_categories: dict           # code -> {scope, cap_rule_json}
-    registry_lookup: callable       # apaar -> {name, dob: 'YYYY-MM-DD'} | None   (MOCK APAAR registry)
+    registry_lookup: Any            # apaar -> {name, dob: 'YYYY-MM-DD'} | None   (MOCK APAAR registry)
     own_active_bi: set = field(default_factory=set)
     other_active_bi: set = field(default_factory=set)
     own_active_student_ids: set = field(default_factory=set)  # student_id_key() of own active enrolments
@@ -226,7 +227,7 @@ def validate_batch(rows: list[dict], ctx: Ctx) -> list[dict]:
             seen.setdefault(key, i)
             seen_sid.setdefault(sid, i)
 
-        if any(x["severity"] == "error" for x in issues):
+        if any(x["severity"] == "error" for x in issues) or prog is None or cat is None:
             continue
 
         # Accepted. Layer 6: intake engine. Every accepted row counts, APAAR or not (F10).
