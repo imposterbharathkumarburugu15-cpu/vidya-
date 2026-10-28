@@ -230,7 +230,7 @@ function Upload({ onDone }: { onDone: () => void }) {
       onDone();
     } catch (e) {
       if (e instanceof ApiError && e.status === 422 && e.title === "Missing required columns") setMismatch(file);
-      setError(e instanceof ApiError ? e.text : "Upload failed: cannot reach the API.");
+      setError(e instanceof ApiError ? e.text : (e instanceof Error ? e.message : "Upload failed: cannot reach the API. Is the backend running?"));
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";
@@ -380,6 +380,8 @@ function Upload({ onDone }: { onDone: () => void }) {
               <p className="flex flex-wrap items-center gap-2.5 font-display text-[19px] font-bold text-ink">
                 Batch #{result.batch_id}
                 {result.replayed ? <Badge tone="brand">Already uploaded · original batch returned</Badge> : <Badge tone="ok" dot>Validated</Badge>}
+                {result.counts.rejected > 0 && <Badge tone="error">{result.counts.rejected} rejected</Badge>}
+                {result.counts.flags > 0 && <Badge tone="warning">{result.counts.flags} flagged for AICTE</Badge>}
               </p>
               <Button variant="ghost" onClick={() => go(`/inst/batch/${result.batch_id}`)}>Row-level issues <ArrowRight className="h-4 w-4" /></Button>
             </div>

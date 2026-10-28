@@ -160,3 +160,54 @@ If deploying manually from your terminal:
 2. **Vercel Project Settings Verification**: In your Vercel dashboard:
    - Ensure the root directory setting matches your intended deployment (`Root Directory: .` with multi-project `vercel.json` or `Root Directory: frontend`).
    - If deploying the frontend standalone, verify that environment variable `VITE_API_BASE_URL` points to your deployed FastAPI backend URL (e.g. `https://api.vidyadwaar.org`).
+
+---
+
+## 8. Batch #110 & CSV Validation Data Flow Resolution
+
+### Root Cause Analysis: Where did Batch #110 and 60/60/0 come from?
+1. **Frontend `uploadCsv()` mock fallback (`frontend/src/api/client.ts`)**:
+   - `uploadCsv(file)` previously caught *any* network error or non-200 HTTP response and returned hardcoded synthetic demo counts:
+     ```typescript
+     batch_id: Math.floor(Math.random() * 1000) + 10, // Generated #110 in user screenshot!
+     counts: {
+       rows: 60,
+       accepted: isInstB ? 45 : 60,
+       rejected: isInstB ? 15 : 0,
+       warnings: isInstB ? 4 : 0,
+       flags: isInstB ? 2 : 0,
+       cases_opened: isInstB ? 1 : 0,
+     }
+     ```
+   - If the backend was unreachable, timed out, or returned an error, the frontend silently suppressed the error and rendered the synthetic Batch #110 with 60 rows!
+2. **Batch detail and issues mock fallbacks (`frontend/src/api/client.ts`)**:
+   - `getJson()` contained hardcoded mock interceptors for `/v1/batches/:id` and `/v1/batches/:id/issues` that returned 60 accepted rows and a single warning.
+3. **Backend fallback in `backend/app/main.py`**:
+   - In `create_batch()`, an `except Exception:` block caught internal failures and returned a fallback batch (`batch_id: 99`) instead of returning an HTTP 500 error.
+
+### Code Fixes Applied
+1. **Eliminated silent fallback in `frontend/src/api/client.ts`**:
+   - Removed the `try/catch` demo fallback from `uploadCsv()`. It now executes `request("/v1/batches", ...)` directly and throws any `ApiError` or network failure.
+   - Removed mock interceptors for `/v1/batches/:id` and `/v1/batches/:id/issues`.
+2. **Surfaced real backend validation errors in `frontend/src/pages/Institution.tsx`**:
+   - Updated `send()` to catch real errors, setting `setError(e instanceof ApiError ? e.text : ...)` and clearing `result`.
+   - Added validation badges displaying `{result.counts.rejected} rejected` and `{result.counts.flags} flagged for AICTE`.
+3. **Enhanced error handling in `frontend/src/pages/Batch.tsx`**:
+   - Added a clear error banner and "Back to dashboard" button when batch issues or detail cannot be retrieved.
+4. **Replaced backend silent catch in `backend/app/main.py`**:
+   - Replaced `except Exception:` fake batch return with proper logging and `problem(500, "Batch ingestion failed", f"Server error: {e}")`.
+5. **Security hardening (`frontend/vite.config.ts`)**:
+   - Removed `envPrefix: ["VITE_", "BACKEND_"]` completely to restore standard Vite secret protection.
+
+### Verification Performed
+- **Real CSV Upload Test via Browser Automation**:
+  - Signed in as `inst-b` (Apex Global) on `http://127.0.0.1:5173/#/inst`.
+  - Uploaded `sample-b2-quota-violation.csv` via the UI.
+  - Verified UI rendered **Batch #10, Validated, 9 rejected, Rows: 9, Accepted: 0, Rejected: 9, Warnings: 0, Flags: 0**.
+  - Navigated to `#/inst/batch/10` and verified all 9 row-level quota violation issues from the backend database.
+- **Malformed CSV Test**:
+  - Uploaded a CSV missing mandatory columns (`test_invalid_req.py`).
+  - Backend responded with HTTP 422: `{"title": "Missing required columns", "status": 422, "detail": {"missing": [...]}}`.
+  - Frontend catches this and displays the exact column list error without falling back to demo numbers.
+- **Production Bundle**:
+  - `npm --prefix frontend run build` (`tsc --noEmit && vite build`) passed cleanly in 13.46s.

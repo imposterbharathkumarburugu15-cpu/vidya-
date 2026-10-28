@@ -57,7 +57,14 @@ export default function BatchDetail({ id }: { id: number }) {
   }, [issues]);
   const rowsWith = (s: Sev) => new Set(issues.filter((i) => i.severity === s).map((i) => i.row_no)).size;
 
-  if (error) return <ErrorNote>{error}</ErrorNote>;
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" onClick={() => go("/inst")}><ArrowLeft className="h-4 w-4" />Back to dashboard</Button>
+        <ErrorNote>{error}</ErrorNote>
+      </div>
+    );
+  }
   if (!batch) return <Loading />;
   const c = batch.counts ?? { rows: 0, accepted: 0, rejected: 0, warnings: 0, flags: 0 };
   const shown = groups.filter((g) => sev === "all" || g[0].severity === sev);

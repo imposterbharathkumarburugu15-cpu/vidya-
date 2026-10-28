@@ -645,57 +645,6 @@ export async function getJson<T>(path: string): Promise<T> {
         },
       ] as unknown as T;
     }
-    if (path.match(/\/v1\/batches\/\d+\/issues/)) {
-      return {
-        items: [
-          {
-            row_no: 12,
-            code: "ERR_STUDENT_AGE_UNDER_MINIMUM",
-            severity: "warning",
-            field: "dob",
-            title: "Student Age Under Typical Minimum",
-            message: "Student DOB indicates age under 16 at commencement of academic term.",
-            fix_hint: "Verify age with candidate secondary school leaving certificate.",
-          },
-        ],
-        next_cursor: null,
-      } as unknown as T;
-    }
-    if (path.match(/\/v1\/batches\/\d+$/)) {
-      return {
-        batch_id: 1,
-        id: 1,
-        institution_id: "1-0000000001",
-        programme_id: "1-0000000001:CSE",
-        academic_year: "2026-27",
-        status: "completed",
-        channel: "portal_csv",
-        created_at: "2026-10-20T10:30:00Z",
-        completed_at: "2026-10-20T10:31:00Z",
-        counts: { rows: 60, accepted: 60, rejected: 0, warnings: 0, flags: 0, total: 60, valid: 60, cases_opened: 0 },
-        row_counts_json: { total: 60, valid: 60, rejected: 0, flagged: 0 },
-        replayed: false,
-      } as unknown as T;
-    }
-    if (path.includes("/v1/batches")) {
-      return [
-        {
-          id: 1,
-          batch_id: 1,
-          institution_id: "1-0000000001",
-          programme_id: "1-0000000001:CSE",
-          academic_year: "2026-27",
-          status: "completed",
-          channel: "portal_csv",
-          created_by: "inst-a",
-          counts: { rows: 60, accepted: 60, rejected: 0, warnings: 0, flags: 0, total: 60, valid: 60, cases_opened: 0 },
-          row_counts_json: { total: 60, valid: 60, rejected: 0, flagged: 0 },
-          created_at: "2026-10-20T10:30:00Z",
-          completed_at: "2026-10-20T10:31:00Z",
-          replayed: false,
-        },
-      ] as unknown as T;
-    }
     throw err;
   }
 }
@@ -965,29 +914,8 @@ export async function uploadCsv(file: File): Promise<S["BatchOut"]> {
   const key = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
   const form = new FormData();
   form.append("file", new Blob([bytes], { type: "text/csv" }), file.name);
-  try {
-    const res = await request("/v1/batches", { method: "POST", body: form, headers: { "Idempotency-Key": key } });
-    return res.json() as Promise<S["BatchOut"]>;
-  } catch (err) {
-    const s = loadSession();
-    const isInstB = s?.institution_id === "1-0000000002" || s?.user_id === "inst-b";
-    return {
-      batch_id: Math.floor(Math.random() * 1000) + 10,
-      institution_id: s?.institution_id || "1-0000000001",
-      status: "completed",
-      channel: "portal_csv",
-      created_at: new Date().toISOString(),
-      counts: {
-        rows: 60,
-        accepted: isInstB ? 45 : 60,
-        rejected: isInstB ? 15 : 0,
-        warnings: isInstB ? 4 : 0,
-        flags: isInstB ? 2 : 0,
-        cases_opened: isInstB ? 1 : 0,
-      },
-      replayed: false,
-    } as unknown as S["BatchOut"];
-  }
+  const res = await request("/v1/batches", { method: "POST", body: form, headers: { "Idempotency-Key": key } });
+  return res.json() as Promise<S["BatchOut"]>;
 }
 
 /** Authenticated file download (the report endpoints need the bearer token, so a plain link won't do). */
