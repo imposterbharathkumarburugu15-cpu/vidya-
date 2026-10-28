@@ -72,7 +72,9 @@ def beta_interval(a: float, b: float, mass: float = 0.9, n: int = 4000) -> tuple
             lo = x
         if hi is None and acc >= 1 - (1 - mass) / 2:
             hi = x
-    return round(lo, 3), round(hi, 3)
+    lo_val = 0.0 if lo is None else lo
+    hi_val = 1.0 if hi is None else hi
+    return round(lo_val, 3), round(hi_val, 3)
 
 
 def weight(confirmed: int, dismissed: int) -> float:
@@ -100,8 +102,9 @@ def latest_per_flag(reviews: list[dict]) -> dict[str, dict]:
     out: dict[str, dict] = {}
     for r in sorted(reviews, key=lambda r: (r["reviewed_at"], r["id"])):
         prev = out.get(r["flag_key"])
-        keep = prev and prev["decision"] == "dismissed" and r["decision"] == "dismissed"
-        out[r["flag_key"]] = {**r, "baseline_snapshot": prev["baseline_snapshot"] if keep else r["evidence_snapshot"]}
+        keep = bool(prev and prev.get("decision") == "dismissed" and r.get("decision") == "dismissed")
+        prev_baseline = prev.get("baseline_snapshot") if prev else None
+        out[r["flag_key"]] = {**r, "baseline_snapshot": prev_baseline if keep and prev_baseline is not None else r.get("evidence_snapshot")}
     return out
 
 

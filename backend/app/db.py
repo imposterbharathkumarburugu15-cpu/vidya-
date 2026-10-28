@@ -57,7 +57,7 @@ def app_password() -> str:
 
 def connect(dbname: str = DB_NAME, autocommit: bool = False) -> Any:
     """Admin connection (bypasses RLS). Never use for request handling."""
-    return psycopg.connect(database_url(), dbname=dbname, row_factory=dict_row, connect_timeout=5, autocommit=autocommit)
+    return psycopg.connect(database_url(), dbname=dbname, row_factory=dict_row, connect_timeout=5, autocommit=autocommit)  # type: ignore
 
 
 def app_connect(user: dict | None, dbname: str = DB_NAME):
@@ -78,7 +78,7 @@ def app_connect(user: dict | None, dbname: str = DB_NAME):
     timeout = 2 if is_vercel else 5
     try:
         conn = psycopg.connect(url, dbname=dbname, user=APP_ROLE, password=app_password(),
-                               row_factory=dict_row, connect_timeout=timeout)
+                               row_factory=dict_row, connect_timeout=timeout)  # type: ignore
         u = user or {}
         for key, val in (("app.role", u.get("role")), ("app.institution_id", u.get("institution_id")),
                          ("app.user_id", u.get("id")), ("app.student_id", u.get("student_id")),
@@ -110,5 +110,5 @@ def load_schema(name: str = DB_NAME) -> None:
     ensure_app_role()
     here = Path(__file__).parent
     with connect(name) as c:
-        c.execute(sql.SQL((here / "schema.sql").read_text()))
-        c.execute(sql.SQL((here / "rls.sql").read_text()))
+        c.execute((here / "schema.sql").read_text())  # type: ignore
+        c.execute((here / "rls.sql").read_text())  # type: ignore

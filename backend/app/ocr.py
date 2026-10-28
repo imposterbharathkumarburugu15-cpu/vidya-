@@ -296,7 +296,7 @@ def process_document_bytes(file_bytes: bytes, media_type: str, language: str = "
 
     tess_exe = _get_tesseract_binary()
     tess_data = _get_tessdata_dir()
-    if tess_exe:
+    if tess_exe and pytesseract is not None:
         pytesseract.pytesseract.tesseract_cmd = tess_exe
     if tess_data:
         os.environ["TESSDATA_PREFIX"] = tess_data
@@ -338,7 +338,7 @@ def process_document_bytes(file_bytes: bytes, media_type: str, language: str = "
 
             for page_idx in range(page_count):
                 page = doc[page_idx]
-                text = page.get_text()
+                text = str(page.get_text())
                 method = "pdf_text_extraction"
                 conf = 0.95
 

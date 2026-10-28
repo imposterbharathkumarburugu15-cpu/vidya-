@@ -14,6 +14,7 @@ import socket
 import threading
 import time
 from datetime import datetime, timedelta, timezone
+from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
 import httpx
@@ -76,7 +77,7 @@ def resolve(url: str):
         raise UrlRejected("host does not resolve") from None
     ips = []
     for info in infos:
-        ip = ipaddress.ip_address(info[4][0].split("%")[0])
+        ip = ipaddress.ip_address(str(info[4][0]).split("%")[0])
         ip = getattr(ip, "ipv4_mapped", None) or ip
         if not (local_ok and ip.is_loopback) and (not ip.is_global or ip.is_multicast):
             raise UrlRejected("host resolves to a private, loopback, link-local or reserved address")
@@ -132,7 +133,7 @@ def dispatch_due(now: datetime | None = None, client: httpx.Client | None = None
         with db.app_connect(DISPATCHER) as conn:
             while n < limit:
                 with conn.transaction():
-                    d = conn.execute(
+                    d: Any = conn.execute(
                         "SELECT d.*, w.url, w.secret_enc, w.prev_secret_enc, w.prev_expires_at, w.active FROM webhook_deliveries d "
                         "JOIN webhook_endpoints w ON w.id = d.endpoint_id WHERE d.status = 'pending' AND d.next_attempt_at <= %s "
                         "ORDER BY d.next_attempt_at, d.id LIMIT 1 FOR UPDATE OF d SKIP LOCKED", (now,)).fetchone()
