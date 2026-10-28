@@ -18,11 +18,12 @@ export default function Certificate({ id }: { id: string }) {
 
   if (error) return <ErrorNote>{error}</ErrorNote>;
   if (!cert) return <Loading />;
-  const vc = cert.credential as { type: string[]; issuer: { name: string; id: string }; validFrom: string; credentialSubject: Record<string, string> };
-  const s = vc.credentialSubject;
-  const degree = vc.type.includes("DegreeCredential");
+  const vc = (cert.credential || {}) as { type?: string[]; issuer?: { name?: string; id?: string }; validFrom?: string; credentialSubject?: Record<string, string> };
+  const s = vc?.credentialSubject || {};
+  const degree = Array.isArray(vc?.type) ? vc.type.includes("DegreeCredential") : false;
   // the SVG comes from our backend's QR generator; rendered as an image, never injected as HTML
-  const qrSrc = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(cert.qr_svg)))}`;
+  const qrSvg = cert.qr_svg || '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#fff"/></svg>';
+  const qrSrc = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(qrSvg)))}`;
 
   const copyPayload = async () => {
     try { await navigator.clipboard.writeText(cert.qr_payload); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* clipboard blocked */ }
@@ -50,7 +51,7 @@ export default function Certificate({ id }: { id: string }) {
           <div className="border-[3px] border-double border-[#b8963a]/70 px-6 py-10 sm:px-14 sm:py-14">
             <header className="text-center">
               <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#8a7a55]">{degree ? "Degree certificate" : "Enrolment certificate"}</p>
-              <h1 className="mt-4 font-display text-[34px] leading-tight text-[#1c1a16] sm:text-[40px]">{vc.issuer.name}</h1>
+              <h1 className="mt-4 font-display text-[34px] leading-tight text-[#1c1a16] sm:text-[40px]">{vc?.issuer?.name || "Issuing Institution"}</h1>
               <div className="mx-auto mt-5 flex w-48 items-center gap-3" aria-hidden>
                 <span className="h-px flex-1 bg-[#b8963a]/60" /><span className="h-1.5 w-1.5 rotate-45 bg-[#b8963a]" /><span className="h-px flex-1 bg-[#b8963a]/60" />
               </div>
@@ -70,8 +71,8 @@ export default function Certificate({ id }: { id: string }) {
               <dl className="grid grid-cols-2 gap-x-8 gap-y-5">
                 {field("APAAR ID", s.apaarId ?? `${s.provisionalId} (provisional)`, true)}
                 {field("Student ID", s.studentId, true)}
-                {field(degree ? "Awarded on" : "Issued", degree ? s.awardedOn : new Date(vc.validFrom).toLocaleDateString())}
-                {field("Issuer DID", <span className="break-all font-mono text-[11px]">{vc.issuer.id}</span>)}
+                {field(degree ? "Awarded on" : "Issued", degree ? s.awardedOn : (vc?.validFrom ? new Date(vc.validFrom).toLocaleDateString() : "—"))}
+                {field("Issuer DID", <span className="break-all font-mono text-[11px]">{vc?.issuer?.id || "—"}</span>)}
               </dl>
               <figure className="text-center">
                 <div className="inline-block border border-[#b8963a]/50 bg-white p-2"><img src={qrSrc} alt="Verification QR code containing the signed credential" className="h-40 w-40" /></div>

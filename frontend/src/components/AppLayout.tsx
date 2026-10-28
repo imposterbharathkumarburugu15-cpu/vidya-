@@ -109,7 +109,7 @@ export default function AppLayout({ session, roleLabel, onLogout, canVerify = fa
     );
   };
 
-  const initials = session.display_name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const initials = ((session.display_name || "User").trim().split(/\s+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2).toUpperCase()) || "U";
 
   return (
     <MotionConfig reducedMotion="user">

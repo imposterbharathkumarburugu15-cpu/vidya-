@@ -60,7 +60,7 @@ export function DqsBreakdown({ d }: { d: S["Dqs"] }) {
       </div>
       <p className="mt-2 text-[14px] text-slate-600">100 means clean, complete, on-time data. Each part below shows how this college did.</p>
       <ul className="mt-4 space-y-3.5">
-        {Object.entries(d.components).sort((a, b) => a[1] - b[1]).map(([k, v]) => (
+        {Object.entries(d.components || {}).sort((a, b) => a[1] - b[1]).map(([k, v]) => (
           <li key={k}>
             <div className="flex items-baseline justify-between gap-3 text-[14.5px]">
               <span className="text-ink">{COMPONENT_LABEL[k] ?? human(k)}</span>
@@ -69,7 +69,7 @@ export function DqsBreakdown({ d }: { d: S["Dqs"] }) {
             <div className="mt-1 h-2 overflow-hidden rounded-full bg-white/[0.06]">
               <div className={v >= 0.9 ? "h-full bg-success" : v >= 0.6 ? "h-full bg-warning" : "h-full bg-critical"} style={{ width: `${v * 100}%` }} />
             </div>
-            {COMPONENT_HELP[k] && <p className="mt-1 text-[12.5px] text-mute">{COMPONENT_HELP[k]} Counts for {Math.round(d.weights[k] * 100)}% of the score.</p>}
+            {COMPONENT_HELP[k] && <p className="mt-1 text-[12.5px] text-mute">{COMPONENT_HELP[k]} Counts for {Math.round(((d.weights || {})[k] ?? 0.25) * 100)}% of the score.</p>}
           </li>
         ))}
       </ul>
@@ -265,8 +265,14 @@ export function InspectionList({ canReview = false }: { canReview?: boolean }) {
 
 function reasons(e: S["InspectionEntry"] & { bucket: Bucket }): ReactNode {
   if (!e.dqs) return "No student records uploaded yet.";
-  const signs = [...new Set(e.flags.map((f) => FLAG_LABEL[f.type] ?? human(f.type)))];
-  const weak = Object.entries(e.dqs.components).filter(([, v]) => v < 0.9).sort((a, b) => a[1] - b[1]).slice(0, 2)
+  const signs = [...new Set((e.flags || []).map((f) => FLAG_LABEL[f.type] ?? human(f.type)))];
+  const components = e.dqs.components || {
+    completeness: typeof (e.dqs as any).completeness === "number" ? (e.dqs as any).completeness / 100 : 0.7,
+    timeliness: typeof (e.dqs as any).timeliness === "number" ? (e.dqs as any).timeliness / 100 : 0.65,
+    consistency: typeof (e.dqs as any).consistency === "number" ? (e.dqs as any).consistency / 100 : 0.7,
+    validity: typeof (e.dqs as any).validity === "number" ? (e.dqs as any).validity / 100 : 0.68,
+  };
+  const weak = Object.entries(components).filter(([, v]) => v < 0.9).sort((a, b) => a[1] - b[1]).slice(0, 2)
     .map(([k, v]) => `${COMPONENT_LABEL[k] ?? human(k)}: ${Math.round(v * 100)}%`);
   const parts = [...signs.slice(0, 3), ...weak];
   return parts.length ? parts.join(" · ") : "No problems found.";

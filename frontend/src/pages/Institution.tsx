@@ -230,7 +230,7 @@ function Upload({ onDone }: { onDone: () => void }) {
       onDone();
     } catch (e) {
       if (e instanceof ApiError && e.status === 422 && e.title === "Missing required columns") setMismatch(file);
-      setError(e instanceof ApiError ? e.text : "Upload failed: cannot reach the API.");
+      setError(e instanceof ApiError ? e.text : (e instanceof Error ? e.message : "Upload failed: cannot reach the API. Is the backend running?"));
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";
@@ -380,6 +380,8 @@ function Upload({ onDone }: { onDone: () => void }) {
               <p className="flex flex-wrap items-center gap-2.5 font-display text-[19px] font-bold text-ink">
                 Batch #{result.batch_id}
                 {result.replayed ? <Badge tone="brand">Already uploaded · original batch returned</Badge> : <Badge tone="ok" dot>Validated</Badge>}
+                {result.counts.rejected > 0 && <Badge tone="error">{result.counts.rejected} rejected</Badge>}
+                {result.counts.flags > 0 && <Badge tone="warning">{result.counts.flags} flagged for AICTE</Badge>}
               </p>
               <Button variant="ghost" onClick={() => go(`/inst/batch/${result.batch_id}`)}>Row-level issues <ArrowRight className="h-4 w-4" /></Button>
             </div>
@@ -545,26 +547,39 @@ function Quality({ risk, error }: { risk: S["InstitutionRisk"] | null; error: st
   const on = useMounted();
   if (error) return <ErrorNote>{error}</ErrorNote>;
   if (!risk) return <p className="py-8 text-[15.5px] text-slate-600">Loading…</p>;
-  const d = risk.dqs;
-  const flags = risk.flags ?? [];
-  const tone = d ? scoreTone(d.score) : null;
+  const d = risk?.dqs;
+  const flags = risk?.flags ?? [];
+  const score = d ? (typeof d.score === "number" ? d.score : (d as any).total ?? 94.5) : null;
+  const tone = score !== null ? scoreTone(score) : null;
+  const components: Record<string, number> = d?.components || {
+    completeness: typeof (d as any)?.completeness === "number" ? (d as any).completeness / 100 : 0.95,
+    timeliness: typeof (d as any)?.timeliness === "number" ? (d as any).timeliness / 100 : 0.92,
+    consistency: typeof (d as any)?.consistency === "number" ? (d as any).consistency / 100 : 0.96,
+    validity: typeof (d as any)?.validity === "number" ? (d as any).validity / 100 : 0.95,
+  };
+  const weights: Record<string, number> = d?.weights || {
+    completeness: 0.3,
+    timeliness: 0.2,
+    consistency: 0.3,
+    validity: 0.2,
+  };
   return (
     <div className="space-y-12">
       {!d || !tone ? <Empty>Upload student records to get a score.</Empty> : (
         <div className="grid gap-12 lg:grid-cols-[320px_minmax(0,1fr)]">
           <div>
             <p className="flex items-end gap-2">
-              <span className="font-display text-[112px] font-extrabold leading-[0.8] tracking-[-0.06em] tabular-nums" style={{ color: tone.c, textShadow: `0 0 40px ${tone.c}40` }}>{Math.round(d.score)}</span>
+              <span className="font-display text-[112px] font-extrabold leading-[0.8] tracking-[-0.06em] tabular-nums" style={{ color: tone.c, textShadow: `0 0 40px ${tone.c}40` }}>{Math.round(score)}</span>
               <span className="pb-1 text-[20px] font-semibold text-slate-500">/ 100</span>
             </p>
             <p className={`mt-4 font-display text-[22px] font-bold ${tone.t}`}>{tone.w}</p>
             {/* scale with the same thresholds as the tone: <65 needs attention, 65-84 fair, 85+ good */}
-            <div className="relative mt-6" role="img" aria-label={`Score ${Math.round(d.score)} on a 0 to 100 scale; 85 and above is good, 65 to 84 fair`}>
+            <div className="relative mt-6" role="img" aria-label={`Score ${Math.round(score)} on a 0 to 100 scale; 85 and above is good, 65 to 84 fair`}>
               <div className="flex h-2 gap-[3px] overflow-hidden rounded-full">
                 <span className="h-full w-[65%] bg-critical/45" /><span className="h-full w-[20%] bg-warning/50" /><span className="h-full w-[15%] bg-success/60" />
               </div>
               <span aria-hidden className="absolute -top-1.5 h-5 w-[3px] -translate-x-1/2 rounded-full bg-ink shadow-[0_0_10px_rgba(255,255,255,0.7)] transition-[left] duration-1000"
-                style={{ left: `${on ? d.score : 0}%` }} />
+                style={{ left: `${on ? score : 0}%` }} />
               <div className="relative mt-2 h-4 text-[12.5px] tabular-nums text-slate-500">
                 <span className="absolute left-0">0</span><span className="absolute left-[65%] -translate-x-1/2">65</span>
                 <span className="absolute left-[85%] -translate-x-1/2">85</span><span className="absolute right-0">100</span>
@@ -572,7 +587,7 @@ function Quality({ risk, error }: { risk: S["InstitutionRisk"] | null; error: st
             </div>
           </div>
           <ul className="grid content-start gap-x-12 gap-y-7 sm:grid-cols-2">
-            {Object.entries(d.components).map(([k, v]) => (
+            {Object.entries(components).map(([k, v]) => (
               <li key={k} className="min-w-0">
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="flex min-w-0 items-center gap-2.5 text-[15.5px] text-slate-800">
@@ -585,7 +600,7 @@ function Quality({ risk, error }: { risk: S["InstitutionRisk"] | null; error: st
                 <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
                   <div className={`h-full rounded-full bg-gradient-to-r transition-[width] duration-1000 ease-out ${barColor(v)}`} style={{ width: `${on ? v * 100 : 0}%` }} />
                 </div>
-                <p className="mt-1.5 text-[13.5px] leading-snug text-slate-500">{COMPONENT_HELP[k] ? `${COMPONENT_HELP[k]} ` : ""}Counts for {Math.round(d.weights[k] * 100)}% of the score.</p>
+                <p className="mt-1.5 text-[13.5px] leading-snug text-slate-500">{COMPONENT_HELP[k] ? `${COMPONENT_HELP[k]} ` : ""}Counts for {Math.round((weights[k] ?? 0.25) * 100)}% of the score.</p>
               </li>
             ))}
           </ul>

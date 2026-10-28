@@ -211,29 +211,10 @@ async def create_batch(request: Request, idempotency_key: str | None = Header(No
         return JSONResponse(BatchOut(**out).model_dump(mode="json"), status_code=200 if out["replayed"] else 201)
     except ingest.ApiError:
         raise
-    except Exception:
-        total = len(rows)
-        rejected = 15 if user.get("institution_id") == "1-0000000002" else 0
-        accepted = max(0, total - rejected)
-        now_dt = datetime.now(timezone.utc)
-        fallback_counts = {
-            "rows": total,
-            "accepted": accepted,
-            "rejected": rejected,
-            "warnings": 2 if rejected > 0 else 0,
-            "flags": 1 if rejected > 0 else 0,
-            "cases_opened": 1 if rejected > 0 else 0
-        }
-        fallback_batch = {
-            "batch_id": 99,
-            "institution_id": user.get("institution_id", "1-0000000001"),
-            "status": "completed",
-            "channel": channel,
-            "created_at": now_dt.isoformat(),
-            "counts": fallback_counts,
-            "replayed": False
-        }
-        return JSONResponse(fallback_batch, status_code=201)
+    except Exception as e:
+        import logging
+        logging.getLogger("uvicorn.error").exception("Batch ingestion error: %s", e)
+        return problem(500, "Batch ingestion failed", f"Server error processing batch: {str(e)}")
 
 
 @app.get("/v1/batches/template.csv", description="Pre-filled upload template with valid demo student records.")
