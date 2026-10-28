@@ -10,15 +10,14 @@ import re
 import secrets
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import psycopg
 from psycopg import sql
 from psycopg.rows import dict_row
 
 ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
-DB_NAME = os.environ.get("APAAR_DB", "apaar")  # app database; the .env URL may point at 'postgres'
-APP_ROLE = "app_user"
+APP_ROLE = os.environ.get("APP_DB_ROLE", os.environ.get("APP_ROLE", "vidya_app"))
 
 
 def _env(name: str) -> str | None:
@@ -43,9 +42,30 @@ def database_url() -> str:
     return url
 
 
+def get_dbname() -> str:
+    """Extract database name from environment or connection string (e.g. 'neondb')."""
+    if os.environ.get("APAAR_DB"):
+        return os.environ["APAAR_DB"]
+    try:
+        url = database_url()
+        parsed = urlparse(url)
+        path_db = parsed.path.lstrip("/").split("?")[0]
+        if path_db:
+            return path_db
+    except Exception:
+        pass
+    return "neondb" if bool(os.environ.get("VERCEL")) else "apaar"
+
+
+DB_NAME = get_dbname()
+
+
 def app_password() -> str:
     pw = _env("APP_DB_PASSWORD")
     if not pw:
+        # Check if already running on Vercel without password
+        if os.environ.get("VERCEL"):
+            raise RuntimeError("APP_DB_PASSWORD environment variable is not configured in Vercel settings.")
         pw = secrets.token_urlsafe(24)
         try:
             with open(ENV_FILE, "a", encoding="utf-8") as f:
@@ -55,30 +75,36 @@ def app_password() -> str:
     return pw
 
 
-def connect(dbname: str = DB_NAME, autocommit: bool = False) -> Any:
-    """Admin connection (bypasses RLS). Never use for request handling."""
-    return psycopg.connect(database_url(), dbname=dbname, row_factory=dict_row, connect_timeout=5, autocommit=autocommit)  # type: ignore
+def connect(dbname: str | None = None, autocommit: bool = False) -> Any:
+    """Admin connection (bypasses RLS). Used only for schema initialization and administrative assertions."""
+    target_db = dbname or get_dbname()
+    return psycopg.connect(database_url(), dbname=target_db, row_factory=dict_row, connect_timeout=5, autocommit=autocommit)  # type: ignore
 
 
-def app_connect(user: dict | None, dbname: str = DB_NAME):
-    """Request connection as the non-owner app role, with RLS settings for this caller.
-    If database is offline or running on Vercel without a cloud Postgres instance,
-    falls back cleanly to MockDemoConnection so the platform is 100% responsive.
-    """
-    from .mock_db import MockDemoConnection
-
+def app_connect(user: dict | None, dbname: str | None = None):
+    """Request connection as the non-owner app role, with RLS settings for this caller."""
     is_vercel = bool(os.environ.get("VERCEL"))
+    demo_mode_active = os.environ.get("DEMO_MODE", "").lower() in ("true", "1", "on")
+    target_db = dbname or get_dbname()
+
     try:
         url = database_url()
-        if is_vercel and ("127.0.0.1" in url or "localhost" in url):
+    except Exception as e:
+        if is_vercel:
+            raise RuntimeError(f"Database configuration missing on Vercel: {e}. Set DATABASE_URL_UNPOOLED in project environment variables.")
+        if demo_mode_active:
+            from .mock_db import MockDemoConnection
             return MockDemoConnection(user)
-    except Exception:
-        return MockDemoConnection(user)
+        raise
 
-    timeout = 2 if is_vercel else 5
+    timeout = 3 if is_vercel else 5
     try:
-        conn = psycopg.connect(url, dbname=dbname, user=APP_ROLE, password=app_password(),
-                               row_factory=dict_row, connect_timeout=timeout)  # type: ignore
+        app_url = _env("APP_DATABASE_URL")
+        if app_url:
+            conn = psycopg.connect(app_url, dbname=target_db, row_factory=dict_row, connect_timeout=timeout)
+        else:
+            conn = psycopg.connect(url, dbname=target_db, user=APP_ROLE, password=app_password(),
+                                   row_factory=dict_row, connect_timeout=timeout)  # type: ignore
         u = user or {}
         for key, val in (("app.role", u.get("role")), ("app.institution_id", u.get("institution_id")),
                          ("app.user_id", u.get("id")), ("app.student_id", u.get("student_id")),
@@ -86,29 +112,56 @@ def app_connect(user: dict | None, dbname: str = DB_NAME):
             conn.execute("SELECT set_config(%s, %s, false)", (key, "" if val is None else str(val)))
         conn.commit()
         return conn
+    except Exception as e:
+        import logging
+        logging.getLogger("uvicorn.error").error("Database connection failed: %s", e)
+        if not is_vercel and demo_mode_active and ("127.0.0.1" in url or "localhost" in url):
+            from .mock_db import MockDemoConnection
+            return MockDemoConnection(user)
+        raise RuntimeError(f"Database connection error: {e}")
+
+
+def create_database(name: str | None = None) -> bool:
+    """Create a database locally if it does not exist. No-op if database already exists or on cloud hosts."""
+    target_name = name or get_dbname()
+    try:
+        with connect("postgres", autocommit=True) as c:
+            if c.execute("select 1 from pg_database where datname = %s", (target_name,)).fetchone():
+                return False
+            c.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(target_name)))
+            return True
     except Exception:
-        return MockDemoConnection(user)
+        # On managed cloud databases like Neon, databases are created via console/API
+        return False
 
 
-def create_database(name: str = DB_NAME) -> bool:
-    with connect("postgres", autocommit=True) as c:
-        if c.execute("select 1 from pg_database where datname = %s", (name,)).fetchone():
-            return False
-        c.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
-        return True
-
-
-def ensure_app_role() -> None:
-    with connect("postgres", autocommit=True) as c:
+def ensure_app_role(conn=None) -> None:
+    """Verify APP_ROLE exists. Does NOT alter role attributes or superuser flags on managed databases."""
+    def _check(c):
         exists = c.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (APP_ROLE,)).fetchone()
-        verb = "ALTER" if exists else "CREATE"
-        c.execute(sql.SQL(verb + " ROLE {} LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE PASSWORD {}").format(
-            sql.Identifier(APP_ROLE), sql.Literal(app_password())))
+        if exists:
+            return  # Role already exists; do not alter superuser/bypassrls attributes
+        try:
+            c.execute(sql.SQL("CREATE ROLE {} LOGIN PASSWORD {}").format(
+                sql.Identifier(APP_ROLE), sql.Literal(app_password())))
+        except Exception as e:
+            import logging
+            logging.getLogger("uvicorn.error").warning("Could not auto-create role %s: %s", APP_ROLE, e)
+
+    if conn is not None:
+        _check(conn)
+    else:
+        with connect(autocommit=True) as c:
+            _check(c)
 
 
-def load_schema(name: str = DB_NAME) -> None:
-    ensure_app_role()
+def load_schema(name: str | None = None) -> None:
+    target_db = name or get_dbname()
     here = Path(__file__).parent
-    with connect(name) as c:
-        c.execute((here / "schema.sql").read_text())  # type: ignore
-        c.execute((here / "rls.sql").read_text())  # type: ignore
+    with connect(target_db) as c:
+        ensure_app_role(c)
+        c.execute((here / "schema.sql").read_text(encoding="utf-8"))  # type: ignore
+        rls_sql = (here / "rls.sql").read_text(encoding="utf-8")
+        if APP_ROLE != "app_user":
+            rls_sql = re.sub(r"\bapp_user\b", APP_ROLE, rls_sql)
+        c.execute(rls_sql)  # type: ignore

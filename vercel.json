@@ -1,53 +1,36 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "app": {
-      "root": "backend",
-      "framework": "fastapi"
-    },
-    "frontend": {
-      "root": "frontend",
-      "framework": "vite",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "app",
-          "format": "url",
-          "env": "BACKEND_URL"
-        }
-      ]
+  "framework": null,
+  "installCommand": "cd frontend && npm ci",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "regions": ["sin1"],
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "backend/{app,data,i18n}/**",
+      "maxDuration": 60
     }
   },
   "rewrites": [
     {
-      "source": "/v1/(.*)",
-      "destination": {
-        "service": "app"
-      }
+      "source": "/v1/:path*",
+      "destination": "/api/index"
     },
     {
       "source": "/healthz",
-      "destination": {
-        "service": "app"
-      }
+      "destination": "/api/index"
     },
     {
-      "source": "/status/(.*)",
-      "destination": {
-        "service": "app"
-      }
+      "source": "/status/:path*",
+      "destination": "/api/index"
     },
     {
-      "source": "/dids/(.*)",
-      "destination": {
-        "service": "app"
-      }
+      "source": "/dids/:path*",
+      "destination": "/api/index"
     },
     {
-      "source": "/(.*)",
-      "destination": {
-        "service": "frontend"
-      }
+      "source": "/((?!assets/|demo-data/|plugins/|v1/|healthz|status/|dids/|api/|.*\\..*).*)",
+      "destination": "/index.html"
     }
   ]
 }

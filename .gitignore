@@ -2,6 +2,8 @@
 __pycache__/
 .pytest_cache/
 backend/.keys*.json
+keys.json
+*.keys*.json
 node_modules/
 frontend/dist/
 .env
@@ -13,6 +15,7 @@ frontend/dist/
 
 .vercel
 .env*
+!.env.example
 
 # local tooling and backups
 .agents/
