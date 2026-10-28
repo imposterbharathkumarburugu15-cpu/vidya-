@@ -70,8 +70,12 @@ export default function StudentHome({ hash = "/student" }: StudentHomeProps) {
   if (me.error && !me.data) return <ErrorNote>{me.error}</ErrorNote>;
   if (!me.data) return <Loading />;
 
-  const pending = (consents.data ?? []).filter((c) => c.status === "pending");
-  const others = (consents.data ?? []).filter((c) => c.status !== "pending");
+  const consentsList = Array.isArray(consents.data) ? consents.data : [];
+  const credsList = Array.isArray(creds.data) ? creds.data : [];
+  const logList = Array.isArray(log.data) ? log.data : [];
+
+  const pending = consentsList.filter((c) => c && c.status === "pending");
+  const others = consentsList.filter((c) => c && c.status !== "pending");
 
   const TABS = [
     { id: "record" as const, route: "/student", label: "My record", icon: LayoutDashboard },
@@ -88,7 +92,7 @@ export default function StudentHome({ hash = "/student" }: StudentHomeProps) {
       route: "/student/wallet",
       label: "Credential wallet",
       icon: Wallet,
-      count: creds.data?.length,
+      count: credsList.length,
       badgeTone: "ok" as Tone,
     },
     { id: "grievances" as const, route: "/student/grievances", label: "Grievances & disputes", icon: Scale },
@@ -97,7 +101,7 @@ export default function StudentHome({ hash = "/student" }: StudentHomeProps) {
       route: "/student/access-log",
       label: "Who accessed my data",
       icon: ScrollText,
-      count: log.data?.length,
+      count: logList.length,
       badgeTone: "neutral" as Tone,
     },
     { id: "all" as const, route: "/student/all", label: "All views", icon: Layers },
@@ -152,8 +156,8 @@ export default function StudentHome({ hash = "/student" }: StudentHomeProps) {
         <RecordView
           profile={me.data}
           pendingCount={pending.length}
-          credsCount={creds.data?.length ?? 0}
-          logCount={log.data?.length ?? 0}
+          credsCount={credsList.length}
+          logCount={logList.length}
           onRefresh={refresh}
         />
       )}
@@ -169,7 +173,7 @@ export default function StudentHome({ hash = "/student" }: StudentHomeProps) {
 
       {activeTab === "wallet" && (
         <WalletView
-          creds={creds.data ?? []}
+          creds={credsList}
           loading={!creds.data}
           profile={me.data}
         />
@@ -181,7 +185,7 @@ export default function StudentHome({ hash = "/student" }: StudentHomeProps) {
 
       {activeTab === "access-log" && (
         <AccessLogView
-          logs={log.data ?? []}
+          logs={logList}
           loading={!log.data}
           profile={me.data}
         />

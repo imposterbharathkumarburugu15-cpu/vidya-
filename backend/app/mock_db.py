@@ -47,6 +47,166 @@ _DEMO_BATCHES: list[dict] = [
 
 _DEMO_BATCH_ID_SEQ = 3
 
+_DEMO_GRIEVANCES: list[dict] = [
+    {
+        "id": 101,
+        "student_id": 1,
+        "case_id": None,
+        "enrolment_id": 1,
+        "institution_id": "1-0000000001",
+        "record_type": "correction_request",
+        "category": "correction_name",
+        "subject": "Request for Correction: Legal Name Spelling on APAAR Registry",
+        "description": "My middle name was incorrectly recorded with an alternate spelling during bulk ingestion. Authoritative Aadhaar/APAAR card exhibits 'Aarav Sharma'. Kindly update institutional roster and registry.",
+        "proposed_changes": {"name": "Aarav Sharma"},
+        "current_values": {"name": "Arav Sharma"},
+        "status": "under_review",
+        "assigned_to": "Registrar Academic Cell, VITS Bengaluru",
+        "resolution_summary": "Document verified against DigiLocker Aadhaar XML. Institutional approval pending final sync.",
+        "review_decision": None,
+        "reviewed_by": None,
+        "reviewed_at": None,
+        "applied_at": None,
+        "created_at": datetime(2026, 10, 22, 11, 30, tzinfo=timezone.utc),
+        "updated_at": datetime(2026, 10, 23, 14, 15, tzinfo=timezone.utc),
+        "resolved_at": None
+    },
+    {
+        "id": 102,
+        "student_id": 1,
+        "case_id": 101,
+        "enrolment_id": 1,
+        "institution_id": "1-0000000001",
+        "record_type": "grievance",
+        "category": "incorrect_duplicate",
+        "subject": "Contest Duplicate Flag: Lateral Entry Seat Cleared",
+        "description": "System flagged a potential cross-institution match with Apex Global Pune. I had withdrawn my provisional seat at Pune before joining VITS Bengaluru on merit.",
+        "proposed_changes": {},
+        "current_values": {},
+        "status": "resolved",
+        "assigned_to": "AICTE Central Grievance Monitoring Cell",
+        "resolution_summary": "Verified institutional withdrawal certificate dated 14-Aug-2026. Flag cleared; VITS Bengaluru confirmed authoritative.",
+        "review_decision": "approved",
+        "reviewed_by": "aicte",
+        "reviewed_at": datetime(2026, 10, 26, 9, 45, tzinfo=timezone.utc),
+        "applied_at": datetime(2026, 10, 26, 9, 45, tzinfo=timezone.utc),
+        "created_at": datetime(2026, 10, 24, 16, 20, tzinfo=timezone.utc),
+        "updated_at": datetime(2026, 10, 26, 9, 45, tzinfo=timezone.utc),
+        "resolved_at": datetime(2026, 10, 26, 9, 45, tzinfo=timezone.utc)
+    }
+]
+
+_DEMO_GRIEVANCE_RESPONSES: list[dict] = [
+    {
+        "id": 1,
+        "grievance_id": 101,
+        "responder_id": "inst-a",
+        "responder_role": "institution_admin",
+        "message": "We have acknowledged your correction request and submitted the DigiLocker payload to the AICTE verification queue.",
+        "visibility": "student_visible",
+        "created_at": datetime(2026, 10, 23, 14, 15, tzinfo=timezone.utc)
+    },
+    {
+        "id": 2,
+        "grievance_id": 102,
+        "responder_id": "aicte",
+        "responder_role": "aicte_officer",
+        "message": "Case review complete. Cross-referencing verified withdrawal voucher. The candidate match was dismissed.",
+        "visibility": "student_visible",
+        "created_at": datetime(2026, 10, 26, 9, 45, tzinfo=timezone.utc)
+    }
+]
+
+_DEMO_CASE_EVIDENCE: list[dict] = [
+    {
+        "id": 1,
+        "case_id": None,
+        "grievance_id": 101,
+        "category": "corrected_academic_record",
+        "filename": "DigiLocker_Aadhaar_AaravSharma.pdf",
+        "media_type": "application/pdf",
+        "file_size": 245760,
+        "sha256_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "verified",
+        "verification_notes": "SHA-256 integrity match; digitally signed by UIDAI.",
+        "uploaded_by": "Aarav Sharma",
+        "uploaded_at": datetime(2026, 10, 22, 11, 32, tzinfo=timezone.utc),
+        "reviewed_by": "inst-a",
+        "reviewed_at": datetime(2026, 10, 23, 14, 10, tzinfo=timezone.utc)
+    }
+]
+
+_DEMO_GRIEVANCE_SEQ = 103
+
+_DEMO_CONSENTS: list[dict] = [
+    {
+        "id": 1,
+        "requester": "Tata Consultancy & Skills Verification (TCS V-Desk)",
+        "requester_did": "did:web:verification.tcs.demo.in",
+        "purpose": "Campus Recruitment 2026: Academic Credentials and Degree Validation",
+        "status": "pending",
+        "scope": ["EnrolmentCredential", "DegreeCredential"],
+        "requested_at": datetime(2026, 10, 25, 11, 30, tzinfo=timezone.utc),
+        "decided_at": None,
+        "expires_at": datetime(2026, 11, 25, 23, 59, 59, tzinfo=timezone.utc),
+        "student_id": 1,
+        "contact_email": "verification@tcs.demo.in"
+    },
+    {
+        "id": 2,
+        "requester": "Infosys National Recruitment Desk",
+        "requester_did": "did:web:campus.infosys.demo.in",
+        "purpose": "Pre-interview identity and enrolment status verification",
+        "status": "granted",
+        "scope": ["EnrolmentCredential"],
+        "requested_at": datetime(2026, 10, 20, 10, 0, tzinfo=timezone.utc),
+        "decided_at": datetime(2026, 10, 21, 8, 15, tzinfo=timezone.utc),
+        "expires_at": datetime(2026, 11, 20, 23, 59, 59, tzinfo=timezone.utc),
+        "student_id": 1,
+        "contact_email": "campus.hiring@infosys.demo.in"
+    }
+]
+
+_DEMO_CREDENTIALS: list[dict] = [
+    {
+        "id": "vc-bntu-2026-001",
+        "type": "EnrolmentCredential",
+        "issuer_did": "did:web:registry.aicte-demo.in:univ:dtu-demo",
+        "issued_at": datetime(2026, 10, 21, 9, 0, tzinfo=timezone.utc),
+        "subject_student_id": 1,
+        "enrolment_id": 1,
+        "revoked": False,
+        "suspended": False,
+        "status_list_id": None,
+        "status_index": None,
+        "vc_json": json.dumps({
+            "@context": ["https://www.w3.org/2018/credentials/v1", "https://schema.aicte-india.org/credentials/v1"],
+            "id": "urn:uuid:f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "type": ["VerifiableCredential", "EnrolmentCredential"],
+            "issuer": {"id": "did:web:registry.aicte-demo.in:univ:dtu-demo", "name": "Bharathiar National Technological University (BNTU)"},
+            "issuanceDate": "2026-10-21T09:00:00Z",
+            "credentialSubject": {
+                "id": "did:key:z6MkhaXgBZDvotDkL5257faiz487XGdei634etY6QK1KDHhm",
+                "name": "Aarav Sharma",
+                "studentId": "VITS-2026-CSE-042",
+                "apaarId": "328865551724",
+                "programme": "B.E. Computer Science and Engineering",
+                "institution": "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+                "institutionId": "1-0000000001",
+                "academicYear": "2026-27",
+                "status": "active"
+            },
+            "proof": {
+                "type": "Ed25519Signature2020",
+                "created": "2026-10-21T09:01:00Z",
+                "verificationMethod": "did:web:registry.aicte-demo.in:univ:dtu-demo#key-1",
+                "proofPurpose": "assertionMethod",
+                "proofValue": "z3h8qA9mocksignature123"
+            }
+        })
+    }
+]
+
 
 def _load_registry() -> dict:
     reg_file = DATA_DIR / "registry.json"
@@ -401,6 +561,118 @@ class MockDemoConnection:
                     "login_id": "inst-a" if "VITS" in i["name"] else "inst-b"
                 })
             return MockCursor(accounts)
+
+        # 16. Grievance Responses
+        global _DEMO_GRIEVANCES, _DEMO_GRIEVANCE_RESPONSES, _DEMO_CASE_EVIDENCE, _DEMO_GRIEVANCE_SEQ, _DEMO_CONSENTS, _DEMO_CREDENTIALS
+        if "INSERT INTO grievance_responses" in q:
+            gid = p[0] if len(p) > 0 else 101
+            resp_row = {
+                "id": len(_DEMO_GRIEVANCE_RESPONSES) + 1,
+                "grievance_id": gid,
+                "responder_id": p[1] if len(p) > 1 else self.user.get("id", "student"),
+                "responder_role": p[2] if len(p) > 2 else self.user.get("role", "student"),
+                "message": p[3] if len(p) > 3 else "",
+                "visibility": p[4] if len(p) > 4 else "student_visible",
+                "created_at": datetime.now(timezone.utc)
+            }
+            _DEMO_GRIEVANCE_RESPONSES.append(resp_row)
+            return MockCursor([resp_row])
+
+        if "grievance_responses" in q:
+            gid = p[0] if p else None
+            matched = [r for r in _DEMO_GRIEVANCE_RESPONSES if gid is None or r.get("grievance_id") == gid]
+            return MockCursor(matched)
+
+        # 17. Case Evidence
+        if "INSERT INTO case_evidence" in q:
+            new_ev = {
+                "id": len(_DEMO_CASE_EVIDENCE) + 1,
+                "case_id": None,
+                "grievance_id": p[0] if p else 101,
+                "category": "student_affidavit",
+                "filename": "supporting_evidence.pdf",
+                "media_type": "application/pdf",
+                "file_size": 102400,
+                "sha256_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "status": "verified",
+                "verification_notes": "Cryptographically verified against tamper-evident ledger.",
+                "uploaded_by": self.user.get("id", "student"),
+                "uploaded_at": datetime.now(timezone.utc),
+                "reviewed_by": None,
+                "reviewed_at": None
+            }
+            _DEMO_CASE_EVIDENCE.append(new_ev)
+            return MockCursor([new_ev])
+
+        if "case_evidence" in q:
+            gid = p[0] if p else None
+            matched = [e for e in _DEMO_CASE_EVIDENCE if gid is None or e.get("grievance_id") == gid]
+            return MockCursor(matched)
+
+        # 18. Student Grievances & Disputes
+        if "INSERT INTO student_grievances" in q:
+            new_id = _DEMO_GRIEVANCE_SEQ
+            _DEMO_GRIEVANCE_SEQ += 1
+            proposed = p[8] if len(p) > 8 else {}
+            if isinstance(proposed, str):
+                try:
+                    proposed = json.loads(proposed)
+                except Exception:
+                    proposed = {}
+            current_vals = p[9] if len(p) > 9 else {}
+            if isinstance(current_vals, str):
+                try:
+                    current_vals = json.loads(current_vals)
+                except Exception:
+                    current_vals = {}
+            new_row = {
+                "id": new_id,
+                "student_id": p[0] if len(p) > 0 else 1,
+                "case_id": p[1] if len(p) > 1 else None,
+                "enrolment_id": p[2] if len(p) > 2 else 1,
+                "institution_id": p[3] if len(p) > 3 else "1-0000000001",
+                "record_type": p[4] if len(p) > 4 else "grievance",
+                "category": p[5] if len(p) > 5 else "academic_record",
+                "subject": p[6] if len(p) > 6 else "Correction Request",
+                "description": p[7] if len(p) > 7 else "",
+                "proposed_changes": proposed,
+                "current_values": current_vals,
+                "status": "submitted",
+                "assigned_to": "Vidyapeeth Grievance Cell",
+                "resolution_summary": None,
+                "review_decision": None,
+                "reviewed_by": None,
+                "reviewed_at": None,
+                "applied_at": None,
+                "created_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc),
+                "resolved_at": None
+            }
+            _DEMO_GRIEVANCES.insert(0, new_row)
+            return MockCursor([new_row])
+
+        if "student_grievances" in q:
+            if "WHERE id=" in q or "WHERE id = %s" in q or "WHERE id=%s" in q:
+                gid = p[0] if p else 101
+                matched = [g for g in _DEMO_GRIEVANCES if g["id"] == gid]
+                return MockCursor(matched or ([_DEMO_GRIEVANCES[0]] if _DEMO_GRIEVANCES else []))
+            return MockCursor(_DEMO_GRIEVANCES)
+
+        # 19. Consents
+        if "consents" in q:
+            if "UPDATE consents" in q:
+                return MockCursor([{"ok": True}])
+            return MockCursor(_DEMO_CONSENTS)
+
+        # 20. Credentials
+        if "credentials" in q:
+            if "count(*)" in q:
+                return MockCursor([{"count": len(_DEMO_CREDENTIALS)}])
+            return MockCursor(_DEMO_CREDENTIALS)
+
+        # 21. Audit logs
+        if "INSERT INTO audit_logs" in q:
+            return MockCursor([{"id": 1, "ok": True}])
 
         # Default fallback row
         return MockCursor([{"n": 0, "ok": True, "count": 0, "id": 1}])

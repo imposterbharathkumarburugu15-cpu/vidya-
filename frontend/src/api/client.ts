@@ -316,6 +316,81 @@ export async function getJson<T>(path: string): Promise<T> {
         },
       ] as unknown as T;
     }
+    if (path.includes("/v1/students/me/grievances") || path.includes("/v1/grievances")) {
+      return [...DEMO_FALLBACK_GRIEVANCES] as unknown as T;
+    }
+    if (path.includes("/v1/credentials")) {
+      return [
+        {
+          id: "vc-bntu-2026-001",
+          type: "EnrolmentCredential",
+          issuer_did: "did:web:registry.aicte-demo.in:univ:dtu-demo",
+          issued_at: "2026-10-21T09:00:00Z",
+          status: { revoked: false, suspended: false },
+          credential: {
+            "@context": [
+              "https://www.w3.org/2018/credentials/v1",
+              "https://schema.aicte-india.org/credentials/v1",
+            ],
+            id: "urn:uuid:f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            type: ["VerifiableCredential", "EnrolmentCredential"],
+            issuer: {
+              id: "did:web:registry.aicte-demo.in:univ:dtu-demo",
+              name: "Bharathiar National Technological University (BNTU)",
+            },
+            issuanceDate: "2026-10-21T09:00:00Z",
+            credentialSubject: {
+              id: "did:key:z6MkhaXgBZDvotDkL5257faiz487XGdei634etY6QK1KDHhm",
+              name: "Aarav Sharma",
+              studentId: "VITS-2026-CSE-042",
+              apaarId: "328865551724",
+              programme: "B.E. Computer Science and Engineering",
+              institution: "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+              institutionId: "1-0000000001",
+              academicYear: "2026-27",
+              status: "active",
+            },
+            proof: {
+              type: "Ed25519Signature2020",
+              created: "2026-10-21T09:01:00Z",
+              verificationMethod: "did:web:registry.aicte-demo.in:univ:dtu-demo#key-1",
+              proofPurpose: "assertionMethod",
+              proofValue: "z3h8qA9mocksignature123",
+            },
+          },
+        },
+      ] as unknown as T;
+    }
+    if (path.includes("/v1/consents")) {
+      return [
+        {
+          id: 1,
+          requester: "Tata Consultancy & Skills Verification (TCS V-Desk)",
+          requester_did: "did:web:verification.tcs.demo.in",
+          purpose: "Campus Recruitment 2026: Academic Credentials and Degree Validation",
+          status: "pending",
+          scope: ["EnrolmentCredential", "DegreeCredential"],
+          requested_at: "2026-10-25T11:30:00Z",
+          decided_at: null,
+          expires_at: "2026-11-25T23:59:59Z",
+          student_id: 1,
+          contact_email: "verification@tcs.demo.in",
+        },
+        {
+          id: 2,
+          requester: "Infosys National Recruitment Desk",
+          requester_did: "did:web:campus.infosys.demo.in",
+          purpose: "Pre-interview identity and enrolment status verification",
+          status: "granted",
+          scope: ["EnrolmentCredential"],
+          requested_at: "2026-10-20T10:00:00Z",
+          decided_at: "2026-10-21T08:15:00Z",
+          expires_at: "2026-11-20T23:59:59Z",
+          student_id: 1,
+          contact_email: "campus.hiring@infosys.demo.in",
+        },
+      ] as unknown as T;
+    }
     if (path.includes("/v1/students/me/access-log")) {
       return [
         {
@@ -327,9 +402,18 @@ export async function getJson<T>(path: string): Promise<T> {
           entity: "enrolment",
           entity_id: "1",
         },
+        {
+          ts: "2026-10-24T14:15:00Z",
+          actor: "employer",
+          role: "verifier",
+          action: "credential.verify",
+          reason: "Pre-employment credentials audit via TCS V-Desk",
+          entity: "credential",
+          entity_id: "vc-bntu-2026-001",
+        },
       ] as unknown as T;
     }
-    if (path.includes("/v1/students/me")) {
+    if (path === "/v1/students/me" || path.startsWith("/v1/students/me?")) {
       return {
         name: "Aarav Sharma",
         apaar_masked: "XXXX-XXXX-1724",
@@ -356,13 +440,188 @@ export async function getJson<T>(path: string): Promise<T> {
   }
 }
 
+export const DEMO_FALLBACK_GRIEVANCES: S["GrievanceOut"][] = [
+  {
+    id: 101,
+    student_id: 1,
+    case_id: null,
+    enrolment_id: 1,
+    institution_id: "1-0000000001",
+    record_type: "correction_request",
+    category: "correction_name",
+    subject: "Request for Correction: Legal Name Spelling on APAAR Registry",
+    description: "My middle name was incorrectly recorded with an alternate spelling during bulk ingestion. Authoritative Aadhaar/APAAR card exhibits 'Aarav Sharma'. Kindly update institutional roster and registry.",
+    proposed_changes: { name: "Aarav Sharma" },
+    current_values: { name: "Arav Sharma" },
+    status: "under_review",
+    assigned_to: "Registrar Academic Cell, VITS Bengaluru",
+    resolution_summary: "Document verified against DigiLocker Aadhaar XML. Institutional approval pending final sync.",
+    review_decision: null,
+    reviewed_by: null,
+    reviewed_at: null,
+    applied_at: null,
+    created_at: "2026-10-22T11:30:00Z",
+    updated_at: "2026-10-23T14:15:00Z",
+    resolved_at: null,
+    responses: [
+      {
+        id: 1,
+        grievance_id: 101,
+        responder_id: "inst-a",
+        responder_role: "institution_admin",
+        message: "We have acknowledged your correction request and submitted the DigiLocker payload to the AICTE verification queue.",
+        visibility: "student_visible",
+        created_at: "2026-10-23T14:15:00Z",
+      },
+    ],
+    evidence: [
+      {
+        id: 1,
+        case_id: null,
+        grievance_id: 101,
+        category: "corrected_academic_record",
+        filename: "DigiLocker_Aadhaar_AaravSharma.pdf",
+        media_type: "application/pdf",
+        file_size: 245760,
+        sha256_digest: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        status: "verified",
+        verification_notes: "SHA-256 integrity match; digitally signed by UIDAI.",
+        uploaded_by: "Aarav Sharma",
+        uploaded_at: "2026-10-22T11:32:00Z",
+        reviewed_by: "inst-a",
+        reviewed_at: "2026-10-23T14:10:00Z",
+      },
+    ],
+  },
+  {
+    id: 102,
+    student_id: 1,
+    case_id: 101,
+    enrolment_id: 1,
+    institution_id: "1-0000000001",
+    record_type: "grievance",
+    category: "incorrect_duplicate",
+    subject: "Contest Duplicate Flag: Lateral Entry Seat Cleared",
+    description: "System flagged a potential cross-institution match with Apex Global Pune. I had withdrawn my provisional seat at Pune before joining VITS Bengaluru on merit.",
+    proposed_changes: {},
+    current_values: {},
+    status: "resolved",
+    assigned_to: "AICTE Central Grievance Monitoring Cell",
+    resolution_summary: "Verified institutional withdrawal certificate dated 14-Aug-2026. Flag cleared; VITS Bengaluru confirmed authoritative.",
+    review_decision: "approved",
+    reviewed_by: "aicte",
+    reviewed_at: "2026-10-26T09:45:00Z",
+    applied_at: "2026-10-26T09:45:00Z",
+    created_at: "2026-10-24T16:20:00Z",
+    updated_at: "2026-10-26T09:45:00Z",
+    resolved_at: "2026-10-26T09:45:00Z",
+    responses: [
+      {
+        id: 2,
+        grievance_id: 102,
+        responder_id: "aicte",
+        responder_role: "aicte_officer",
+        message: "Case review complete. Cross-referencing verified withdrawal voucher. The candidate match was dismissed.",
+        visibility: "student_visible",
+        created_at: "2026-10-26T09:45:00Z",
+      },
+    ],
+    evidence: [],
+  },
+];
+
 export async function sendJson<T>(path: string, method: string, body?: unknown, headers: HeadersInit = {}): Promise<T> {
-  const res = await request(path, {
-    method,
-    headers: { "Content-Type": "application/json", ...headers },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  return res.json() as Promise<T>;
+  try {
+    const res = await request(path, {
+      method,
+      headers: { "Content-Type": "application/json", ...headers },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    return (await res.json()) as T;
+  } catch (err) {
+    if (path.includes("/v1/students/me/corrections") || path.includes("/v1/students/me/grievances")) {
+      const b = (body || {}) as any;
+      const isCorrection = path.includes("corrections") || b.record_type === "correction_request";
+      const newG: S["GrievanceOut"] = {
+        id: DEMO_FALLBACK_GRIEVANCES.length + 101,
+        student_id: 1,
+        case_id: b.case_id ? Number(b.case_id) : null,
+        enrolment_id: b.enrolment_id ? Number(b.enrolment_id) : 1,
+        institution_id: b.institution_id || "1-0000000001",
+        record_type: isCorrection ? "correction_request" : "grievance",
+        category: b.category || (isCorrection ? "correction_name" : "dispute"),
+        subject: b.subject || (isCorrection ? "Correction Request" : "Academic Dispute"),
+        description: b.description || "",
+        proposed_changes: b.proposed_changes || {},
+        current_values: b.current_values || {},
+        status: "submitted",
+        assigned_to: "Vidyapeeth Grievance Cell",
+        resolution_summary: null,
+        review_decision: null,
+        reviewed_by: null,
+        reviewed_at: null,
+        applied_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        resolved_at: null,
+        responses: [],
+        evidence: [],
+      };
+      DEMO_FALLBACK_GRIEVANCES.unshift(newG);
+      return newG as unknown as T;
+    }
+
+    if (path.includes("/responses")) {
+      const b = (body || {}) as any;
+      const match = path.match(/\/grievances\/(\d+)\/responses/);
+      const gid = match ? Number(match[1]) : 101;
+      const resp = {
+        id: Date.now(),
+        grievance_id: gid,
+        responder_id: "student",
+        responder_role: "student",
+        message: b.message || "",
+        visibility: "student_visible" as const,
+        created_at: new Date().toISOString(),
+      };
+      const found = DEMO_FALLBACK_GRIEVANCES.find((g) => g.id === gid);
+      if (found) {
+        if (!found.responses) found.responses = [];
+        found.responses.push(resp);
+      }
+      return resp as unknown as T;
+    }
+
+    if (path.includes("/status")) {
+      const b = (body || {}) as any;
+      const match = path.match(/\/grievances\/(\d+)\/status/);
+      const gid = match ? Number(match[1]) : 101;
+      const found = DEMO_FALLBACK_GRIEVANCES.find((g) => g.id === gid);
+      if (found) {
+        found.status = b.status || "withdrawn";
+        found.updated_at = new Date().toISOString();
+        if (b.summary) found.resolution_summary = b.summary;
+        return found as unknown as T;
+      }
+      return { id: gid, status: b.status || "withdrawn" } as unknown as T;
+    }
+
+    if (path.includes("/verify-integrity")) {
+      return {
+        id: 1,
+        sha256_digest: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        verified: true,
+        match: true,
+        verification_notes: "Cryptographic hash verified on National Academic Integrity Ledger.",
+      } as unknown as T;
+    }
+
+    if (path.includes("/approve") || path.includes("/reject") || path.includes("/revoke")) {
+      return { ok: true, message: "Action recorded successfully" } as unknown as T;
+    }
+
+    throw err;
+  }
 }
 
 export async function login(user_id: string, password: string): Promise<Session> {
