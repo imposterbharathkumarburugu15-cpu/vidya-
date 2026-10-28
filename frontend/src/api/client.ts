@@ -52,7 +52,11 @@ export function setUnauthorizedHandler(fn: () => void) {
   onUnauthorized = fn;
 }
 
-export const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/+$/, "") || "";
+export const API_BASE = (
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ||
+  (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
+  ""
+).replace(/\/+$/, "");
 
 export function apiUrl(path: string): string {
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
@@ -253,7 +257,13 @@ export async function getJson<T>(path: string): Promise<T> {
           state: "Maharashtra",
           status: "approved",
           active: 125,
-          dqs: { total: 68.5, completeness: 70.0, timeliness: 65.0, consistency: 70.0, validity: 68.0 },
+          dqs: {
+            score: 68.5,
+            total: 68.5,
+            components: { completeness: 0.7, timeliness: 0.65, consistency: 0.7, validity: 0.68 },
+            points: { completeness: 21.0, timeliness: 13.0, consistency: 21.0, validity: 13.5 },
+            weights: { completeness: 0.3, timeliness: 0.2, consistency: 0.3, validity: 0.2 },
+          },
           risk: 3937.5,
           flag_points: 15.0,
           why: ["Excess admissions reported (+5 seats)", "High batch rejection rate"],
@@ -319,6 +329,46 @@ export async function getJson<T>(path: string): Promise<T> {
     if (path.includes("/v1/students/me/grievances") || path.includes("/v1/grievances")) {
       return [...DEMO_FALLBACK_GRIEVANCES] as unknown as T;
     }
+    if (path.includes("/v1/credentials/certificate")) {
+      return {
+        credential: {
+          "@context": [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://schema.aicte-india.org/credentials/v1",
+          ],
+          id: "urn:uuid:f47ac10b-58cc-4372-a567-0e02b2c3d479",
+          type: ["VerifiableCredential", "EnrolmentCredential"],
+          issuer: {
+            id: "did:web:registry.aicte-demo.in:univ:dtu-demo",
+            name: "Bharathiar National Technological University (BNTU)",
+          },
+          issuanceDate: "2026-10-21T09:00:00Z",
+          validFrom: "2026-10-21T09:00:00Z",
+          credentialSubject: {
+            name: "Aarav Sharma",
+            studentId: "VITS-2026-CSE-042",
+            apaarId: "328865551724",
+            programme: "B.E. Computer Science and Engineering",
+            institution: "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+            institutionId: "1-0000000001",
+            academicYear: "2026-27",
+            status: "active",
+            degree: "Bachelor of Engineering",
+            awardedOn: "2026-06-30",
+          },
+          proof: {
+            type: "Ed25519Signature2020",
+            created: "2026-10-21T09:01:00Z",
+            verificationMethod: "did:web:registry.aicte-demo.in:univ:dtu-demo#key-1",
+            proofPurpose: "assertionMethod",
+            proofValue: "z3h8qA9mocksignature123",
+          },
+        },
+        qr_payload: "AV1:mockpayload123",
+        qr_payload_chars: 120,
+        qr_svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><rect width="160" height="160" fill="#fbf8f0"/><rect x="15" y="15" width="130" height="130" fill="none" stroke="#b8963a" stroke-width="2"/><rect x="25" y="25" width="30" height="30" fill="#1c1a16"/><rect x="105" y="25" width="30" height="30" fill="#1c1a16"/><rect x="25" y="105" width="30" height="30" fill="#1c1a16"/><rect x="65" y="65" width="30" height="30" fill="#b8963a"/><text x="80" y="125" font-family="monospace" font-size="8" text-anchor="middle" fill="#8a7a55">VIDYADWAAR VC</text></svg>',
+      } as unknown as T;
+    }
     if (path.includes("/v1/credentials")) {
       return [
         {
@@ -326,7 +376,7 @@ export async function getJson<T>(path: string): Promise<T> {
           type: "EnrolmentCredential",
           issuer_did: "did:web:registry.aicte-demo.in:univ:dtu-demo",
           issued_at: "2026-10-21T09:00:00Z",
-          status: { revoked: false, suspended: false },
+          status: { revocation: false, suspension: false, revoked: false, suspended: false },
           credential: {
             "@context": [
               "https://www.w3.org/2018/credentials/v1",
@@ -339,6 +389,7 @@ export async function getJson<T>(path: string): Promise<T> {
               name: "Bharathiar National Technological University (BNTU)",
             },
             issuanceDate: "2026-10-21T09:00:00Z",
+            validFrom: "2026-10-21T09:00:00Z",
             credentialSubject: {
               id: "did:key:z6MkhaXgBZDvotDkL5257faiz487XGdei634etY6QK1KDHhm",
               name: "Aarav Sharma",
@@ -369,6 +420,7 @@ export async function getJson<T>(path: string): Promise<T> {
           requester_did: "did:web:verification.tcs.demo.in",
           purpose: "Campus Recruitment 2026: Academic Credentials and Degree Validation",
           status: "pending",
+          fields: ["name", "programme", "institution", "academic_year", "status"],
           scope: ["EnrolmentCredential", "DegreeCredential"],
           requested_at: "2026-10-25T11:30:00Z",
           decided_at: null,
@@ -382,6 +434,7 @@ export async function getJson<T>(path: string): Promise<T> {
           requester_did: "did:web:campus.infosys.demo.in",
           purpose: "Pre-interview identity and enrolment status verification",
           status: "granted",
+          fields: ["name", "programme", "institution", "status"],
           scope: ["EnrolmentCredential"],
           requested_at: "2026-10-20T10:00:00Z",
           decided_at: "2026-10-21T08:15:00Z",
@@ -505,12 +558,32 @@ export async function getJson<T>(path: string): Promise<T> {
       return {
         institution_id: "1-0000000001",
         academic_year: "2026-27",
-        dqs: { total: 94.5, completeness: 95.0, timeliness: 92.0, consistency: 96.0, validity: 95.0 },
+        dqs: {
+          score: 94.5,
+          total: 94.5,
+          components: { completeness: 0.95, timeliness: 0.92, consistency: 0.96, validity: 0.95 },
+          points: { completeness: 28.5, timeliness: 18.4, consistency: 28.8, validity: 19.0 },
+          weights: { completeness: 0.3, timeliness: 0.2, consistency: 0.3, validity: 0.2 },
+        },
         risk_score: 42.0,
         flag_points: 0,
         flags: [],
         why: ["Intake strictly complies with AICTE ceiling", "Zero duplicate collisions"],
         computed_at: "2026-10-26T12:00:00Z",
+      } as unknown as T;
+    }
+    if (path.includes("/v1/network")) {
+      return {
+        nodes: [
+          { id: "1-0000000001", name: "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru", state: "Karnataka", status: "approved", active: 3200, connected: true },
+          { id: "1-0000000002", name: "Apex Global Institute of Engineering & Technology, Pune", state: "Maharashtra", status: "approved", active: 2800, connected: true },
+          { id: "1-0000000003", name: "Saraswati National Institute of Management Studies, Kanpur", state: "Uttar Pradesh", status: "approved", active: 1500, connected: false },
+        ],
+        edges: [
+          { source: "1-0000000001", target: "1-0000000002", active_shared: 2, historical_shared: 5, kept: true },
+        ],
+        flags: [],
+        components: [{ id: 1, members: ["1-0000000001", "1-0000000002"], size: 2, flagged: false }],
       } as unknown as T;
     }
     if (path.includes("/v1/enrolments")) {
@@ -538,7 +611,7 @@ export async function getJson<T>(path: string): Promise<T> {
               type: "EnrolmentCredential",
               issuer_did: "did:web:registry.aicte-demo.in:univ:dtu-demo",
               issued_at: "2026-10-21T09:00:00Z",
-              status: { revoked: false, suspended: false },
+              status: { revocation: false, suspension: false, revoked: false, suspended: false },
             },
           ],
         },
@@ -572,6 +645,38 @@ export async function getJson<T>(path: string): Promise<T> {
         },
       ] as unknown as T;
     }
+    if (path.match(/\/v1\/batches\/\d+\/issues/)) {
+      return {
+        items: [
+          {
+            row_no: 12,
+            code: "ERR_STUDENT_AGE_UNDER_MINIMUM",
+            severity: "warning",
+            field: "dob",
+            title: "Student Age Under Typical Minimum",
+            message: "Student DOB indicates age under 16 at commencement of academic term.",
+            fix_hint: "Verify age with candidate secondary school leaving certificate.",
+          },
+        ],
+        next_cursor: null,
+      } as unknown as T;
+    }
+    if (path.match(/\/v1\/batches\/\d+$/)) {
+      return {
+        batch_id: 1,
+        id: 1,
+        institution_id: "1-0000000001",
+        programme_id: "1-0000000001:CSE",
+        academic_year: "2026-27",
+        status: "completed",
+        channel: "portal_csv",
+        created_at: "2026-10-20T10:30:00Z",
+        completed_at: "2026-10-20T10:31:00Z",
+        counts: { rows: 60, accepted: 60, rejected: 0, warnings: 0, flags: 0, total: 60, valid: 60, cases_opened: 0 },
+        row_counts_json: { total: 60, valid: 60, rejected: 0, flagged: 0 },
+        replayed: false,
+      } as unknown as T;
+    }
     if (path.includes("/v1/batches")) {
       return [
         {
@@ -580,12 +685,14 @@ export async function getJson<T>(path: string): Promise<T> {
           institution_id: "1-0000000001",
           programme_id: "1-0000000001:CSE",
           academic_year: "2026-27",
-          status: "validated",
+          status: "completed",
           channel: "portal_csv",
           created_by: "inst-a",
+          counts: { rows: 60, accepted: 60, rejected: 0, warnings: 0, flags: 0, total: 60, valid: 60, cases_opened: 0 },
           row_counts_json: { total: 60, valid: 60, rejected: 0, flagged: 0 },
           created_at: "2026-10-20T10:30:00Z",
           completed_at: "2026-10-20T10:31:00Z",
+          replayed: false,
         },
       ] as unknown as T;
     }

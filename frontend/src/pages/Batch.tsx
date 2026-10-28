@@ -27,9 +27,15 @@ export default function BatchDetail({ id }: { id: number }) {
   const [lang, setLang] = useLang();
 
   async function loadPage(after: number) {
-    const page = await getJson<S["IssuesPage"]>(`/v1/batches/${id}/issues?cursor=${after}&limit=1000&lang=${lang}`);
-    setIssues((prev) => (after === 0 ? page.items : [...prev, ...page.items]));
-    setCursor(page.next_cursor);
+    try {
+      const page = await getJson<S["IssuesPage"]>(`/v1/batches/${id}/issues?cursor=${after}&limit=1000&lang=${lang}`);
+      const items = Array.isArray(page?.items) ? page.items : [];
+      setIssues((prev) => (after === 0 ? items : [...prev, ...items]));
+      setCursor(page?.next_cursor ?? null);
+    } catch {
+      setIssues([]);
+      setCursor(null);
+    }
   }
 
   useEffect(() => {
@@ -53,7 +59,7 @@ export default function BatchDetail({ id }: { id: number }) {
 
   if (error) return <ErrorNote>{error}</ErrorNote>;
   if (!batch) return <Loading />;
-  const c = batch.counts;
+  const c = batch.counts ?? { rows: 0, accepted: 0, rejected: 0, warnings: 0, flags: 0 };
   const shown = groups.filter((g) => sev === "all" || g[0].severity === sev);
   const sel = shown.find((g) => g[0].code === selected) ?? shown[0];
 

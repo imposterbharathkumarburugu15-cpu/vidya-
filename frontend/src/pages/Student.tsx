@@ -594,7 +594,7 @@ function ConsentsView({
               <tr key={c.id} className="transition-colors hover:bg-slate-50/70">
                 <Td className="font-semibold text-gov-900">{c.requester}</Td>
                 <Td wrap className="min-w-48 text-xs">{c.purpose}</Td>
-                <Td wrap className="text-xs text-slate-600">{c.fields.join(", ")}</Td>
+                <Td wrap className="text-xs text-slate-600">{(c.fields || []).join(", ") || "All academic claims"}</Td>
                 <Td>
                   <Badge tone={c.status === "granted" ? "ok" : c.status === "revoked" || c.status === "denied" ? "error" : "neutral"} dot>
                     {c.status.toUpperCase()}
@@ -926,7 +926,7 @@ function PendingConsent({ c, onDone }: { c: S["ConsentOut"]; onDone: () => void 
           <h4 className="text-sm font-bold text-gov-900">
             <strong className="text-accent-700">{c.requester}</strong> asks to see:
           </h4>
-          <p className="mt-1 font-semibold text-accent-950 text-xs">{c.fields.join(", ")}</p>
+          <p className="mt-1 font-semibold text-accent-950 text-xs">{(c.fields || []).join(", ") || "All academic claims"}</p>
           <p className="mt-1 text-xs text-slate-600">
             Purpose: <span className="font-medium">{c.purpose}</span> · until {fmtTime(c.expires_at)}
           </p>

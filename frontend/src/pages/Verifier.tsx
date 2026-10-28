@@ -110,7 +110,7 @@ function RequestRow({ c }: { c: S["ConsentOut"] }) {
   return (
     <div className="rounded-xl border border-slate-200 p-3 text-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span>#{c.id} · {c.fields.join(", ")}</span>
+        <span>#{c.id} · {(c.fields || []).join(", ") || "All claims"}</span>
         <Badge tone={tone}>{c.status}</Badge>
       </div>
       <p className="mt-1 text-xs text-slate-500">{c.purpose} · expires {fmtTime(c.expires_at)}</p>

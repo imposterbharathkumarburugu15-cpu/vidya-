@@ -10,16 +10,33 @@ import Login from "./pages/Login";
 import RegistrarHome from "./pages/Registrar";
 import StudentHome from "./pages/Student";
 import VerifierHome from "./pages/Verifier";
+import ErrorBoundary from "./components/ErrorBoundary";
 import HowItWorks from "./pages/HowItWorks";
 import { go, PageHeader } from "./ui";
 
-/** Tiny hash router: #/inst, #/inst/batch/12, #/aicte. */
+/** Flexible router: supports hash (#/inst, #/batch/12) and pathname (/how-it-works, /inst) */
+function getRoute() {
+  if (typeof window === "undefined") return "/";
+  if (window.location.hash && window.location.hash.length > 1) {
+    return window.location.hash.slice(1);
+  }
+  const path = window.location.pathname;
+  if (path && path !== "/") {
+    return path + window.location.search;
+  }
+  return "/";
+}
+
 function useHash() {
-  const [hash, setHash] = useState(() => window.location.hash.slice(1) || "/");
+  const [hash, setHash] = useState(getRoute);
   useEffect(() => {
-    const on = () => setHash(window.location.hash.slice(1) || "/");
+    const on = () => setHash(getRoute());
     window.addEventListener("hashchange", on);
-    return () => window.removeEventListener("hashchange", on);
+    window.addEventListener("popstate", on);
+    return () => {
+      window.removeEventListener("hashchange", on);
+      window.removeEventListener("popstate", on);
+    };
   }, []);
   return hash;
 }
@@ -34,7 +51,7 @@ const HOME: Record<Role, string> = {
   guardian: "/student",
 };
 
-const CAN_VERIFY: Role[] = ["institution_admin", "aicte_officer", "auditor", "university_registrar"];
+const CAN_VERIFY: Role[] = ["institution_admin", "aicte_officer", "auditor", "verifier", "university_registrar"];
 
 const ROLE_LABEL: Record<Role, string> = {
   institution_admin: "Institution Admin",
@@ -77,12 +94,12 @@ export default function App() {
     );
   }
 
-  const batch = hash.match(/^\/inst\/batch\/(\d+)$/);
-  const cert = hash.match(/^\/certificate\?id=(.+)$/);
+  const batch = hash.match(/^\/(?:inst\/)?batch\/(\d+)$/);
+  const cert = hash.match(/^\/certificate(?:\?id=|\/)(.+)$/);
   const r = session.role;
   let page;
 
-  if (cert && ["student", "guardian", "institution_admin", "university_registrar"].includes(r)) {
+  if (cert) {
     page = <Certificate id={decodeURIComponent(cert[1])} />;
   } else if (hash === "/verify" && CAN_VERIFY.includes(r)) {
     page = (
@@ -115,7 +132,9 @@ export default function App() {
       currentHash={hash}
       home={HOME[session.role]}
     >
-      {page}
+      <ErrorBoundary>
+        {page}
+      </ErrorBoundary>
     </AppLayout>
   );
 }

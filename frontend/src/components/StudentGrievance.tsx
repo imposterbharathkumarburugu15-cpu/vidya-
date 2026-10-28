@@ -384,7 +384,7 @@ function GrievanceItem({
             <div className="rounded-lg border border-gold/40 bg-gold/10 p-2.5">
               <span className="block text-[10px] uppercase font-bold text-champagne">Proposed Correct Value(s)</span>
               <div className="mt-1 space-y-1 font-mono text-amber-200">
-                {Object.entries(g.proposed_changes).map(([k, v]) => (
+                {Object.entries(g.proposed_changes || {}).map(([k, v]) => (
                   <div key={k}>
                     <span className="text-champagne/80 font-sans">{k.replace("_", " ")}: </span>
                     <span className="font-bold underline">{String(v ?? "")}</span>
