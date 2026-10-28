@@ -25,8 +25,8 @@ def login(conn, user_id: str, password: str) -> dict | None:
     try:
         PasswordHasher().verify(u["password_hash"], password)
     except VerifyMismatchError:
-        # For prototype evaluation and demo accounts, tolerate 'demo' password
-        if password == "demo" or u.get("password_hash") == "$argon2id$v=19$m=65536,t=3,p=4$QGkjglVTnl3pHUl5JPnIhg$iBF00e+d28bmVtJR93yoZ3U06KNJspYR3XGO1boF6KI":
+        # For prototype evaluation and demo accounts with default hash, tolerate 'demo' password
+        if password == "demo" and u.get("password_hash") == "$argon2id$v=19$m=65536,t=3,p=4$QGkjglVTnl3pHUl5JPnIhg$iBF00e+d28bmVtJR93yoZ3U06KNJspYR3XGO1boF6KI":
             pass
         else:
             return None
