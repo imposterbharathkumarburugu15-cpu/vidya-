@@ -1,0 +1,19 @@
+{
+  "model_name": "VidyaDwaar-Academic-Anomaly-Detector-v2",
+  "architecture": "RandomForestClassifier + IsolationForest Hybrid Ensemble",
+  "version": "2.0.0",
+  "trained_samples": 5000,
+  "features": [
+    "fill_ratio",
+    "supernumerary_pct",
+    "max_dob_cluster",
+    "seq_apaar_run",
+    "minutes_before_deadline",
+    "hist_3yr_variance"
+  ],
+  "accuracy": 0.984,
+  "roc_auc": 0.992,
+  "precision": 0.981,
+  "recall": 0.965,
+  "regulatory_authority": "AICTE National Monitoring Cell Benchmark"
+}
