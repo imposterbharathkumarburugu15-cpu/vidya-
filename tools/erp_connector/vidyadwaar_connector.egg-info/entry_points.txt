@@ -1,0 +1,2 @@
+[console_scripts]
+vidyadwaar-connector = connector:main

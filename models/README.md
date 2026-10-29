@@ -72,3 +72,4 @@ print(f"Anomaly Probability: {confidence * 100:.2f}%")
 - **Precision**: `98.1%`
 - **Recall**: `96.5%`
 - **Inference Latency**: `1.8ms per batch`
+

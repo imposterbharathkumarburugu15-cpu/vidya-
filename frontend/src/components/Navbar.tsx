@@ -9,6 +9,7 @@ const LINKS = [
   ["#/how-it-works", "How it works", "how"],
   ["#/?s=data", "Live data", "data"],
   ["#/?s=roles", "Who it's for", "roles"],
+  ["#/developer", "SDKs & ML", "developer"],
   ["#/activate", "Activate account", "/activate"],
 ] as const;
 

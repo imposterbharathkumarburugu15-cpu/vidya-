@@ -12,6 +12,7 @@ import StudentHome from "./pages/Student";
 import VerifierHome from "./pages/Verifier";
 import ErrorBoundary from "./components/ErrorBoundary";
 import HowItWorks from "./pages/HowItWorks";
+import DeveloperPortal from "./pages/DeveloperPortal";
 import { go, PageHeader } from "./ui";
 
 /** Flexible router: supports hash (#/inst, #/batch/12) and pathname (/how-it-works, /inst) */
@@ -80,6 +81,10 @@ export default function App() {
   // Public full-screen interactive walkthrough
   if (hash === "/how-it-works" || hash === "/how") {
     return <HowItWorks />;
+  }
+
+  if (hash === "/developer" || hash === "/packages") {
+    return <DeveloperPortal />;
   }
 
   if (!session) {
