@@ -339,7 +339,7 @@ function Upload({ onDone }: { onDone: () => void }) {
                     className="flex-1 text-left hover:opacity-80 transition-opacity"
                   >
                     <span className="text-xs font-bold text-rose-300 block">Sample B2: Quota Breach</span>
-                    <span className="text-[10px] text-slate-400 block">Exceeds Seat Cap · Triggers AICTE Flag</span>
+                    <span className="text-[10px] text-slate-400 block">200 Students · 42 Rejected · AICTE Flags</span>
                   </button>
                   <a
                     href="/demo-data/sample-b2-quota-violation.csv"
