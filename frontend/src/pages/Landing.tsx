@@ -19,6 +19,7 @@ import { ApiError, getJson, login, studentLogin, type S, type Session } from "..
 import HeroSection from "../components/landing/HeroSection";
 import MetricsDock from "../components/landing/MetricsDock";
 import RoleCards from "../components/landing/RoleCards";
+import WhyVidyaDwaar from "../components/landing/WhyVidyaDwaar";
 import { GOLD_TEXT, spotlight } from "../components/landing/styles";
 
 const HOME_MAP: Record<string, string> = {
@@ -197,6 +198,8 @@ export default function Landing({
 
       <RoleCards />
 
+      <WhyVidyaDwaar />
+
       {/* Interactive "How It Works" Architecture Showcase */}
       <section id="how" aria-labelledby="how-heading" className="scroll-mt-28 space-y-8 pb-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -213,7 +216,7 @@ export default function Landing({
             href="#/how-it-works"
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#F5C067] via-[#E5A93C] to-[#D4AF37] px-5 py-2.5 text-xs sm:text-sm font-bold text-black shadow-lg shadow-amber-500/25 hover:brightness-110 transition-all"
           >
-            <span>Launch 7-Scene Cinematic Tour</span>
+            <span>Launch Animated Infographic Story</span>
             <ArrowRight className="h-4 w-4" />
           </a>
         </div>
@@ -334,10 +337,10 @@ export default function Landing({
               <Sparkles className="h-3.5 w-3.5" /> Full-Screen Interactive Experience
             </span>
             <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              See the 7-Part Interactive Vidyadwaar Story
+              See the Animated Infographic Story
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Step through our cinematic theatre walkthrough: explore cross-state duplicate collisions, test blind HMAC matching, resolve OCR evidence grievances, and verify Base45 QR credentials.
+              Watch two institutions generate independent records, see how identical student IDs trigger a conflict signal, and follow how VidyaDwaar cryptographically verifies and resolves the duplicate.
             </p>
           </div>
           <a

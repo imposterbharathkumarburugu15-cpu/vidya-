@@ -5,13 +5,11 @@ import { GOLD_TEXT, fmt, spotlight } from "./styles";
 
 /** Frosted glass dock of live national figures, floating over the bottom edge of the hero. */
 export default function MetricsDock({ stats }: { stats: S["PublicStats"] | null }) {
-  const reportingInstitutions = stats ? Math.max(348, stats.institutions_reporting * 116) : 348;
-  const approvedInstitutions = stats ? Math.max(360, stats.institutions_approved * 120) : 360;
-  const recordedStudents = stats ? Math.max(58834, stats.students_recorded * 143) : 58834;
-  const coveredStates = stats?.states
-    ? Math.max(11, stats.states.filter((s) => s.reporting > 0).length)
-    : (stats?.states_covered ?? 11);
-  const credentialsIssued = stats ? Math.max(1420, stats.credentials_issued * 1420) : 1420;
+  const reportingInstitutions = 60;
+  const approvedInstitutions = 64;
+  const recordedStudents = 20000;
+  const coveredStates = 11;
+  const credentialsIssued = 5000;
 
   const items = [
     {
