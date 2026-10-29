@@ -5,6 +5,7 @@ import { BTN_PRIMARY } from "./landing/styles";
 
 const LINKS = [
   ["#/", "Home", "/"],
+  ["#/?s=why-vidyadwaar", "Why VidyaDwaar", "why-vidyadwaar"],
   ["#/how-it-works", "How it works", "how"],
   ["#/?s=data", "Live data", "data"],
   ["#/?s=roles", "Who it's for", "roles"],

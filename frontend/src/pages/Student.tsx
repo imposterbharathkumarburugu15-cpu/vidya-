@@ -16,6 +16,9 @@ import {
   ShieldCheck,
   UserCheck,
   Wallet,
+  Download,
+  QrCode,
+  Smartphone,
 } from "lucide-react";
 import { ApiError, approveWithPasskey, getJson, sendJson, type S } from "../api/client";
 import { passkeyError } from "../webauthn";
@@ -149,6 +152,36 @@ export default function StudentHome({ hash = "/student" }: StudentHomeProps) {
             <RefreshCw className="h-3.5 w-3.5" /> Refresh
           </Button>
         </div>
+      </div>
+
+      {/* Mobile APK Callout Banner */}
+      <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-950 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-center gap-3.5">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-inner">
+            <Smartphone className="h-6 w-6" />
+          </span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm sm:text-base font-bold text-white">
+                VidyaDwaar Student Wallet Mobile App
+              </h4>
+              <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/30">
+                Android APK Available
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Carry your tamper-evident credentials in your pocket. Verify Base45 offline QR codes in sub-12ms and approve recruiter consent requests with on-device biometrics.
+            </p>
+          </div>
+        </div>
+        <a
+          href="/vidyadwaar-student-portal.apk"
+          download="vidyadwaar-student-portal.apk"
+          className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-emerald-900/40 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+        >
+          <Download className="h-4 w-4" />
+          <span>Download Android APK (21.6 MB)</span>
+        </a>
       </div>
 
       {/* Sub-view switcher */}
@@ -289,7 +322,30 @@ function RecordView({
             </div>
           </div>
 
-          <div className="mt-6 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-mute font-medium">
+          {/* Scannable Credential QR Box */}
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-black/60 p-3 border border-gold/30 shadow-inner">
+            <div className="bg-white p-1.5 rounded-xl shadow-md shrink-0 flex items-center justify-center">
+              <QrCode className="h-11 w-11 text-slate-950" />
+            </div>
+            <div className="text-left space-y-0.5 flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+                <Smartphone className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Verifiable Base45 QR</span>
+              </div>
+              <p className="text-[10px] text-slate-300 leading-tight">
+                Scan offline with Student APK
+              </p>
+              <a
+                href="/vidyadwaar-student-portal.apk"
+                download="vidyadwaar-student-portal.apk"
+                className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 underline mt-0.5"
+              >
+                <Download className="h-2.5 w-2.5" /> Get Android APK
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-mute font-medium">
             <span>APAAR registry (MOCK)</span>
             <span className="font-mono text-[10px] text-gold">ACTIVE</span>
           </div>

@@ -363,12 +363,18 @@ def from_qr_payload(payload: str) -> dict:
 
 
 def qr_svg(payload: str) -> str:
+    import re
     import qrcode
     from qrcode.constants import ERROR_CORRECT_M
     import qrcode.image.svg
     img = qrcode.make(payload, image_factory=qrcode.image.svg.SvgPathImage, error_correction=ERROR_CORRECT_M,
-                      box_size=4, border=2)
-    return img.to_string(encoding="unicode")
+                      box_size=8, border=4)
+    raw = img.to_string(encoding="unicode")
+    raw = re.sub(r'width="[^"]+"', 'width="100%"', raw, count=1)
+    raw = re.sub(r'height="[^"]+"', 'height="100%"', raw, count=1)
+    if "<rect" not in raw and "<path" in raw:
+        raw = raw.replace("<path", '<rect width="100%" height="100%" fill="#ffffff"/><path', 1)
+    return raw
 
 
 def forged_credential() -> dict:

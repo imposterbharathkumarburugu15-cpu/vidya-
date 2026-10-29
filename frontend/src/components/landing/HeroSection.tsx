@@ -13,11 +13,9 @@ const scrollTo = (id: string) => {
 };
 
 export default function HeroSection({ stats, failed }: { stats: S["PublicStats"] | null; failed: boolean; demo?: boolean }) {
-  const reportingInstitutions = stats ? Math.max(348, stats.institutions_reporting * 116) : 348;
-  const recordedStudents = stats ? Math.max(58834, stats.students_recorded * 143) : 58834;
-  const coveredStates = stats?.states
-    ? Math.max(11, stats.states.filter((s) => s.reporting > 0).length)
-    : (stats?.states_covered ?? 11);
+  const reportingInstitutions = 60;
+  const recordedStudents = 20000;
+  const coveredStates = 11;
 
   const badges = [
     { lon: 77.21, lat: 28.61, title: `${fmt(reportingInstitutions)} Institutions Connected`, sub: `Reporting across ${coveredStates} active states` },
