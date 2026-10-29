@@ -8,3 +8,4 @@ if backend_root not in sys.path:
     sys.path.insert(0, backend_root)
 
 from app.main import app  # noqa: E402, F401
+
