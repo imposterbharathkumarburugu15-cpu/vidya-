@@ -1,0 +1,9 @@
+README.md
+connector.py
+pyproject.toml
+vidyadwaar_connector.egg-info/PKG-INFO
+vidyadwaar_connector.egg-info/SOURCES.txt
+vidyadwaar_connector.egg-info/dependency_links.txt
+vidyadwaar_connector.egg-info/entry_points.txt
+vidyadwaar_connector.egg-info/requires.txt
+vidyadwaar_connector.egg-info/top_level.txt

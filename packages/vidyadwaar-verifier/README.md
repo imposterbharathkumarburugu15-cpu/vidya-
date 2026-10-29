@@ -34,3 +34,4 @@ if (result.verified) {
 - **W3C VC Data Model 2.0**: Compatible with official W3C test vectors.
 - **Ed25519 Cryptosuite**: Fast elliptic curve cryptographic signature validation.
 - **Privacy-Preserving**: Runs in browser memory with zero plaintext tracking.
+
