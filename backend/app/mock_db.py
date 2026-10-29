@@ -3,7 +3,7 @@ Provides a resilient fallback connection when running in cloud serverless (Verce
 or when PostgreSQL is offline, ensuring demo logins, dashboards, metrics, and ingestion
 function flawlessly without 500 FUNCTION_INVOCATION_FAILED errors.
 """
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 from typing import Any
@@ -46,6 +46,20 @@ _DEMO_BATCHES: list[dict] = [
 ]
 
 _DEMO_BATCH_ID_SEQ = 3
+
+_DEMO_ISSUES: list[dict] = [
+    {"id": 1, "batch_id": 2, "row_no": 91, "code": "E102", "severity": "error", "field": "apaar_id", "params": {"reason": "Malformed APAAR ID (fewer than 12 digits)"}},
+    {"id": 2, "batch_id": 2, "row_no": 92, "code": "E102", "severity": "error", "field": "apaar_id", "params": {"reason": "Malformed APAAR ID"}},
+    {"id": 3, "batch_id": 2, "row_no": 103, "code": "E205", "severity": "error", "field": "institution_student_id", "params": {"duplicate_of": "B/CSE/2026/0001"}},
+    {"id": 4, "batch_id": 2, "row_no": 113, "code": "E304", "severity": "error", "field": "programme_code", "params": {"programme": "ROBOTICS", "reason": "Unapproved programme code in AICTE registry"}},
+    {"id": 5, "batch_id": 2, "row_no": 123, "code": "E401", "severity": "error", "field": "seat_category", "params": {"reason": "Conflicting status flags: is_nri and is_oci cannot both be true"}},
+    {"id": 6, "batch_id": 2, "row_no": 121, "code": "E301", "severity": "flag", "field": "seat_category", "params": {"current": 121, "cap": 120, "excess": 1, "note": "Statutory seat ceiling breached"}},
+    {"id": 7, "batch_id": 2, "row_no": 122, "code": "E301", "severity": "flag", "field": "seat_category", "params": {"current": 122, "cap": 120, "excess": 2}},
+    {"id": 8, "batch_id": 2, "row_no": 123, "code": "E301", "severity": "flag", "field": "seat_category", "params": {"current": 123, "cap": 120, "excess": 3}},
+    {"id": 9, "batch_id": 2, "row_no": 81, "code": "E101W", "severity": "warning", "field": "apaar_id", "params": {"reason": "APAAR enrolment pending at UIDAI/State portal"}},
+    {"id": 10, "batch_id": 2, "row_no": 86, "code": "E402", "severity": "warning", "field": "dob", "params": {"age": 14, "reason": "Implausible age for technical degree enrolment"}},
+]
+
 
 _DEMO_GRIEVANCES: list[dict] = [
     {
@@ -271,6 +285,12 @@ class MockCursor:
     def __len__(self):
         return len(self._rows)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
 
 class MockTransaction:
     def __enter__(self):
@@ -351,8 +371,14 @@ class MockDemoConnection:
 
         # 5. Academic years (current_year)
         if "academic_years" in q:
-            ay = self.registry.get("academic_years", [{"code": "2026-27", "window_start": "2026-07-01", "window_end": "2026-10-31", "deadline": "2026-11-15T23:59:59+05:30"}])
-            return MockCursor(ay)
+            raw_ay = self.registry.get("academic_years", [{"code": "2026-27", "window_start": "2026-07-01", "window_end": "2026-10-31", "deadline": "2026-11-15T23:59:59+05:30"}])
+            parsed_ay = []
+            for y in raw_ay:
+                w_start = date.fromisoformat(y["window_start"]) if isinstance(y.get("window_start"), str) else y.get("window_start", date(2026, 7, 1))
+                w_end = date.fromisoformat(y["window_end"]) if isinstance(y.get("window_end"), str) else y.get("window_end", date(2026, 10, 31))
+                dl = datetime.fromisoformat(y["deadline"]) if isinstance(y.get("deadline"), str) else y.get("deadline", datetime(2026, 11, 15, 23, 59, 59, tzinfo=timezone.utc))
+                parsed_ay.append({**y, "window_start": w_start, "window_end": w_end, "deadline": dl})
+            return MockCursor(parsed_ay)
 
         # 6. Seat categories
         if "seat_categories" in q:
@@ -398,10 +424,62 @@ class MockDemoConnection:
                         target_ids.append(param)
                 for pr in progs:
                     pid = f"{pr['institution_id']}:{pr['code']}"
-                    if not target_ids or pid in target_ids or pr.get("institution_id") == self.user.get("institution_id"):
-                        res.append({"id": pid, "name": pr["name"], "approved_intake": 120 if "CSE" in pid and "0000000002" in pid else 60})
-                return MockCursor(res if res else [{"id": "1-0000000001:CSE", "name": "B.E. Computer Science and Engineering", "approved_intake": 60}])
+                    target_inst = p[1] if len(p) > 1 and "1-00" in str(p[1]) else self.user.get("institution_id")
+                    if not target_ids or pid in target_ids or pr.get("institution_id") == target_inst:
+                        res.append({
+                            "id": pid,
+                            "code": pr["code"],
+                            "name": pr["name"],
+                            "duration_years": pr.get("duration_years", 4),
+                            "approved_intake": 120 if "CSE" in pid and "0000000002" in pid else 60
+                        })
+                return MockCursor(res if res else [{
+                    "id": "1-0000000001:CSE",
+                    "code": "CSE",
+                    "name": "B.E. Computer Science and Engineering",
+                    "duration_years": 4,
+                    "approved_intake": 60
+                }])
             return MockCursor(progs)
+
+        # Active enrolment owners (cross-institution conflict detection)
+        if "active_enrolment_owners" in q:
+            return MockCursor([])
+
+        # Student ID by blind index lookup
+        if "student_id_by_bi" in q:
+            return MockCursor([{"id": 1}])
+
+        # Enrolments lookup
+        if "FROM enrolments" in q:
+            if "institution_student_id" in q:
+                return MockCursor([])
+            return MockCursor([])
+
+        # Enrolments insert
+        if "INSERT INTO enrolments" in q:
+            return MockCursor([{
+                "id": 100,
+                "student_id": p[0] if len(p) > 0 else 1,
+                "programme_id": p[1] if len(p) > 1 else "1-0000000002:CSE",
+                "academic_year": p[2] if len(p) > 2 else "2026-27",
+                "institution_student_id": p[3] if len(p) > 3 else "STU001",
+                "status": "active",
+                "seat_category_code": p[4] if len(p) > 4 else "REGULAR",
+                "is_supernumerary": p[5] if len(p) > 5 else False,
+                "is_lateral_entry": p[6] if len(p) > 6 else False,
+                "year_of_study": p[7] if len(p) > 7 else 1,
+                "is_nri": p[8] if len(p) > 8 else False,
+                "is_oci": p[9] if len(p) > 9 else False,
+                "is_fn": p[10] if len(p) > 10 else False,
+                "is_ciwg": p[11] if len(p) > 11 else False,
+                "admission_date": p[12] if len(p) > 12 else date(2026, 8, 1),
+                "ended_on": None
+            }])
+
+        # Programme category counters update
+        if "UPDATE programme_category_counters" in q:
+            return MockCursor([{"ok": True}])
 
         # 9. Programme category counters
         if "programme_category_counters" in q:
@@ -437,7 +515,37 @@ class MockDemoConnection:
             _DEMO_BATCHES.insert(0, new_batch)
             return MockCursor([new_batch])
 
+        if "UPDATE upload_batches" in q:
+            batch_id = p[1] if len(p) > 1 else (p[0] if p else 1)
+            counts_val = p[0] if len(p) > 1 else {}
+            if hasattr(counts_val, "obj"):
+                counts_val = counts_val.obj
+            target = None
+            for b in _DEMO_BATCHES:
+                if b.get("id") == batch_id:
+                    b["status"] = "completed"
+                    b["row_counts_json"] = counts_val
+                    target = b
+                    break
+            if not target:
+                target = {
+                    "id": batch_id,
+                    "batch_id": batch_id,
+                    "institution_id": self.user.get("institution_id", "1-0000000001"),
+                    "channel": "portal_csv",
+                    "status": "completed",
+                    "row_counts_json": counts_val,
+                    "created_at": datetime.now(timezone.utc),
+                    "completed_at": datetime.now(timezone.utc)
+                }
+                _DEMO_BATCHES.insert(0, target)
+            return MockCursor([target])
+
         if "FROM upload_batches" in q:
+            if "WHERE id=" in q or "WHERE id = %s" in q or "WHERE id=%s" in q:
+                bid = p[0] if p else 1
+                matched = [b for b in _DEMO_BATCHES if b.get("id") == bid]
+                return MockCursor(matched or ([_DEMO_BATCHES[0]] if _DEMO_BATCHES else []))
             if "sum((row_counts_json->>'rejected')" in q:
                 inst_id = p[0] if p else self.user.get("institution_id")
                 rej = 15 if inst_id == "1-0000000002" else 0
@@ -445,6 +553,14 @@ class MockDemoConnection:
             inst_id = p[0] if p else self.user.get("institution_id")
             matching = [b for b in _DEMO_BATCHES if b.get("institution_id") == inst_id] if inst_id else _DEMO_BATCHES
             return MockCursor(matching or _DEMO_BATCHES)
+
+        if "validation_issues" in q:
+            global _DEMO_ISSUES
+            if "WHERE batch_id=" in q or "WHERE batch_id = %s" in q or "WHERE batch_id=%s" in q:
+                bid = p[0] if p else 1
+                matched = [i for i in _DEMO_ISSUES if i.get("batch_id") == bid]
+                return MockCursor(matched or _DEMO_ISSUES[:50])
+            return MockCursor(_DEMO_ISSUES)
 
         # 11. Duplicate cases
         if "duplicate_cases" in q:
@@ -680,5 +796,22 @@ class MockDemoConnection:
     def cursor(self):
         class ExecManyCursor(MockCursor):
             def executemany(self, q, params_list):
-                pass
+                global _DEMO_ISSUES
+                if "validation_issues" in q:
+                    for row in params_list:
+                        bid = row[0] if len(row) > 0 else 1
+                        r_no = row[1] if len(row) > 1 else 1
+                        code = row[2] if len(row) > 2 else "E101"
+                        sev = row[3] if len(row) > 3 else "error"
+                        field = row[4] if len(row) > 4 else "apaar_id"
+                        params = row[5].obj if (len(row) > 5 and hasattr(row[5], "obj")) else (row[5] if len(row) > 5 else {})
+                        _DEMO_ISSUES.append({
+                            "id": len(_DEMO_ISSUES) + 1,
+                            "batch_id": bid,
+                            "row_no": r_no,
+                            "code": code,
+                            "severity": sev,
+                            "field": field,
+                            "params": params
+                        })
         return ExecManyCursor([])
