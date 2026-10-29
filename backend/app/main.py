@@ -130,6 +130,18 @@ def get_conn(user=Depends(auth.optional_user)):
         yield conn
 
 
+@app.get("/")
+def root():
+    return {
+        "service": "Vidyadwaar Integrity API",
+        "version": "0.1.0",
+        "status": "online",
+        "docs": "/docs",
+        "health": "/healthz",
+        "ps": "SIH 2026 PS 26263",
+    }
+
+
 @app.get("/healthz")
 def healthz():
     db_status = "connected"

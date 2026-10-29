@@ -21,6 +21,14 @@
       "destination": "/api/index"
     },
     {
+      "source": "/docs",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/index"
+    },
+    {
       "source": "/status/:path*",
       "destination": "/api/index"
     },
@@ -29,7 +37,7 @@
       "destination": "/api/index"
     },
     {
-      "source": "/((?!assets/|demo-data/|plugins/|v1/|healthz|status/|dids/|api/|.*\\..*).*)",
+      "source": "/((?!assets/|demo-data/|plugins/|v1/|healthz|docs|openapi.json|status/|dids/|api/|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
