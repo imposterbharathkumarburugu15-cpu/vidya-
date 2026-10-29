@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vidyadwaar-connector"
+version = "1.0.0"
+authors = [
+  { name="VidyaDwaar National Team", email="tech@vidyadwaar.gov.in" },
+]
+description = "Official CLI & ERP Integration Connector for VidyaDwaar APAAR Student Verification Platform"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Education",
+    "Topic :: Security :: Cryptography"
+]
+dependencies = [
+    "httpx>=0.27.0",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+vidyadwaar-connector = "connector:main"
+
+[project.urls]
+"Homepage" = "https://github.com/imposterbharathkumarburugu15-cpu/vidya-"
+"Bug Tracker" = "https://github.com/imposterbharathkumarburugu15-cpu/vidya-/issues"
+"Documentation" = "https://vidyadwaar.vercel.app/docs"

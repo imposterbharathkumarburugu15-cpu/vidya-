@@ -1,0 +1,30 @@
+{
+  "name": "vidyadwaar-verifier",
+  "version": "1.0.0",
+  "description": "Client-side W3C Verifiable Credential 2.0 (Ed25519Signature2020) offline verification SDK for VidyaDwaar degrees and certificates",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "vidyadwaar",
+    "apaar",
+    "aicte",
+    "verifiable-credentials",
+    "w3c-vc",
+    "ed25519",
+    "degree-verification"
+  ],
+  "author": "VidyaDwaar National SIH Team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imposterbharathkumarburugu15-cpu/vidya-"
+  },
+  "bugs": {
+    "url": "https://github.com/imposterbharathkumarburugu15-cpu/vidya-/issues"
+  },
+  "homepage": "https://vidyadwaar.vercel.app"
+}
