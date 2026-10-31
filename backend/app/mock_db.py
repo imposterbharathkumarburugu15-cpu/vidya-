@@ -9,6 +9,129 @@ from pathlib import Path
 from typing import Any
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "seed"
+
+_DEMO_CASES: list[dict] = [
+    {
+        "id": 101,
+        "status": "flagged",
+        "category": "E203",
+        "enrolment_ids": [1, 2],
+        "created_at": datetime(2026, 10, 24, 10, 0, tzinfo=timezone.utc),
+        "resolution_note": None,
+        "resolved_at": None
+    },
+    {
+        "id": 102,
+        "status": "resolved",
+        "category": "E203",
+        "enrolment_ids": [1],
+        "created_at": datetime(2026, 10, 20, 14, 0, tzinfo=timezone.utc),
+        "resolution_note": "Verified withdrawal certificate from Apex Global Pune. Seat confirmed at Vidyapeeth Institute.",
+        "resolved_at": datetime(2026, 10, 26, 9, 45, tzinfo=timezone.utc)
+    },
+    {
+        "id": 103,
+        "status": "under_investigation",
+        "category": "E301",
+        "enrolment_ids": [3],
+        "created_at": datetime(2026, 10, 25, 9, 30, tzinfo=timezone.utc),
+        "resolution_note": None,
+        "resolved_at": None
+    }
+]
+
+_DEMO_CASE_DECISIONS: list[dict] = [
+    {
+        "id": 1,
+        "case_id": 102,
+        "outcome": "dismissed_false_positive",
+        "reason": "Verified institutional withdrawal certificate dated 14-Aug-2026. Prior admission cancelled.",
+        "evidence_ids": [1],
+        "rule_ref": "AICTE-APPR-2026-CH3-DUPLICATE",
+        "previous_status": "flagged",
+        "resulting_status": "resolved",
+        "decision_maker": "aicte",
+        "decided_at": datetime(2026, 10, 26, 9, 45, tzinfo=timezone.utc)
+    }
+]
+
+_DEMO_ENROLMENTS: list[dict] = [
+    {
+        "id": 1,
+        "student_id": 1,
+        "institution_id": "1-0000000001",
+        "institution_name": "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+        "institution": "Vidyapeeth Institute of Technology & Science (VITS), Bengaluru",
+        "programme_id": "1-0000000001:CSE",
+        "programme": "B.E. Computer Science and Engineering",
+        "academic_year": "2026-27",
+        "institution_student_id": "VITS-2026-CSE-042",
+        "status": "verified",
+        "seat_category_code": "REGULAR",
+        "category_code": "REGULAR",
+        "is_supernumerary": False,
+        "is_lateral_entry": False,
+        "year_of_study": 1,
+        "batch_id": 1,
+        "enrolled_at": datetime(2026, 8, 1, 0, 0, tzinfo=timezone.utc)
+    },
+    {
+        "id": 2,
+        "student_id": 1,
+        "institution_id": "1-0000000002",
+        "institution_name": "Apex Global Institute of Engineering & Technology, Pune",
+        "institution": "Apex Global Institute of Engineering & Technology, Pune",
+        "programme_id": "1-0000000002:CSE",
+        "programme": "B.Tech Computer Science and Engineering",
+        "academic_year": "2026-27",
+        "institution_student_id": "AGIET-2026-CS-091",
+        "status": "flagged",
+        "seat_category_code": "REGULAR",
+        "category_code": "REGULAR",
+        "is_supernumerary": False,
+        "is_lateral_entry": False,
+        "year_of_study": 1,
+        "batch_id": 2,
+        "enrolled_at": datetime(2026, 8, 3, 0, 0, tzinfo=timezone.utc)
+    },
+    {
+        "id": 3,
+        "student_id": 2,
+        "institution_id": "1-0000000002",
+        "institution_name": "Apex Global Institute of Engineering & Technology, Pune",
+        "institution": "Apex Global Institute of Engineering & Technology, Pune",
+        "programme_id": "1-0000000002:CSE",
+        "programme": "B.Tech Computer Science and Engineering",
+        "academic_year": "2026-27",
+        "institution_student_id": "AGIET-2026-CS-125",
+        "status": "flagged",
+        "seat_category_code": "REGULAR",
+        "category_code": "REGULAR",
+        "is_supernumerary": False,
+        "is_lateral_entry": False,
+        "year_of_study": 1,
+        "batch_id": 2,
+        "enrolled_at": datetime(2026, 8, 5, 0, 0, tzinfo=timezone.utc)
+    }
+]
+
+_DEMO_STUDENTS: list[dict] = [
+    {
+        "id": 1,
+        "apaar_id": "328865551724",
+        "apaar_masked": "XXXX-XXXX-1724",
+        "student_id": 1,
+        "provisional_id": None,
+        "apaar_status": "verified",
+        "display_name": "Aarav Sharma",
+        "name": "Aarav Sharma",
+        "name_enc": None,
+        "dob": "2006-11-05",
+        "gender": "M",
+        "state_code": "KA"
+    }
+]
+
 DEMO_PASS_HASH = "$argon2id$v=19$m=65536,t=3,p=4$QGkjglVTnl3pHUl5JPnIhg$iBF00e+d28bmVtJR93yoZ3U06KNJspYR3XGO1boF6KI"
 
 # Global in-memory storage for demo mutations during serverless session
@@ -155,11 +278,15 @@ _DEMO_GRIEVANCE_SEQ = 103
 _DEMO_CONSENTS: list[dict] = [
     {
         "id": 1,
+        "id": 1,
+        "requester_name": "Tata Consultancy & Skills Verification (TCS V-Desk)",
         "requester": "Tata Consultancy & Skills Verification (TCS V-Desk)",
         "requester_did": "did:web:verification.tcs.demo.in",
         "purpose": "Campus Recruitment 2026: Academic Credentials and Degree Validation",
         "status": "pending",
+        "scope_fields": ["programme", "institution", "academic_year"],
         "scope": ["EnrolmentCredential", "DegreeCredential"],
+        "granted_by": None,
         "requested_at": datetime(2026, 10, 25, 11, 30, tzinfo=timezone.utc),
         "decided_at": None,
         "expires_at": datetime(2026, 11, 25, 23, 59, 59, tzinfo=timezone.utc),
@@ -168,11 +295,15 @@ _DEMO_CONSENTS: list[dict] = [
     },
     {
         "id": 2,
+        "id": 2,
+        "requester_name": "Infosys National Recruitment Desk",
         "requester": "Infosys National Recruitment Desk",
         "requester_did": "did:web:campus.infosys.demo.in",
         "purpose": "Pre-interview identity and enrolment status verification",
         "status": "granted",
+        "scope_fields": ["programme", "institution"],
         "scope": ["EnrolmentCredential"],
+        "granted_by": "student",
         "requested_at": datetime(2026, 10, 20, 10, 0, tzinfo=timezone.utc),
         "decided_at": datetime(2026, 10, 21, 8, 15, tzinfo=timezone.utc),
         "expires_at": datetime(2026, 11, 20, 23, 59, 59, tzinfo=timezone.utc),
@@ -450,128 +581,52 @@ class MockDemoConnection:
         if "student_id_by_bi" in q:
             return MockCursor([{"id": 1}])
 
-        # Enrolments lookup
-        if "FROM enrolments" in q:
+        
+        global _DEMO_CASES, _DEMO_CASE_DECISIONS, _DEMO_ENROLMENTS, _DEMO_STUDENTS
+
+        # Case Decisions
+        if "case_decisions" in q:
+            cid = p[0] if p else None
+            matched = [d for d in _DEMO_CASE_DECISIONS if cid is None or d.get("case_id") == cid]
+            return MockCursor(matched)
+
+        # Enrolments
+        if "FROM enrolments" in q or "enrolments e" in q or "enrolments" in q:
+            if "id = ANY" in q or "id=ANY" in q:
+                ids = p[0] if p else [1, 2]
+                res = [{"id": e["id"], "batch_id": e.get("batch_id", 1)} for e in _DEMO_ENROLMENTS if e["id"] in ids]
+                return MockCursor(res or [{"id": 1, "batch_id": 1}, {"id": 2, "batch_id": 2}])
+            if "student_id=" in q or "e.student_id=" in q:
+                return MockCursor([_DEMO_ENROLMENTS[0]])
             if "institution_student_id" in q:
                 return MockCursor([])
-            return MockCursor([])
-
-        # Enrolments insert
-        if "INSERT INTO enrolments" in q:
-            return MockCursor([{
-                "id": 100,
-                "student_id": p[0] if len(p) > 0 else 1,
-                "programme_id": p[1] if len(p) > 1 else "1-0000000002:CSE",
-                "academic_year": p[2] if len(p) > 2 else "2026-27",
-                "institution_student_id": p[3] if len(p) > 3 else "STU001",
-                "status": "active",
-                "seat_category_code": p[4] if len(p) > 4 else "REGULAR",
-                "is_supernumerary": p[5] if len(p) > 5 else False,
-                "is_lateral_entry": p[6] if len(p) > 6 else False,
-                "year_of_study": p[7] if len(p) > 7 else 1,
-                "is_nri": p[8] if len(p) > 8 else False,
-                "is_oci": p[9] if len(p) > 9 else False,
-                "is_fn": p[10] if len(p) > 10 else False,
-                "is_ciwg": p[11] if len(p) > 11 else False,
-                "admission_date": p[12] if len(p) > 12 else date(2026, 8, 1),
-                "ended_on": None
-            }])
-
-        # Programme category counters update
-        if "UPDATE programme_category_counters" in q:
-            return MockCursor([{"ok": True}])
-
-        # 9. Programme category counters
-        if "programme_category_counters" in q:
-            return MockCursor([
-                {"programme_id": "1-0000000001:CSE", "category_code": "REGULAR", "filled": 54, "cap": 60, "excess": 0},
-                {"programme_id": "1-0000000001:ECE", "category_code": "REGULAR", "filled": 48, "cap": 60, "excess": 0},
-                {"programme_id": "1-0000000002:CSE", "category_code": "REGULAR", "filled": 118, "cap": 120, "excess": 0},
-                {"programme_id": "1-0000000002:ME", "category_code": "REGULAR", "filled": 42, "cap": 60, "excess": 0}
-            ])
-
-        # 10. Upload batches query & insert
-        global _DEMO_BATCHES, _DEMO_BATCH_ID_SEQ
-        if "INSERT INTO upload_batches" in q:
-            inst_id = p[0] if p else self.user.get("institution_id", "1-0000000001")
-            channel = p[1] if len(p) > 1 else "portal_csv"
-            idem_key = p[2] if len(p) > 2 else "demo-key"
-            req_hash = p[3] if len(p) > 3 else "hash"
-            user_id = p[4] if len(p) > 4 else self.user.get("id", "inst-a")
-            new_batch = {
-                "id": _DEMO_BATCH_ID_SEQ,
-                "batch_id": _DEMO_BATCH_ID_SEQ,
-                "institution_id": inst_id,
-                "channel": channel,
-                "status": "processing",
-                "idempotency_key": idem_key,
-                "request_hash": req_hash,
-                "created_by": user_id,
-                "row_counts_json": {"total": 60, "valid": 60, "rejected": 0, "flagged": 0},
-                "created_at": datetime.now(timezone.utc),
-                "completed_at": datetime.now(timezone.utc)
-            }
-            _DEMO_BATCH_ID_SEQ += 1
-            _DEMO_BATCHES.insert(0, new_batch)
-            return MockCursor([new_batch])
-
-        if "UPDATE upload_batches" in q:
-            batch_id = p[1] if len(p) > 1 else (p[0] if p else 1)
-            counts_val = p[0] if len(p) > 1 else {}
-            if hasattr(counts_val, "obj"):
-                counts_val = counts_val.obj
-            target = None
-            for b in _DEMO_BATCHES:
-                if b.get("id") == batch_id:
-                    b["status"] = "completed"
-                    b["row_counts_json"] = counts_val
-                    target = b
-                    break
-            if not target:
-                target = {
-                    "id": batch_id,
-                    "batch_id": batch_id,
-                    "institution_id": self.user.get("institution_id", "1-0000000001"),
-                    "channel": "portal_csv",
-                    "status": "completed",
-                    "row_counts_json": counts_val,
-                    "created_at": datetime.now(timezone.utc),
-                    "completed_at": datetime.now(timezone.utc)
-                }
-                _DEMO_BATCHES.insert(0, target)
-            return MockCursor([target])
-
-        if "FROM upload_batches" in q:
             if "WHERE id=" in q or "WHERE id = %s" in q or "WHERE id=%s" in q:
-                bid = p[0] if p else 1
-                matched = [b for b in _DEMO_BATCHES if b.get("id") == bid]
-                return MockCursor(matched or ([_DEMO_BATCHES[0]] if _DEMO_BATCHES else []))
-            if "sum((row_counts_json->>'rejected')" in q:
-                inst_id = p[0] if p else self.user.get("institution_id")
-                rej = 15 if inst_id == "1-0000000002" else 0
-                return MockCursor([{"n": rej}])
-            inst_id = p[0] if p else self.user.get("institution_id")
-            matching = [b for b in _DEMO_BATCHES if b.get("institution_id") == inst_id] if inst_id else _DEMO_BATCHES
-            return MockCursor(matching or _DEMO_BATCHES)
+                eid = p[0] if p else 1
+                matched = [e for e in _DEMO_ENROLMENTS if e["id"] == eid]
+                return MockCursor(matched or [_DEMO_ENROLMENTS[0]])
+            return MockCursor(_DEMO_ENROLMENTS)
 
-        if "validation_issues" in q:
-            global _DEMO_ISSUES
-            if "WHERE batch_id=" in q or "WHERE batch_id = %s" in q or "WHERE batch_id=%s" in q:
-                bid = p[0] if p else 1
-                matched = [i for i in _DEMO_ISSUES if i.get("batch_id") == bid]
-                return MockCursor(matched or _DEMO_ISSUES[:50])
-            return MockCursor(_DEMO_ISSUES)
+        # Students
+        if "FROM students" in q or "students s" in q:
+            if "WHERE id=" in q or "WHERE id = %s" in q or "WHERE id=%s" in q:
+                sid = p[0] if p else 1
+                matched = [s for s in _DEMO_STUDENTS if s["id"] == sid]
+                return MockCursor(matched or [_DEMO_STUDENTS[0]])
+            return MockCursor(_DEMO_STUDENTS)
 
-        # 11. Duplicate cases
+        # Duplicate Cases
         if "duplicate_cases" in q:
+            if "WHERE id=" in q or "WHERE id = %s" in q or "WHERE id=%s" in q:
+                cid = p[0] if p else 101
+                matched = [c for c in _DEMO_CASES if c["id"] == cid]
+                return MockCursor(matched or [_DEMO_CASES[0]])
             if "status IN ('flagged','under_investigation')" in q:
                 inst_id = p[0] if p else self.user.get("institution_id")
                 if inst_id == "1-0000000002":
-                    return MockCursor([{"id": 101, "batch_id": 2}])
+                    return MockCursor([c for c in _DEMO_CASES if c["id"] == 101])
                 return MockCursor([])
-            return MockCursor([
-                {"id": 101, "status": "flagged", "enrolment_ids": [1, 2], "created_at": datetime.now(timezone.utc)}
-            ])
+            return MockCursor(_DEMO_CASES)
+
 
         # 12. APAAR coverage stats
         if "apaar_status" in q:
@@ -789,6 +844,28 @@ class MockDemoConnection:
         # 21. Audit logs
         if "INSERT INTO audit_logs" in q:
             return MockCursor([{"id": 1, "ok": True}])
+
+        if "audit_logs" in q:
+            return MockCursor([
+                {
+                    "ts": datetime(2026, 10, 28, 11, 30, tzinfo=timezone.utc),
+                    "actor": "inst-a",
+                    "role": "institution_admin",
+                    "action": "enrolment.read",
+                    "reason": "Institutional roster compliance check",
+                    "entity": "enrolment",
+                    "entity_id": "1"
+                },
+                {
+                    "ts": datetime(2026, 10, 26, 14, 15, tzinfo=timezone.utc),
+                    "actor": "tcs-vdesk",
+                    "role": "verifier",
+                    "action": "credential.verify",
+                    "reason": "Recruitment background check",
+                    "entity": "credential",
+                    "entity_id": "vc-bntu-2026-001"
+                }
+            ])
 
         # Default fallback row
         return MockCursor([{"n": 0, "ok": True, "count": 0, "id": 1}])

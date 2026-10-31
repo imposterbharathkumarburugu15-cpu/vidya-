@@ -1,0 +1,49 @@
+======================================================================
+VIDYADWAAR SIH DEMONSTRATION NARRATION SCRIPT
+Target Duration: 5 Minutes (300 Seconds) | 11 Complete Scenes
+======================================================================
+
+SCENE 01: INTRODUCTION & SIH PROBLEM STATEMENT (00:00 - 00:20) [Duration: 20.0s]
+----------------------------------------------------------------------
+Welcome to VidyaDwaar, an enterprise-grade academic data and credential integrity ecosystem built for the Smart India Hackathon. VidyaDwaar establishes an APAAR-based student data management and verification platform, uniting institutions, regulatory authorities, and students on a single secure registry.
+
+SCENE 02: PROBLEM STATEMENT & EDUCATIONAL CHALLENGES (00:20 - 00:45) [Duration: 25.0s]
+----------------------------------------------------------------------
+Across thousands of higher education institutions, student records remain heavily fragmented across legacy ERPs and paper filings. This creates severe regulatory challenges: ghost colleges, unmonitored intake limits, duplicate enrolments across states, and untracked forged certificates. VidyaDwaar eliminates these vulnerabilities through automated, transparent verification.
+
+SCENE 03: PLATFORM & ROLE-BASED ACCESS CONTROL (00:45 - 01:15) [Duration: 30.0s]
+----------------------------------------------------------------------
+VidyaDwaar enforces strict role-based access control across five distinct user roles. Students access only their personal academic records; institutional administrators manage authorized student admissions; registrars administer formal records; AICTE regulators monitor national intake compliance; and external verifiers receive controlled, privacy-preserving verification access.
+
+SCENE 04: INSTITUTION ADMINISTRATOR DASHBOARD (01:15 - 01:40) [Duration: 25.0s]
+----------------------------------------------------------------------
+Here is the active Institution Administrator dashboard for Vidyapeeth Institute of Technology and Science. Officials instantly inspect their approved intake of one hundred and twenty seats, current enrolment of sixty students, branch-wise utilisation, Data Quality Scores of ninety-four point two, and real-time validation alerts for complete transparency.
+
+SCENE 05: STUDENT SELF-SOVEREIGN EXPERIENCE (01:40 - 02:10) [Duration: 30.0s]
+----------------------------------------------------------------------
+For students, VidyaDwaar delivers complete self-sovereign control. Logging in with their synthetic APAAR ID, student Aarav Sharma accesses verified academic enrolments, institution details, and real-time verification status. Students independently review employer consent requests, inspect full audit access logs, and raise direct academic grievances without institutional friction.
+
+SCENE 06: STUDENT APK & OFFLINE EXPERIENCE (02:10 - 02:30) [Duration: 20.0s]
+----------------------------------------------------------------------
+VidyaDwaar also provides an offline-capable Android application for students, enabling access to supported locally available academic information and downloaded certificates even when internet connectivity is unavailable. Powered by offline SQLite storage, students can carry and present their verified credentials anywhere without requiring network coverage.
+
+SCENE 07: CERTIFICATE DOWNLOAD & CREDENTIAL WALLET (02:30 - 02:55) [Duration: 25.0s]
+----------------------------------------------------------------------
+Within the Student Credential Wallet, students can open and download W3C Verifiable Credentials. Each certificate contains high-contrast university seals and an Ed25519-signed Base45 QR code. Students can save the tamper-evident certificate locally as a demo sample or print it for instant offline or online verification.
+
+SCENE 08: APAAR VALIDATION & DUPLICATE DETECTION (02:55 - 03:30) [Duration: 35.0s]
+----------------------------------------------------------------------
+When institutions submit student batch rosters, VidyaDwaar executes instant APAAR validation and cross-institutional matching. When duplicate identifiers or simultaneous enrolments occur, an explainable case is flagged in the AICTE queue. Crucially, matching identifiers trigger human investigation rather than an automatic fraud decision, allowing administrators to compare side-by-side evidence and resolve discrepancies with full auditability.
+
+SCENE 09: AICTE REGULATORY MONITORING & ANALYTICS (03:30 - 04:00) [Duration: 30.0s]
+----------------------------------------------------------------------
+At the regulatory level, AICTE officials command comprehensive oversight across more than four thousand institutions and eighty-two thousand enrolled students. Administrators monitor state-by-state seat intake, excess enrolment rankings, inspection priority queues, and shared student clusters, while verifying academic credentials directly from the national trust registry.
+
+SCENE 10: TECHNICAL ARCHITECTURE & SECURITY (04:00 - 04:30) [Duration: 30.0s]
+----------------------------------------------------------------------
+VidyaDwaar's robust architecture combines a responsive React TypeScript frontend with an asynchronous Python FastAPI backend. Data integrity is enforced via PostgreSQL with row-level security and local offline SQLite caching. Security is rooted in zero-knowledge blind indexing for privacy, W3C Ed25519 cryptographic signatures, and tamper-evident audit logging.
+
+SCENE 11: CONCLUSION & NATIONAL IMPACT (04:30 - 05:00) [Duration: 30.0s]
+----------------------------------------------------------------------
+In summary, VidyaDwaar resolves fragmented academic data, eliminates unmonitored admissions, empowers students with direct credential ownership, and provides regulators with explainable, real-time oversight. VidyaDwaar — Making Academic Records More Reliable, Verifiable and Transparent.
+
