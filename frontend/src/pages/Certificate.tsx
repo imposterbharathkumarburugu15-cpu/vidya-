@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Copy, Download, Printer, QrCode, Smartphone } from "lucide-react";
-import { ApiError, getJson, type S } from "../api/client";
+import { getJson, type S } from "../api/client";
 import { Button, ErrorNote } from "../ui";
 
 /** Clean and sanitize SVG so it scales crisply with a pure white quiet zone background */
@@ -70,6 +70,7 @@ export default function Certificate({ id = "vc-bntu-2026-001" }: { id?: string }
       .catch((e) => {
         // Keep DEFAULT_DEMO_CERT so the screen is never blank
         console.warn("Using fallback demo certificate:", e);
+        setError(e instanceof Error ? e.message : String(e));
       });
   }, [activeId]);
 

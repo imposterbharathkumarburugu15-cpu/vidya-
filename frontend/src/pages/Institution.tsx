@@ -11,7 +11,7 @@ import { DisputeQueueContent } from "../cases";
 import IndiaMap from "../components/IndiaMap";
 import { useMounted } from "../components/motion";
 import { COMPONENT_HELP, COMPONENT_LABEL, FLAG_INFO, FLAG_LABEL } from "../risk";
-import { AnimatedCounter, Badge, Button, Empty, ErrorNote, go, Loading, Ring, SparkBars, usePoll } from "../ui";
+import { AnimatedCounter, Badge, Button, Empty, ErrorNote, go, Ring, SparkBars, usePoll } from "../ui";
 
 const pct = (n: number, d: number) => (d ? Math.round((100 * n) / d) : 0);
 const GOLD_TEXT = "bg-gradient-to-b from-[#FBE7A1] via-[#E2BC4A] to-[#C9982A] bg-clip-text text-transparent";
@@ -52,9 +52,13 @@ const DEFAULT_INSTITUTION_DASHBOARD: S["InstitutionDashboard"] = {
   ],
   batches: [
     {
-      batch_id: "b-2026-001",
+      batch_id: 1,
+      institution_id: "1-0000000001",
+      status: "completed",
+      channel: "portal_csv",
       created_at: "2026-10-31T10:00:00Z",
-      counts: { accepted: 54, rejected: 0 }
+      counts: { rows: 54, accepted: 54, rejected: 0, warnings: 0, flags: 0, cases_opened: 0 },
+      replayed: false
     }
   ],
   open_notices: [],
