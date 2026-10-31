@@ -61,7 +61,7 @@ def institution(conn, inst_id: str) -> dict:
                     "name": "B.Tech Computer Science and Engineering" if is_inst_b else "B.E. Computer Science and Engineering",
                     "academic_year": "2026-27",
                     "approved_intake": 120 if is_inst_b else 60,
-                    "source": "approval_letter",
+                    "source": "mock",
                     "lines": [
                         {"category_code": "REGULAR", "filled": 125 if is_inst_b else 54, "cap": 120 if is_inst_b else 60, "excess": 5 if is_inst_b else 0},
                         {"category_code": "SN_FN_OCI_CIWG", "filled": 18 if is_inst_b else 4, "cap": 18 if is_inst_b else 9, "excess": 0}

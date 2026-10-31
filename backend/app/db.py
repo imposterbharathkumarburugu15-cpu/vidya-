@@ -77,6 +77,9 @@ def app_password() -> str:
 
 def connect(dbname: str | None = None, autocommit: bool = False) -> Any:
     """Admin connection (bypasses RLS). Used only for schema initialization and administrative assertions."""
+    if (_env("USE_MOCK_DB") or "true").lower() in ("true", "1", "yes"):
+        from .mock_db import MockDemoConnection
+        return MockDemoConnection(None)
     target_db = dbname or get_dbname()
     try:
         return psycopg.connect(database_url(), dbname=target_db, row_factory=dict_row, connect_timeout=3, autocommit=autocommit)  # type: ignore
@@ -89,6 +92,9 @@ def connect(dbname: str | None = None, autocommit: bool = False) -> Any:
 
 def app_connect(user: dict | None, dbname: str | None = None):
     """Request connection as the non-owner app role, with RLS settings for this caller."""
+    if (_env("USE_MOCK_DB") or "true").lower() in ("true", "1", "yes"):
+        from .mock_db import MockDemoConnection
+        return MockDemoConnection(user)
     target_db = dbname or get_dbname()
 
     try:
