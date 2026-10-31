@@ -28,3 +28,8 @@ backend/data/tesseract/
 tools/tesseract/
 _uv/
 frontend/public/plugins/
+
+# Video production intermediates and local binaries
+tools/ffmpeg.exe
+tools/VoiceStudio/
+video_production/

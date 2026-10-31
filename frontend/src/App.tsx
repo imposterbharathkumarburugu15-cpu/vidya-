@@ -87,6 +87,19 @@ export default function App() {
     return <DeveloperPortal />;
   }
 
+  // Public certificate view (accessible without sign-in)
+  if (hash.startsWith("/certificate")) {
+    const certMatch = hash.match(/^\/certificate(?:[/?](?:id=)?(.*))?$/);
+    const certId = certMatch && certMatch[1] ? decodeURIComponent(certMatch[1]) : "vc-bntu-2026-001";
+    if (!session) {
+      return (
+        <div className="relative min-h-screen w-full bg-[#121316] p-6 text-white selection:bg-[#d4af37]/40">
+          <Certificate id={certId} />
+        </div>
+      );
+    }
+  }
+
   if (!session) {
     return (
       <Login
@@ -100,12 +113,13 @@ export default function App() {
   }
 
   const batch = hash.match(/^\/(?:inst\/)?batch\/(\d+)$/);
-  const cert = hash.match(/^\/certificate(?:\?id=|\/)(.+)$/);
+  const cert = hash.match(/^\/certificate(?:[/?](?:id=)?(.*))?$/);
   const r = session.role;
   let page;
 
-  if (cert) {
-    page = <Certificate id={decodeURIComponent(cert[1])} />;
+  if (hash.startsWith("/certificate")) {
+    const certId = cert && cert[1] ? decodeURIComponent(cert[1]) : "vc-bntu-2026-001";
+    page = <Certificate id={certId} />;
   } else if (hash === "/verify" && CAN_VERIFY.includes(r)) {
     page = (
       <div className="space-y-6">
