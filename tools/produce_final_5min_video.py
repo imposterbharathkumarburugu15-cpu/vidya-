@@ -414,14 +414,14 @@ def verify_final_video(video_path):
         total_s = h * 3600 + m * 60 + s
         print(f"  Measured Video Duration: {total_s:.2f} seconds ({h:02d}:{m:02d}:{s:05.2f})")
         if abs(total_s - 300.0) <= 0.5:
-            print("  ✓ DURATION VERIFICATION PASSED: Exactly 5:00 minutes (300 seconds)!")
+            print("  [PASS] DURATION VERIFICATION PASSED: Exactly 5:00 minutes (300 seconds)!")
         else:
             print(f"  WARNING: Duration differs by {abs(total_s - 300.0):.2f}s from 300s target")
     
     if "1920x1080" in output:
-        print("  ✓ RESOLUTION VERIFICATION PASSED: 1920x1080 Full HD")
+        print("  [PASS] RESOLUTION VERIFICATION PASSED: 1920x1080 Full HD")
     if "h264" in output or "Video: h264" in output:
-        print("  ✓ CODEC VERIFICATION PASSED: H.264 / AAC")
+        print("  [PASS] CODEC VERIFICATION PASSED: H.264 / AAC")
 
 async def main():
     await generate_narration_audio()
