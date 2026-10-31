@@ -1,219 +1,195 @@
 1
-00:00:00,000 --> 00:00:09,625
-Welcome to VidyaDwaar, an enterprise-grade academic data and credential integrity ecosystem built for the Smart India Hackathon.
+00:00:00,500 --> 00:00:06,500
+Welcome to VidyaDwaar, an enterprise-grade academic data
+and credential integrity ecosystem for the Smart India Hackathon.
 
 2
-00:00:09,725 --> 00:00:19,350
-In Indian higher education, over forty thousand institutions enroll millions of students annually under statutory regulatory oversight.
+00:00:07,000 --> 00:00:14,000
+VidyaDwaar establishes an APAAR-based student data management
+and verification platform for higher education.
 
 3
-00:00:19,450 --> 00:00:29,075
-However, fragmented institutional ERPs, manual student records, and siloed university databases create severe vulnerabilities—from ghost colleges to forged degree certificates.
+00:00:14,500 --> 00:00:19,500
+Uniting institutions, regulatory authorities,
+and students on a single secure trust registry.
 
 4
-00:00:29,175 --> 00:00:38,800
-VidyaDwaar bridges this trust deficit through a unified, privacy-first platform powered by APAAR identifiers and W3C Verifiable Credentials.
+00:00:20,500 --> 00:00:27,000
+Across thousands of institutions, student records remain heavily
+fragmented across legacy ERPs and paper filings.
 
 5
-00:00:38,900 --> 00:00:46,676
-Today, state regulators and national bodies like AICTE face critical administrative friction.
+00:00:27,500 --> 00:00:35,000
+This creates severe challenges: ghost colleges, unmonitored intake,
+duplicate enrolments across states, and forged certificates.
 
 6
-00:00:46,776 --> 00:00:54,552
-Seat caps approved by the council are routinely obscured across disconnected state registries.
+00:00:35,500 --> 00:00:44,500
+VidyaDwaar eliminates these critical vulnerabilities
+through automated, privacy-preserving verification.
 
 7
-00:00:54,652 --> 00:01:02,428
-Students struggle with delays in issuing and authenticating genuine transcripts, while employers face cumbersome background verifications.
+00:00:45,500 --> 00:00:51,500
+VidyaDwaar enforces strict role-based access control
+across five distinct user roles.
 
 8
-00:01:02,528 --> 00:01:10,304
-Crucially, bad actors exploit offline loopholes, creating counterfeit marksheets and dual government scholarship claims.
+00:00:52,000 --> 00:00:59,000
+Students access only their personal academic records,
+while institutional administrators manage authorized student admissions.
 
 9
-00:01:10,404 --> 00:01:18,180
-What the nation needs is a deterministic, cryptographic truth engine that protects student privacy while enforcing statutory admission limits.
+00:00:59,500 --> 00:01:06,500
+Registrars administer formal records, and AICTE regulators
+monitor national intake compliance and institutional risk.
 
 10
-00:01:18,280 --> 00:01:26,566
-VidyaDwaar introduces a paradigm shift.
+00:01:07,000 --> 00:01:14,500
+External verifiers receive controlled, privacy-preserving access
+without exposing unauthorized student data.
 
 11
-00:01:26,666 --> 00:01:34,952
-By anchoring every student record to the One Nation, One Student ID—the Automated Permanent Academic Account Registry, or APAAR—VidyaDwaar creates a verifiable academic lifecycle.
+00:01:15,500 --> 00:01:22,500
+Here is the active Institution Dashboard for Vidyapeeth Institute
+of Technology and Science in Bengaluru.
 
 12
-00:01:35,052 --> 00:01:43,338
-Our unique value proposition rests on three pillars: sub-12ms deterministic ingestion auditing, zero-honeypot cryptographic privacy compliant with DPDP Act 2023,
+00:01:23,000 --> 00:01:30,500
+Officials inspect their approved intake of 120 seats,
+current enrolment of 60 students, and branch-wise utilisation.
 
 13
-00:01:43,438 --> 00:01:51,724
-and instant offline-verifiable digital degrees using W3C Verifiable Credentials 2.0 and Ed25519 digital signatures.
+00:01:31,000 --> 00:01:39,500
+High Data Quality Scores of 94.2 and real-time validation alerts
+ensure complete regulatory compliance.
 
 14
-00:01:51,824 --> 00:02:00,110
-All demonstrations here use synthetic prototype data created specifically for the Smart India Hackathon.
+00:01:40,500 --> 00:01:46,500
+For students, VidyaDwaar delivers complete self-sovereign control
+over their academic identity.
 
 15
-00:02:00,210 --> 00:02:08,410
-VidyaDwaar is engineered from the ground up as a multi-role ecosystem where every stakeholder operates under strict principle-of-least-privilege permissions.
+00:01:47,000 --> 00:01:54,500
+Logging in with their APAAR ID, student Aarav Sharma accesses
+verified enrolments, institution details, and status.
 
 16
-00:02:08,510 --> 00:02:16,710
-As demonstrated on our live evaluator sign-in interface, VidyaDwaar defines distinct personas:
+00:01:55,000 --> 00:02:02,000
+Students independently review employer consent requests
+and inspect full audit access transparency logs.
 
 17
-00:02:16,810 --> 00:02:25,010
-Students access their own personal academic records and privacy consent controls; Institutions manage authorized student rosters and intake ceilings;
+00:02:02,500 --> 00:02:09,500
+Direct academic grievances can be submitted
+without unnecessary administrative friction.
 
 18
-00:02:25,110 --> 00:02:33,310
-Affiliating University Registrars administer degree issuance; Central AICTE Regulators inspect nationwide duplicate overlap radar;
+00:02:10,500 --> 00:02:18,500
+VidyaDwaar also provides an offline-capable Android application
+for students across India.
 
 19
-00:02:33,410 --> 00:02:41,610
-and External Verifiers receive controlled, instant credential verification without accessing sensitive student databases.
+00:02:19,000 --> 00:02:25,500
+Enabling access to supported locally available academic records
+and downloaded certificates even when internet is unavailable.
 
 20
-00:02:41,710 --> 00:02:51,005
-Here, an institution administrator signs into the live dashboard for Vidyapeeth Institute of Technology and Science.
+00:02:26,000 --> 00:02:29,500
+Offline SQLite storage allows instant presentation
+of verified credentials in remote areas.
 
 21
-00:02:51,105 --> 00:03:00,400
-In real time, the institution audits its active academic year, approved intake quota of 120 seats, and 60 enrolled students.
+00:02:30,500 --> 00:02:37,000
+Within the Student Credential Wallet, students can open
+and download W3C Verifiable Credentials.
 
 22
-00:03:00,500 --> 00:03:09,795
-The system immediately reports APAAR coverage—confirming 54 verified records and flagging 6 pending verifications.
+00:02:37,500 --> 00:02:45,000
+Each certificate features university seals and an Ed25519-signed
+Base45 QR code for instant scanning.
 
 23
-00:03:09,895 --> 00:03:19,190
-Statutory intake counters prevent illegal over-admissions before student data is ever committed to the ledger, eliminating compliance notices.
+00:02:45,500 --> 00:02:54,500
+Students save the tamper-evident certificate locally as a demo sample
+or print it for instant verification.
 
 24
-00:03:19,290 --> 00:03:26,952
-Now, let us examine the core student experience.
+00:02:55,500 --> 00:03:02,500
+When institutions submit student batch rosters,
+VidyaDwaar executes instant APAAR validation and cross-matching.
 
 25
-00:03:27,052 --> 00:03:34,714
-A student, Aarav Sharma, logs into the dedicated VidyaDwaar student portal using synthetic demonstration credentials with date-of-birth authentication or WebAuthn passkeys.
+00:03:03,000 --> 00:03:11,000
+When duplicate identifiers or concurrent enrolments occur,
+an explainable case is flagged in the AICTE resolution queue.
 
 26
-00:03:34,814 --> 00:03:42,476
-Instantly, Aarav gains independent, transparent access to his academic profile.
+00:03:11,500 --> 00:03:20,000
+Crucially, matching identifiers trigger human investigation
+rather than an automatic fraud decision.
 
 27
-00:03:42,576 --> 00:03:50,238
-His APAAR ID is securely masked for privacy, his active enrollment in B.E. Computer Science at Vidyapeeth Institute is displayed, and his academic status is verified.
+00:03:20,500 --> 00:03:29,500
+Administrators compare side-by-side institutional evidence
+and resolve discrepancies with complete auditability.
 
 28
-00:03:50,338 --> 00:03:58,000
-Students never have to run between institutional desks; their verifiable educational history is available directly at their fingertips.
+00:03:30,500 --> 00:03:37,000
+At the regulatory level, AICTE officials command comprehensive oversight
+across 4,120 institutions and 82,410 enrolled students.
 
 29
-00:03:58,100 --> 00:04:06,078
-Recognizing that reliable internet connectivity remains a challenge across remote Indian colleges, VidyaDwaar provides a native, offline-capable Android application.
+00:03:37,500 --> 00:03:45,000
+Administrators monitor state-by-state seat intake quotas,
+excess enrolment rankings, and risk inspection priorities.
 
 30
-00:04:06,178 --> 00:04:14,156
-Students can download the official VidyaDwaar Student Portal APK directly from the platform.
+00:03:45,500 --> 00:03:52,500
+Automated analytics highlight shared student clusters
+and potential regulatory compliance breaches.
 
 31
-00:04:14,256 --> 00:04:22,234
-The application securely caches cryptographically signed academic credentials on the mobile device.
+00:03:53,000 --> 00:03:59,500
+Direct credential verification connects seamlessly
+with the national cryptographic trust registry.
 
 32
-00:04:22,334 --> 00:04:30,312
-VidyaDwaar also provides an offline-capable Android application for students, enabling access to supported locally available academic information and downloaded certificates even when internet connectivity is unavailable.
+00:04:00,500 --> 00:04:07,500
+VidyaDwaar combines a responsive React TypeScript frontend
+with an asynchronous Python FastAPI backend engine.
 
 33
-00:04:30,412 --> 00:04:38,390
-This empowers students across rural and semi-urban India.
+00:04:08,000 --> 00:04:15,000
+Data integrity is enforced via PostgreSQL with Row-Level Security
+and offline SQLite client caching.
 
 34
-00:04:38,490 --> 00:04:46,042
-Within the credential wallet, students can view, verify, and download their official academic certificates.
+00:04:15,500 --> 00:04:22,500
+Security is rooted in zero-knowledge blind indexing for privacy
+and W3C Ed25519 cryptographic signatures.
 
 35
-00:04:46,142 --> 00:04:53,694
-Clicking on his degree certificate, Aarav views his cryptographically signed W3C Verifiable Credential.
+00:04:23,000 --> 00:04:29,500
+Tamper-evident audit logging tracks every query,
+ensuring complete transparency and institutional trust.
 
 36
-00:04:53,794 --> 00:05:01,346
-The certificate displays his verified name, university registration number, APAAR identifier, and a tamper-evident two-dimensional barcode containing a compressed Base45 payload.
+00:04:30,500 --> 00:04:37,500
+In summary, VidyaDwaar unifies fragmented academic data
+and eliminates unmonitored duplicate admissions.
 
 37
-00:05:01,446 --> 00:05:08,998
-Students can save the certificate locally or print it as a high-fidelity document labeled as a demonstration sample.
+00:04:38,000 --> 00:04:45,000
+Empowering students with direct digital credential ownership
+and offline-capable verifiable certificates.
 
 38
-00:05:09,098 --> 00:05:16,650
-Any third party can scan this barcode offline to verify university authenticity in sub-twelve milliseconds.
+00:04:45,500 --> 00:04:51,500
+Providing regulators and institutions with explainable,
+real-time governance across India.
 
 39
-00:05:16,750 --> 00:05:25,122
-Under the hood, VidyaDwaar continuously safeguards the integrity of admissions across state lines.
+00:04:52,000 --> 00:04:59,500
+VidyaDwaar — Making Academic Records More Reliable,
+Verifiable and Transparent.
 
-40
-00:05:25,222 --> 00:05:33,595
-Through blind HMAC pseudonymization, our cross-institution duplicate radar detects dual enrolments and illegal multi-college seat blocking without centralizing raw identifiers.
-
-41
-00:05:33,695 --> 00:05:42,067
-When an anomaly occurs—such as a student enrolled simultaneously in two full-time degree programs—the system flags an E203 duplicate dispute for regulatory resolution,
-
-42
-00:05:42,168 --> 00:05:50,540
-stopping fraudulent scholarship claims while safeguarding student data privacy.
-
-43
-00:05:50,640 --> 00:05:58,958
-At the central regulatory level, the AICTE National Monitoring Cell accesses macro-level analytics across participating states.
-
-44
-00:05:59,058 --> 00:06:07,375
-Regulatory officers monitor real-time ingestion health, data quality scorecards, seat utilization percentiles, and regional compliance trends.
-
-45
-00:06:07,475 --> 00:06:15,793
-High-risk outliers, intake breaches, and cross-state overlaps are automatically highlighted in regulatory audit queues,
-
-46
-00:06:15,893 --> 00:06:24,210
-allowing officers to take targeted statutory action rather than conducting slow, retrospective manual inspections.
-
-47
-00:06:24,310 --> 00:06:34,218
-VidyaDwaar's technical architecture is built for national scale and sovereign security.
-
-48
-00:06:34,318 --> 00:06:44,225
-It combines a robust Python FastAPI backend with PostgreSQL, high-performance Vite React frontend, and modern cryptography.
-
-49
-00:06:44,325 --> 00:06:54,233
-The identity layer leverages W3C Verifiable Credentials 2.0 with Ed25519 signatures, RFC 9457 problem details, and W3C Bitstring Status Lists for instant credential revocation.
-
-50
-00:06:54,333 --> 00:07:04,240
-Our zero-honeypot design ensures that PII is never exposed to external verifiers, fulfilling the highest standards of the DPDP Act.
-
-51
-00:07:04,340 --> 00:07:10,682
-In conclusion, VidyaDwaar delivers a transformative solution for Indian higher education.
-
-52
-00:07:10,782 --> 00:07:17,124
-For students, it provides permanent, self-sovereign ownership of their academic achievements.
-
-53
-00:07:17,224 --> 00:07:23,566
-For institutions, it streamlines regulatory compliance and automated seat management.
-
-54
-00:07:23,666 --> 00:07:30,008
-For AICTE and universities, it establishes an unforgeable, transparent record of national educational truth.
-
-55
-00:07:30,108 --> 00:07:36,450
-Thank you for evaluating VidyaDwaar—empowering education through verified integrity for the Smart India Hackathon.
